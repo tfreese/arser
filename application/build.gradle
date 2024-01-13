@@ -1,0 +1,131 @@
+plugins {
+    id "java"
+}
+
+clean {
+    doFirst {
+        Directory dirApp = layout.projectDirectory.dir("app")
+
+        if (dirApp.getAsFile().exists()) {
+            println("delete " + dirApp)
+//        delete fileTree(dirApp).include("**/*")
+            delete dirApp
+        }
+    }
+}
+
+dependencies {
+    implementation(project(":core"))
+
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
+}
+
+jar {
+    enabled = false
+}
+
+tasks.register("buildApp") {
+    group = "Arser"
+
+    doLast {
+        println("build " + project.name)
+
+        Directory appFolder = layout.projectDirectory.dir("app")
+
+        mkdir appFolder.dir("logs")
+
+        CopySpec binSpec = copySpec {
+            from(layout.projectDirectory.dir("service").file("arser.sh"))
+            into("bin")
+        }
+        CopySpec libSpec = copySpec {
+            from(configurations.runtimeClasspath)
+            into("libs")
+        }
+        CopySpec resSpec = copySpec {
+            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
+                include "log4j2.xml"
+                include "arser-config.xml"
+            }
+            into("resources")
+        }
+        copy {
+            into appFolder
+            with(binSpec, libSpec, resSpec)
+        }
+
+//        copy {
+//            from(layout.projectDirectory.dir("service").file("arser.sh"))
+//            into(appFolder.dir("bin"))
+//        }
+//        copy {
+//            from(configurations.runtimeClasspath)
+//            into(appFolder.dir("libs"))
+//        }
+//        copy {
+//            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
+//                include "log4j2.xml"
+//                include "arser-config.xml"
+//            }
+//            into(appFolder.dir("resources"))
+//        }
+    }
+}
+
+tasks.register("deployApp") {
+    group = "Arser"
+
+    doLast {
+        println("deploy " + project.name)
+
+        ant.lifecycleLogLevel = "INFO"
+
+        Directory appFolder = layout.projectDirectory.dir("app")
+        String remoteFolder = "/opt/jvmapps/arser"
+
+        ant.sync(todir: remoteFolder + "/bin", overwrite: true, verbose: true) {
+            fileset(dir: appFolder.dir("bin"))
+        }
+
+        ant.sync(todir: remoteFolder + "/libs", overwrite: true, verbose: true) {
+            fileset(dir: appFolder.dir("libs"))
+        }
+
+        ant.sync(todir: remoteFolder + "/resources", overwrite: true, verbose: true) {
+            fileset(dir: appFolder.dir("resources"))
+        }
+
+        ant.mkdir(dir: remoteFolder + "/logs")
+
+        // Funktioniert nicht, wegen Fehler: "Could not find method from() for arguments ..."
+//        sync {
+//            from appFolder.dir("resources")
+//            into remoteFolder + "/resources"
+//            preserve {
+//                include 'extraDir/**'
+//                include 'dir1/**'
+//                exclude 'dir1/extra.txt'
+//            }
+//        }
+    }
+}
+
+//tasks.register("buildDeploy") {
+//    group = "Arser"
+//
+//    doLast {
+//        tasks.buildApp.execute()
+//    }
+//}
+
+//tasks.register("deleteAppFolder", Delete) {
+//    description "Delete app-Folder."
+//    group = "Maintenance"
+//
+//    logger.lifecycle "delete app-Folder: ${projectDir}/app"
+//
+//    delete fileTree("app") {
+//        include "**/*.*"
+//    }
+//}
+//clean.finalizedBy("deleteAppFolder")

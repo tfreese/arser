@@ -1,0 +1,17 @@
+// Can not be configured by Conventions-Plugin.
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+// Without rootProject.name the Name of the Projekt-Directory is used.
+//rootProject.name = "base"
+
+include "blobstore-api"
+include "configuration"
+include "core"
+include "ide"
+include "application"

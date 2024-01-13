@@ -1,0 +1,58 @@
+[Unit]
+Description=arser
+After=syslog.target network-online.target
+
+[Service]
+# useradd --system --no-create-home --shell=/usr/bin/nologin jvmapps
+# Gruppe jvmapps wird automatisch angelegt.
+# User testen
+#  - sudo -u jvmapps whoami
+#  - id jvmapps
+
+User=jvmapps
+Group=jvmapps
+
+Type=simple
+
+# The configuration file application.properties should be here:
+WorkingDirectory=/opt/jvmapps/arser/
+
+# journalctl -u arser.service -f
+# journalctl -u arser.service -r
+SyslogIdentifier=arser
+StandardOutput=journal
+StandardError=journal
+
+# When a JVM receives a SIGINT signal it exits with code 130
+KillSignal=SIGTERM
+SuccessExitStatus=143
+Restart=no
+#Restart=on-failure
+#RestartSec=5
+
+PIDFile=/opt/jvmapps/arser/arser.pid
+
+# Run ExecStartPre with root-permissions
+# + = root-permissions
+#ExecStartPre=+/bin/mkdir -p /opt/jvmapps/arser/repository
+#ExecStartPre=+/bin/chown -R jvmapps:jvmapps /opt/jvmapps/arser/repository
+#ExecStartPre=+/bin/chmod -R 775 /opt/jvmapps/arser/repository
+
+# ExecStart=${JAVA_HOME}/bin/java -jar javaapp.jar
+# ExecStart=/bin/bash -c "java ..."
+
+# Beim FileCache in FileRepository#getInputStream NICHT ALLES lokal speichern, z.B. maven-metadata.xml !
+# -Darser.fileCache=/opt/jvmapps/arser/repository \
+ExecStart=/usr/bin/java \
+ -Darser.port=7999 \
+ -Xms32m \
+ -Xmx64m \
+ -XX:TieredStopAtLevel=1 \
+ -Djava.security.egd=file:/dev/./urandom \
+ -jar arser.jar
+
+# ExecStop=/bin/kill -15 $MAINPID
+# ExecReload = /usr/local/bin/Service_Name.sh reload
+
+[Install]
+WantedBy=multi-user.target
