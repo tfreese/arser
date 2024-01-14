@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.freese.arser.config.ClientConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
-import de.freese.arser.core.utils.MavenProxyThreadFactory;
+import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ProxyUtils;
 
 /**
@@ -48,7 +48,7 @@ public class JreHttpClientComponent extends AbstractLifecycle {
         final String threadNamePattern = clientConfig.getThreadNamePattern();
 
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-                new MavenProxyThreadFactory(threadNamePattern));
+                new ArserThreadFactory(threadNamePattern));
 
         // @formatter:off
         final HttpClient.Builder builder = HttpClient.newBuilder()

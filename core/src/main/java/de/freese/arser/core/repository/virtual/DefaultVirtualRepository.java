@@ -2,7 +2,6 @@
 package de.freese.arser.core.repository.virtual;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.freese.arser.core.repository.AbstractRepository;
@@ -21,12 +20,14 @@ public class DefaultVirtualRepository extends AbstractRepository {
         super(name, URI.create("virtual"));
     }
 
-    public DefaultVirtualRepository add(final Repository repository) {
+    public void add(final Repository repository) {
         checkNotNull(repository, "Repository");
 
-        addRepository(repository);
+        final boolean added = repositories.addIfAbsent(repository);
 
-        return this;
+        if (added) {
+            getLogger().trace("Added: {}", repository);
+        }
     }
 
     @Override
@@ -35,14 +36,14 @@ public class DefaultVirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final URI resource) throws Exception {
+    protected boolean doExist(final URI resource) {
         boolean exist = false;
 
-        for (Repository repository : getRepositories()) {
+        for (final Repository repository : repositories) {
             try {
                 exist = repository.exist(resource);
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
@@ -55,14 +56,14 @@ public class DefaultVirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected RepositoryResponse doGetInputStream(final URI resource) throws Exception {
+    protected RepositoryResponse doGetInputStream(final URI resource) {
         RepositoryResponse response = null;
 
-        for (Repository repository : getRepositories()) {
+        for (final Repository repository : repositories) {
             try {
                 response = repository.getInputStream(resource);
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
@@ -72,17 +73,5 @@ public class DefaultVirtualRepository extends AbstractRepository {
         }
 
         return response;
-    }
-
-    private void addRepository(final Repository repository) {
-        final boolean added = repositories.addIfAbsent(repository);
-
-        if (added) {
-            getLogger().trace("Added: {}", repository);
-        }
-    }
-
-    private List<Repository> getRepositories() {
-        return repositories;
     }
 }

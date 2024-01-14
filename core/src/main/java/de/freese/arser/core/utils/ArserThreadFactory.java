@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Thomas Freese
  */
-public class MavenProxyThreadFactory implements ThreadFactory {
+public class ArserThreadFactory implements ThreadFactory {
 
     private final boolean daemon;
     private final ThreadFactory defaultThreadFactory = Executors.defaultThreadFactory();
@@ -24,14 +24,14 @@ public class MavenProxyThreadFactory implements ThreadFactory {
      *
      * @param namePattern String; Example: "thread-%d"
      */
-    public MavenProxyThreadFactory(final String namePattern) {
+    public ArserThreadFactory(final String namePattern) {
         this(namePattern, true);
     }
 
     /**
      * @param namePattern String; Example: "thread-%d"
      */
-    public MavenProxyThreadFactory(final String namePattern, final boolean daemon) {
+    public ArserThreadFactory(final String namePattern, final boolean daemon) {
         super();
 
         this.namePattern = Objects.requireNonNull(namePattern, "namePattern required");

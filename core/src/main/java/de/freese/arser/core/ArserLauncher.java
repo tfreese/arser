@@ -25,9 +25,8 @@ import de.freese.arser.config.Repositories;
 import de.freese.arser.core.component.JreHttpClientComponent;
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.RepositoryManager;
-import de.freese.arser.core.server.ProxyServer;
+import de.freese.arser.core.server.ArserServer;
 import de.freese.arser.core.server.jre.JreHttpServer;
-import de.freese.arser.core.utils.ProxyUtils;
 
 /**
  * @author Thomas Freese
@@ -38,8 +37,10 @@ public final class ArserLauncher {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserLauncher.class);
 
     public static void main(final String[] args) throws Exception {
-        LOGGER.info("Working Directory: {}", System.getProperty("user.dir"));
-        LOGGER.info("Process User: {}", System.getProperty("user.name"));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Working Directory: {}", System.getProperty("user.dir"));
+            LOGGER.info("Process User: {}", System.getProperty("user.name"));
+        }
 
         // Redirect Java-Util-Logger to Slf4J.
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -52,12 +53,6 @@ public final class ArserLauncher {
 
         final URI configUri = findConfigFile(args);
 
-        //        if (!Files.exists(Paths.get(configUri))) {
-        //            LOGGER.error("arser config file not exist: {}", configUri);
-        //            return;
-        //        }
-
-        ProxyUtils.getDefaultClassLoader();
         final URL url = ClassLoader.getSystemResource("xsd/arser-config.xsd");
         LOGGER.info("XSD-Url: {}", url);
         final Source schemaFile = new StreamSource(url.openStream());
@@ -88,20 +83,31 @@ public final class ArserLauncher {
         final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(applicationConfig.getClientConfig());
         lifecycleManager.add(httpClientComponent);
 
-        final RepositoryManager repositoryManager = new RepositoryManager();
+        final RepositoryManager repositoryManager = new RepositoryManager(lifecycleManager);
         final Repositories repositories = applicationConfig.getRepositories();
 
         // LocalRepository
-        repositories.getLocals().forEach(localRepoConfig -> RepositoryBuilder.buildLocal(localRepoConfig, lifecycleManager, repositoryManager));
+        repositories.getLocals().forEach(localRepoConfig -> repositoryManager.addLocal(configurer -> {
+            configurer.setName(localRepoConfig.getName());
+            configurer.setUri(URI.create(localRepoConfig.getPath()));
+            configurer.setWriteable(localRepoConfig.isWriteable());
+        }));
 
         // RemoteRepository
-        repositories.getRemotes().forEach(remoteRepoConfig -> RepositoryBuilder.buildRemote(remoteRepoConfig, lifecycleManager, repositoryManager, httpClientComponent));
+        repositories.getRemotes().forEach(remoteRepoConfig -> repositoryManager.addRemote(configurer -> {
+            configurer.setName(remoteRepoConfig.getName());
+            configurer.setUri(URI.create(remoteRepoConfig.getUri()));
+            configurer.setStoreConfig(remoteRepoConfig.getStoreConfig());
+        }, httpClientComponent));
 
         // VirtualRepository
-        repositories.getVirtuals().forEach(virtualRepoConfig -> RepositoryBuilder.buildVirtual(virtualRepoConfig, lifecycleManager, repositoryManager));
+        repositories.getVirtuals().forEach(virtualRepoConfig -> repositoryManager.addVirtual(configurer -> {
+            configurer.setName(virtualRepoConfig.getName());
+            configurer.setRepositoryNames(virtualRepoConfig.getRepositoryNames());
+        }));
 
         // Server at last
-        final ProxyServer proxyServer = new JreHttpServer().setConfig(applicationConfig.getServerConfig());
+        final ArserServer proxyServer = new JreHttpServer().setConfig(applicationConfig.getServerConfig());
         repositoryManager.getRepositories().forEach(repo -> proxyServer.addContextRoot(repo.getName(), repo));
         lifecycleManager.add(proxyServer);
 
@@ -109,7 +115,7 @@ public final class ArserLauncher {
             try {
                 lifecycleManager.stop();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 LOGGER.error(ex.getMessage(), ex);
             }
         }, "Shutdown"));
@@ -117,7 +123,7 @@ public final class ArserLauncher {
         try {
             lifecycleManager.start();
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
 
             System.exit(-1);
@@ -147,7 +153,6 @@ public final class ArserLauncher {
             return Paths.get(envValue).toUri();
         }
 
-        ProxyUtils.getDefaultClassLoader();
         final URL url = ClassLoader.getSystemResource("arser-config.xml");
 
         if (url != null) {

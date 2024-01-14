@@ -45,8 +45,15 @@ public class RepositoryResponse {
     }
 
     public long transferTo(final OutputStream outputStream) throws IOException {
-        try (InputStream is = new BufferedInputStream(getInputStream())) {
-            return is.transferTo(outputStream);
+        if (getInputStream() instanceof BufferedInputStream) {
+            try (InputStream is = getInputStream()) {
+                return is.transferTo(outputStream);
+            }
+        }
+        else {
+            try (InputStream is = new BufferedInputStream(getInputStream())) {
+                return is.transferTo(outputStream);
+            }
         }
     }
 }

@@ -25,7 +25,7 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final URI resource) throws Exception {
+    protected boolean doExist(final URI resource) {
         final Path path = toPath(resource);
 
         final boolean exist = Files.exists(path);

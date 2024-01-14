@@ -28,11 +28,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import de.freese.arser.blobstore.empty.EmptyBlobStore;
 import de.freese.arser.blobstore.file.FileBlobStore;
 import de.freese.arser.blobstore.jdbc.JdbcBlobStore;
 import de.freese.arser.blobstore.memory.MemoryBlobStore;
@@ -63,7 +65,7 @@ class TestBlobStore {
             }
         });
 
-        for (DataSource dataSource : List.of(dataSourceH2, dataSourceHsqldb, dataSourceDerby)) {
+        for (final DataSource dataSource : List.of(dataSourceH2, dataSourceHsqldb, dataSourceDerby)) {
             if (dataSource instanceof AutoCloseable ac) {
                 ac.close();
             }
@@ -139,6 +141,34 @@ class TestBlobStore {
         // Empty
     }
 
+    @Test
+    void testEmpty() throws Exception {
+        final BlobStore blobStore = new EmptyBlobStore();
+        assertEquals("empty", blobStore.getUri().toString());
+
+        final URI uri = URI.create("not_existing");
+        final BlobId blobId = new BlobId(uri);
+        assertFalse(blobStore.exists(blobId));
+
+        final Blob blob = blobStore.get(blobId);
+        assertNotNull(blob);
+        assertEquals("empty", blob.getId().getUri().toString());
+        assertEquals(-1, blob.getLength());
+
+        try (InputStream inputStream = blob.getInputStream()) {
+            inputStream.transferTo(OutputStream.nullOutputStream());
+        }
+
+        try (InputStream inputStream = InputStream.nullInputStream()) {
+            blobStore.create(blobId, inputStream);
+        }
+
+        try (InputStream inputStream = InputStream.nullInputStream();
+             OutputStream outputStream = blobStore.create(blobId)) {
+            inputStream.transferTo(outputStream);
+        }
+    }
+
     @ParameterizedTest(name = "{index} -> {0}")
     @MethodSource("createArgumentes")
     void testInputStream(final String name, final BlobStore blobStore) throws Exception {
@@ -170,7 +200,7 @@ class TestBlobStore {
             dsBs.createDatabaseIfNotExist();
         }
 
-        final URI uri = URI.create("file:///not_existing");
+        final URI uri = URI.create("not_existing");
         final BlobId blobId = new BlobId(uri);
         assertFalse(blobStore.exists(blobId));
 

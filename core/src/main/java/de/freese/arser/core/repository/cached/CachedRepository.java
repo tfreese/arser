@@ -16,12 +16,11 @@ import de.freese.arser.core.utils.ProxyUtils;
  * @author Thomas Freese
  */
 public class CachedRepository extends AbstractRepository {
-
     private final BlobStore blobStore;
     private final Repository delegate;
 
     public CachedRepository(final Repository delegate, final BlobStore blobStore) {
-        super(delegate.getName(), delegate.getUri());
+        super(delegate.getName(), URI.create("cached"));
 
         this.delegate = checkNotNull(delegate, "Repository");
         this.blobStore = checkNotNull(blobStore, "BlobStore");
@@ -45,13 +44,12 @@ public class CachedRepository extends AbstractRepository {
 
             return true;
         }
-        else {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("exist - not found: {}", resource);
-            }
 
-            return this.delegate.exist(resource);
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("exist - not found: {}", resource);
         }
+
+        return this.delegate.exist(resource);
     }
 
     @Override
@@ -72,20 +70,19 @@ public class CachedRepository extends AbstractRepository {
 
             return new RepositoryResponse(resource, blob.getLength(), blob.getInputStream());
         }
-        else {
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("getInputStream - not found: {}", resource);
+        }
+
+        final RepositoryResponse response = this.delegate.getInputStream(resource);
+
+        if (response != null) {
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("getInputStream - not found: {}", resource);
+                getLogger().debug("Download {} Bytes [{}]: {} ", response.getContentLength(), ProxyUtils.toHumanReadable(response.getContentLength()), response.getUri());
             }
 
-            final RepositoryResponse response = this.delegate.getInputStream(resource);
-
-            if (response != null) {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Download {} Bytes [{}]: {} ", response.getContentLength(), ProxyUtils.toHumanReadable(response.getContentLength()), response.getUri());
-                }
-
-                return new CachedRepositoryResponse(response, blobId, getBlobStore());
-            }
+            return new CachedRepositoryResponse(response, blobId, getBlobStore());
         }
 
         return null;

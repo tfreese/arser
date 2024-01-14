@@ -18,6 +18,10 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     protected AbstractRepository(final String name, final URI uri) {
         super();
 
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("name is empty");
+        }
+
         this.name = checkNotNull(name, "Name");
         this.uri = checkNotNull(uri, "URI");
     }
@@ -56,11 +60,6 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
-    public URI getUri() {
-        return uri;
-    }
-
-    @Override
     public boolean supports(final HttpMethod httpMethod) {
         return false;
     }
@@ -90,5 +89,9 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     protected void doWrite(final URI resource, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
+    }
+
+    protected URI getUri() {
+        return uri;
     }
 }

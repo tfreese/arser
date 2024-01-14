@@ -67,7 +67,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="url">
+            <xs:element name="uri">
                 <xs:simpleType>
                     <xs:restriction base="xs:anyURI">
                         <xs:minLength value="10" />
@@ -92,7 +92,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="RemoteUri">
+    <xs:simpleType name="WebUri">
         <xs:annotation>
             <xs:documentation source="description">http://*, https://</xs:documentation>
         </xs:annotation>
@@ -103,12 +103,22 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="RepoName">
+        <xs:annotation>
+            <xs:documentation source="description">Name of a Repository</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:normalizedString">
+            <xs:minLength value="5" />
+            <xs:pattern value="([a-z0-9\-_])+" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="LocalRepoConfig">
         <xs:annotation>
             <xs:documentation source="description">Local file Repository [file://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="name" type="xs:normalizedString" />
+            <xs:element name="name" type="RepoName" />
             <xs:element name="path" type="FileUri" />
         </xs:sequence>
         <xs:attribute name="writeable" type="xs:boolean" default="false">
@@ -123,9 +133,9 @@
             <xs:documentation source="description">Remote Repository [http://*,https://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="name" type="xs:normalizedString" />
-            <xs:element name="url" type="RemoteUri" />
-            <xs:element name="store" type="StoreConfig" minOccurs="0" />
+            <xs:element name="name" type="RepoName" />
+            <xs:element name="uri" type="WebUri" />
+            <xs:element name="storeConfig" type="StoreConfig" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
 
@@ -137,7 +147,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="name" type="xs:normalizedString" />
+            <xs:element name="name" type="RepoName" />
             <xs:element name="repository-name" type="xs:normalizedString" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>

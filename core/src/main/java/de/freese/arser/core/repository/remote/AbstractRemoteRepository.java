@@ -47,6 +47,7 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
             final String msg = "HTTP or HTTPS protocol required: " + scheme;
 
             getLogger().error(msg);
+            
             throw new IllegalArgumentException(msg);
         }
     }

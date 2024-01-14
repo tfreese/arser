@@ -11,8 +11,9 @@ configurations {
 //}
 
 dependencies {
-    jaxb "com.sun.xml.bind:jaxb-xjc"
     jaxb "com.sun.xml.bind:jaxb-impl"
+    jaxb "com.sun.xml.bind:jaxb-xjc" // xsd -> java
+    jaxb "com.sun.xml.bind:jaxb-jxc" // java -> xsd
 
 //    compile(files(genJaxb.classesDir).builtBy(genJaxb))
 
@@ -22,7 +23,7 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir(layout.buildDirectory.get().dir("generated-sources").dir("jaxb"))
+            srcDir(layout.buildDirectory.get().dir("generated").dir("jaxb"))
         }
     }
 
@@ -48,7 +49,7 @@ tasks.register("genJaxb") {
     def binding = resourcesDir.file("schema.xjb")
     inputs.file binding
 
-    def destDir = layout.buildDirectory.get().dir("generated-sources").dir("jaxb")
+    def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
     outputs.dir destDir
 
     doLast {
@@ -67,6 +68,15 @@ tasks.register("genJaxb") {
                 arg(value: "-npa")
                 //schema(dir: destDir, includes: "*.xsd")
             }
+
+//            taskdef name: "jxc", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.jaxb.asPath
+//
+//            jxc(srcdir: destDir,
+//                    destdir: layout.buildDirectory.get(),
+//                    includeAntRuntime: "false",
+//                    verbose: false) {
+//                //schema(file: "CustomSchema.xsd", namespace: "")
+//            }
         }
     }
 }

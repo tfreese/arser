@@ -16,9 +16,9 @@ import de.freese.arser.blobstore.api.BlobId;
  * @author Thomas Freese
  */
 public class MemoryBlobStore extends AbstractBlobStore {
+    private static final URI MEMORY_URI = URI.create("memory");
 
     private final Map<BlobId, byte[]> cache = new HashMap<>();
-    private final URI uri = URI.create("memory");
 
     @Override
     public OutputStream create(final BlobId id) throws Exception {
@@ -55,7 +55,7 @@ public class MemoryBlobStore extends AbstractBlobStore {
 
     @Override
     public URI getUri() {
-        return this.uri;
+        return MEMORY_URI;
     }
 
     @Override

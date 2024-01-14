@@ -12,14 +12,14 @@ import java.util.concurrent.TimeUnit;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
-import de.freese.arser.core.server.AbstractProxyServer;
-import de.freese.arser.core.utils.MavenProxyThreadFactory;
+import de.freese.arser.core.server.AbstractArserServer;
+import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ProxyUtils;
 
 /**
  * @author Thomas Freese
  */
-public class JreHttpServer extends AbstractProxyServer {
+public class JreHttpServer extends AbstractArserServer {
 
     private final List<HttpContext> httpContexts = new ArrayList<>();
 
@@ -36,15 +36,15 @@ public class JreHttpServer extends AbstractProxyServer {
         final String threadNamePattern = getServerConfig().getThreadNamePattern();
 
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-                new MavenProxyThreadFactory(threadNamePattern));
+                new ArserThreadFactory(threadNamePattern));
 
         this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         this.httpServer.setExecutor(executorService);
 
         getContextRoots().forEach((contextRoot, repository) -> {
-            final String path = contextRoot.startsWith("/") ? contextRoot : "/" + contextRoot;
+            final String path = contextRoot.startsWith("/") ? contextRoot : ("/" + contextRoot);
 
-            getLogger().info("add contextRoot '{}' for {}", path, repository.getClass().getSimpleName());
+            getLogger().info("add contextRoot '{}' for {}/{}", path, repository.getName(), repository.getClass().getSimpleName());
 
             final HttpContext httpContext = this.httpServer.createContext(path, new JreHttpServerHandler(repository));
             httpContexts.add(httpContext);

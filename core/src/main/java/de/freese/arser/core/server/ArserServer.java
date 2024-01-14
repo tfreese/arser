@@ -8,9 +8,8 @@ import de.freese.arser.core.repository.Repository;
 /**
  * @author Thomas Freese
  */
-public interface ProxyServer extends Lifecycle {
+public interface ArserServer extends Lifecycle {
+    ArserServer addContextRoot(String contextRoot, Repository repository);
 
-    ProxyServer addContextRoot(String contextRoot, Repository repository);
-
-    ProxyServer setConfig(ServerConfig serverConfig);
+    ArserServer setConfig(ServerConfig serverConfig);
 }

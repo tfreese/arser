@@ -11,14 +11,14 @@ import de.freese.arser.core.repository.Repository;
 /**
  * @author Thomas Freese
  */
-public abstract class AbstractProxyServer extends AbstractLifecycle implements ProxyServer {
+public abstract class AbstractArserServer extends AbstractLifecycle implements ArserServer {
 
     private final Map<String, Repository> contextRoots = new LinkedHashMap<>();
 
     private ServerConfig serverConfig;
 
     @Override
-    public ProxyServer addContextRoot(final String contextRoot, final Repository repository) {
+    public ArserServer addContextRoot(final String contextRoot, final Repository repository) {
         checkNotNull(contextRoot, "ContextRoot");
         checkNotNull(repository, "Repository");
 
@@ -32,7 +32,7 @@ public abstract class AbstractProxyServer extends AbstractLifecycle implements P
     }
 
     @Override
-    public ProxyServer setConfig(final ServerConfig serverConfig) {
+    public ArserServer setConfig(final ServerConfig serverConfig) {
         this.serverConfig = serverConfig;
 
         return this;
@@ -53,9 +53,9 @@ public abstract class AbstractProxyServer extends AbstractLifecycle implements P
         super.doStart();
 
         checkNotNull(serverConfig, "ServerConfig");
-        checkValue(serverConfig.getPort(), value -> value <= 0 ? "Port has invalid range: " + value : null);
-        checkValue(serverConfig.getThreadPoolCoreSize(), value -> value <= 0 ? "ThreadPoolCoreSize has invalid range: " + value : null);
-        checkValue(serverConfig.getThreadPoolMaxSize(), value -> value <= 0 ? "ThreadPoolMaxSize has invalid range: " + value : null);
+        checkValue(serverConfig.getPort(), value -> value <= 0 ? ("Port has invalid range: " + value) : null);
+        checkValue(serverConfig.getThreadPoolCoreSize(), value -> value <= 0 ? ("ThreadPoolCoreSize has invalid range: " + value) : null);
+        checkValue(serverConfig.getThreadPoolMaxSize(), value -> value <= 0 ? ("ThreadPoolMaxSize has invalid range: " + value) : null);
         checkNotNull(serverConfig.getThreadNamePattern(), "ThreadNamePattern");
         checkValue(contextRoots, value -> value.isEmpty() ? "ContextRoots are not defined" : null);
     }

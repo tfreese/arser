@@ -38,7 +38,7 @@ public class DatasourceComponent extends AbstractLifecycle {
     public String toString() {
         final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(" [");
-        sb.append("url=").append(storeConfig.getUrl());
+        sb.append("uri=").append(storeConfig.getUri());
         sb.append(']');
 
         return sb.toString();
@@ -50,13 +50,13 @@ public class DatasourceComponent extends AbstractLifecycle {
 
         checkNotNull(storeConfig, "StoreConfig");
         checkNotNull(storeConfig.getDriverClassName(), "DriverClassName");
-        checkNotNull(storeConfig.getUrl(), "Url");
+        checkNotNull(storeConfig.getUri(), "Uri");
         checkValue(storeConfig.getPoolCoreSize(), value -> value <= 0 ? ("PoolCoreSize has invalid range: " + value) : null);
         checkValue(storeConfig.getPoolMaxSize(), value -> value <= 0 ? ("PoolMaxSize has invalid range: " + value) : null);
 
         final HikariConfig config = new HikariConfig();
         config.setDriverClassName(storeConfig.getDriverClassName());
-        config.setJdbcUrl(storeConfig.getUrl());
+        config.setJdbcUrl(storeConfig.getUri());
         config.setUsername(storeConfig.getUser());
         config.setPassword(storeConfig.getPassword());
         config.setMinimumIdle(storeConfig.getPoolCoreSize());

@@ -17,7 +17,6 @@ import de.freese.arser.core.utils.HttpMethod;
  * @author Thomas Freese
  */
 public class BlobStoreRepository extends AbstractRepository {
-
     private static final Pattern PATTERN_SNAPSHOT_TIMESTAMP = Pattern.compile("\\d{8}\\.\\d{6}-\\d{1,}");
 
     private final BlobStore blobStore;

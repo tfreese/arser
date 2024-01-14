@@ -2,8 +2,8 @@
 
 <!-- https://www.w3schools.com/xml/schema_intro.asp -->
 
-<!--<proxy-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="proxy-config.xsd">-->
-
+<!--<proxy-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="arser-config.xsd">-->
+<!-- xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd" -->
 <application-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://github.com/tfreese/arser/config"
                     xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd">
 
@@ -23,32 +23,32 @@
     <repositories>
         <remote>
             <name>maven-central</name>
-            <url>https://repo1.maven.org/maven2</url>
+            <uri>https://repo1.maven.org/maven2</uri>
         </remote>
         <!--        <remote>-->
         <!--            <name>spring-release</name>-->
-        <!--            <url>https://repo.spring.io/release</url>-->
+        <!--            <uri>https://repo.spring.io/release</uri>-->
         <!--        </remote>-->
         <remote>
             <name>primefaces</name>
-            <url>https://repository.primefaces.org</url>
-            <!--            <store>-->
+            <uri>https://repository.primefaces.org</uri>
+            <!--            <storeConfig>-->
             <!--                <type>file</type>-->
-            <!--                <url>file:///tmp/arser/cache/primefaces</url>-->
-            <!--            </store>-->
+            <!--                <uri>file:///tmp/arser/cache/primefaces</uri>-->
+            <!--            </storeConfig>-->
         </remote>
         <remote>
             <name>gradle-releases</name>
-            <url>https://repo.gradle.org/gradle/libs-releases</url>
-            <store>
+            <uri>https://repo.gradle.org/gradle/libs-releases</uri>
+            <storeConfig>
                 <type>jdbc</type>
-                <url>jdbc:hsqldb:file:/opt/jvmapps/arser/database/gradle-releases/gradle-releases;shutdown=true</url>
+                <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/gradle-releases/gradle-releases;shutdown=true</uri>
                 <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName>
                 <user>sa</user>
                 <password></password>
                 <pool-core-size>2</pool-core-size>
                 <pool-max-size>6</pool-max-size>
-            </store>
+            </storeConfig>
         </remote>
         <local>
             <name>third-party</name>
@@ -69,7 +69,7 @@
         <virtual>
             <name>public</name>
             <repository-name>maven-central</repository-name>
-            <!--            <repository-name>spring-release</repository-name>-->
+            <!--            <repository-mame>spring-release</repository-mame>-->
             <repository-name>primefaces</repository-name>
             <repository-name>gradle-releases</repository-name>
             <repository-name>third-party</repository-name>

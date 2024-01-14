@@ -21,11 +21,7 @@ public interface Repository extends Lifecycle {
      */
     String getName();
 
-    URI getUri();
-
     boolean supports(HttpMethod httpMethod);
 
-    default void write(URI resource, InputStream inputStream) throws Exception {
-        throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
-    }
+    void write(URI resource, InputStream inputStream) throws Exception;
 }
