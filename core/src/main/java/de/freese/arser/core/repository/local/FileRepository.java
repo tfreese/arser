@@ -1,6 +1,9 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository.local;
 
+import java.io.BufferedOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,13 +17,24 @@ import de.freese.arser.core.utils.HttpMethod;
  * @author Thomas Freese
  */
 public class FileRepository extends AbstractRepository {
+    private final boolean writeable;
 
     public FileRepository(final String name, final URI uri) {
+        this(name, uri, false);
+    }
+
+    public FileRepository(final String name, final URI uri, final boolean writeable) {
         super(name, uri);
+
+        this.writeable = writeable;
     }
 
     @Override
     public boolean supports(final HttpMethod httpMethod) {
+        if (writeable) {
+            return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod) || HttpMethod.PUT.equals(httpMethod);
+        }
+
         return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod);
     }
 
@@ -73,6 +87,21 @@ public class FileRepository extends AbstractRepository {
 
         if (!Files.isReadable(path)) {
             throw new IllegalStateException("path not readable: " + path);
+        }
+    }
+
+    @Override
+    protected void doWrite(final URI resource, final InputStream inputStream) throws Exception {
+        final Path path = toPath(resource);
+
+        if (!Files.exists(path.getParent())) {
+            Files.createDirectories(path.getParent());
+        }
+
+        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(path))) {
+            inputStream.transferTo(outputStream);
+
+            outputStream.flush();
         }
     }
 
