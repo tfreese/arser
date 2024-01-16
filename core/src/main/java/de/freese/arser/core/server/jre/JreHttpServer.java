@@ -2,14 +2,11 @@
 package de.freese.arser.core.server.jre;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
 import de.freese.arser.core.server.AbstractArserServer;
@@ -21,7 +18,7 @@ import de.freese.arser.core.utils.ProxyUtils;
  */
 public class JreHttpServer extends AbstractArserServer {
 
-    private final List<HttpContext> httpContexts = new ArrayList<>();
+    //    private final List<HttpContext> httpContexts = new ArrayList<>();
 
     private ExecutorService executorService;
     private HttpServer httpServer;
@@ -46,9 +43,13 @@ public class JreHttpServer extends AbstractArserServer {
 
             getLogger().info("add contextRoot '{}' for {}/{}", path, repository.getName(), repository.getClass().getSimpleName());
 
-            final HttpContext httpContext = this.httpServer.createContext(path, new JreHttpServerHandler(repository));
-            httpContexts.add(httpContext);
+            this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
+
+            //            final HttpContext httpContext = this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
+            //            httpContexts.add(httpContext);
         });
+
+        //        this.httpServer.createContext("/", new JreHttpServerHandler(getContextRoots()));
 
         this.httpServer.start();
         //        new Thread(this.httpServer::start, "arser").start();
@@ -58,7 +59,7 @@ public class JreHttpServer extends AbstractArserServer {
     protected void doStop() throws Exception {
         super.doStop();
 
-        this.httpContexts.clear();
+        //        this.httpContexts.clear();
         this.httpServer.stop(3);
 
         ProxyUtils.shutdown(this.executorService, getLogger());

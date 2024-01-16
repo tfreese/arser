@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
  */
 public final class Misc {
     public static void main(final String[] args) throws Exception {
-        //        testUrl();
-        removeSnapshotTimestamp();
+        testUrl();
+        //        removeSnapshotTimestamp();
     }
 
     private static void removeSnapshotTimestamp() throws Exception {
@@ -32,6 +32,8 @@ public final class Misc {
 
         System.out.println(uri.relativize(URI.create(relative)));
         System.out.println(uri.resolve(URI.create(relative)));
+        System.out.println(uri.resolve(relative));
+
         System.out.println(uri.resolve(relative));
     }
 
