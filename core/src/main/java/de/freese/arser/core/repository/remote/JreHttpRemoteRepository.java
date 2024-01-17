@@ -9,7 +9,7 @@ import java.net.http.HttpResponse;
 import java.util.function.Supplier;
 
 import de.freese.arser.core.repository.RepositoryResponse;
-import de.freese.arser.core.utils.ProxyUtils;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
@@ -31,7 +31,7 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
         // @formatter:off
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
-                .header(ProxyUtils.HTTP_HEADER_USER_AGENT, "ARtifact-SERver")
+                .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .method("HEAD", HttpRequest.BodyPublishers.noBody())
                 .build()
                 ;
@@ -47,7 +47,7 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
             getLogger().debug("exist - Response: {}", response);
         }
 
-        return response.statusCode() == ProxyUtils.HTTP_OK;
+        return response.statusCode() == ArserUtils.HTTP_OK;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
         // @formatter:off
         final HttpRequest request = HttpRequest.newBuilder()
                 .uri(uri)
-                .header(ProxyUtils.HTTP_HEADER_USER_AGENT, "ARtifact-SERver")
+                .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .GET()
                 .build()
                 ;
@@ -73,11 +73,11 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
             getLogger().debug("getInputStream - Response: {}", response);
         }
 
-        if (response.statusCode() != ProxyUtils.HTTP_OK) {
+        if (response.statusCode() != ArserUtils.HTTP_OK) {
             return null;
         }
 
-        final long contentLength = response.headers().firstValueAsLong(ProxyUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
+        final long contentLength = response.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
 
         return new RepositoryResponse(uri, contentLength, response.body());
     }

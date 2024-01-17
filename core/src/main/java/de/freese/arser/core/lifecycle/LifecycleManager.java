@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import de.freese.arser.core.utils.ArserUtils;
+
 /**
  * @author Thomas Freese
  */
@@ -89,7 +91,7 @@ public class LifecycleManager extends AbstractLifecycle {
 
     @Override
     public String toString() {
-        return "ARtifact-SERver";
+        return ArserUtils.SERVER_NAME;
     }
 
     @Override

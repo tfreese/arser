@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URI;
 
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
-import de.freese.arser.core.utils.HttpMethod;
 
 /**
  * @author Thomas Freese
@@ -57,11 +56,6 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean supports(final HttpMethod httpMethod) {
-        return false;
     }
 
     @Override

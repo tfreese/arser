@@ -4,20 +4,13 @@ package de.freese.arser.core.repository.remote;
 import java.net.URI;
 
 import de.freese.arser.core.repository.AbstractRepository;
-import de.freese.arser.core.utils.HttpMethod;
 
 /**
  * @author Thomas Freese
  */
 public abstract class AbstractRemoteRepository extends AbstractRepository {
-
     protected AbstractRemoteRepository(final String name, final URI uri) {
         super(name, uri);
-    }
-
-    @Override
-    public boolean supports(final HttpMethod httpMethod) {
-        return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod);
     }
 
     protected URI createResourceUri(final URI uri, final URI resource) {
@@ -47,7 +40,7 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
             final String msg = "HTTP or HTTPS protocol required: " + scheme;
 
             getLogger().error(msg);
-            
+
             throw new IllegalArgumentException(msg);
         }
     }

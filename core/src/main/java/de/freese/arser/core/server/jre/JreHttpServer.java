@@ -11,7 +11,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import de.freese.arser.core.server.AbstractArserServer;
 import de.freese.arser.core.utils.ArserThreadFactory;
-import de.freese.arser.core.utils.ProxyUtils;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
@@ -38,18 +38,18 @@ public class JreHttpServer extends AbstractArserServer {
         this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         this.httpServer.setExecutor(executorService);
 
-        getContextRoots().forEach((contextRoot, repository) -> {
-            final String path = contextRoot.startsWith("/") ? contextRoot : ("/" + contextRoot);
+        //        getContextRoots().forEach((contextRoot, repository) -> {
+        //            final String path = contextRoot.startsWith("/") ? contextRoot : ("/" + contextRoot);
+        //
+        //            getLogger().info("add contextRoot '{}' for {}/{}", path, repository.getName(), repository.getClass().getSimpleName());
+        //
+        //            this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
+        //
+        //            //            final HttpContext httpContext = this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
+        //            //            httpContexts.add(httpContext);
+        //        });
 
-            getLogger().info("add contextRoot '{}' for {}/{}", path, repository.getName(), repository.getClass().getSimpleName());
-
-            this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
-
-            //            final HttpContext httpContext = this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
-            //            httpContexts.add(httpContext);
-        });
-
-        //        this.httpServer.createContext("/", new JreHttpServerHandler(getContextRoots()));
+        this.httpServer.createContext("/", new JreHttpServerHandler(getContextRoots()));
 
         this.httpServer.start();
         //        new Thread(this.httpServer::start, "arser").start();
@@ -62,6 +62,6 @@ public class JreHttpServer extends AbstractArserServer {
         //        this.httpContexts.clear();
         this.httpServer.stop(3);
 
-        ProxyUtils.shutdown(this.executorService, getLogger());
+        ArserUtils.shutdown(this.executorService, getLogger());
     }
 }

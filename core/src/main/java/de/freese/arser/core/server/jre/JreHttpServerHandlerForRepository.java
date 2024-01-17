@@ -15,16 +15,13 @@ import com.sun.net.httpserver.HttpHandler;
 import de.freese.arser.core.component.AbstractComponent;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.RepositoryResponse;
+import de.freese.arser.core.utils.ArserUtils;
 import de.freese.arser.core.utils.HttpMethod;
-import de.freese.arser.core.utils.ProxyUtils;
 
 /**
  * @author Thomas Freese
  */
 public class JreHttpServerHandlerForRepository extends AbstractComponent implements HttpHandler {
-
-    private static final String SERVER_NAME = "ARtifact-SERver";
-
     private final String contextRoot;
 
     private final Repository repository;
@@ -48,19 +45,6 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
             }
         }
 
-        if (!getRepository().supports(httpMethod)) {
-            getLogger().error("Repository does not support HttpMethod: {} - {}", getRepository().getName(), httpMethod);
-
-            consumeAndCloseRequestStream(exchange);
-
-            exchange.getResponseHeaders().add(ProxyUtils.HTTP_HEADER_SERVER, SERVER_NAME);
-            exchange.sendResponseHeaders(ProxyUtils.HTTP_SERVICE_UNAVAILABLE, 0);
-            exchange.getResponseBody().close();
-            exchange.close();
-
-            return;
-        }
-
         try {
             final URI resource = removeContextRoot(exchange.getRequestURI());
 
@@ -73,6 +57,19 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
                 handleHead(exchange, resource);
             }
             else if (HttpMethod.PUT.equals(httpMethod)) {
+                if (!getRepository().isWriteable()) {
+                    getLogger().error("Repository is not support HttpMethod: {} - {}", getRepository().getName(), httpMethod);
+
+                    consumeAndCloseRequestStream(exchange);
+
+                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                    exchange.sendResponseHeaders(ArserUtils.HTTP_SERVICE_UNAVAILABLE, 0);
+                    exchange.getResponseBody().close();
+                    exchange.close();
+
+                    return;
+                }
+
                 handlePut(exchange, resource);
             }
             else {
@@ -80,8 +77,8 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
 
                 consumeAndCloseRequestStream(exchange);
 
-                exchange.getResponseHeaders().add(ProxyUtils.HTTP_HEADER_SERVER, SERVER_NAME);
-                exchange.sendResponseHeaders(ProxyUtils.HTTP_SERVICE_UNAVAILABLE, 0);
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                exchange.sendResponseHeaders(ArserUtils.HTTP_SERVICE_UNAVAILABLE, 0);
             }
         }
         catch (final IOException ex) {
@@ -122,7 +119,7 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
             final String message = "File not found: " + resource.toString();
             final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
 
-            exchange.sendResponseHeaders(ProxyUtils.HTTP_NOT_FOUND, bytes.length);
+            exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
 
             try (OutputStream outputStream = exchange.getResponseBody()) {
                 exchange.getResponseBody().write(bytes);
@@ -135,9 +132,9 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
 
         final long fileLength = repositoryResponse.getContentLength();
 
-        exchange.getResponseHeaders().add(ProxyUtils.HTTP_HEADER_SERVER, SERVER_NAME);
-        exchange.getResponseHeaders().add(ProxyUtils.HTTP_HEADER_CONTENT_TYPE, ProxyUtils.getContentType(repositoryResponse.getFileName()));
-        exchange.sendResponseHeaders(ProxyUtils.HTTP_OK, fileLength);
+        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(repositoryResponse.getFileName()));
+        exchange.sendResponseHeaders(ArserUtils.HTTP_OK, fileLength);
 
         try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
             repositoryResponse.transferTo(outputStream);
@@ -149,9 +146,9 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
     protected void handleHead(final HttpExchange exchange, final URI resource) throws Exception {
         final boolean exist = getRepository().exist(resource);
 
-        final int response = exist ? ProxyUtils.HTTP_OK : ProxyUtils.HTTP_NOT_FOUND;
+        final int response = exist ? ArserUtils.HTTP_OK : ArserUtils.HTTP_NOT_FOUND;
 
-        exchange.getResponseHeaders().add(ProxyUtils.HTTP_HEADER_SERVER, SERVER_NAME);
+        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
         exchange.sendResponseHeaders(response, -1);
     }
 
@@ -163,8 +160,8 @@ public class JreHttpServerHandlerForRepository extends AbstractComponent impleme
             getRepository().write(resource, inputStream);
         }
 
-        exchange.getResponseHeaders().add(ProxyUtils.HTTP_HEADER_SERVER, SERVER_NAME);
-        exchange.sendResponseHeaders(ProxyUtils.HTTP_OK, -1);
+        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+        exchange.sendResponseHeaders(ArserUtils.HTTP_OK, -1);
     }
 
     protected URI removeContextRoot(final URI uri) {

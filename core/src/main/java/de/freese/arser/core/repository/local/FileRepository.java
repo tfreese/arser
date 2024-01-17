@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.RepositoryResponse;
-import de.freese.arser.core.utils.HttpMethod;
 
 /**
  * @author Thomas Freese
@@ -30,12 +29,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    public boolean supports(final HttpMethod httpMethod) {
-        if (writeable) {
-            return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod) || HttpMethod.PUT.equals(httpMethod);
-        }
-
-        return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod);
+    public boolean isWriteable() {
+        return writeable;
     }
 
     @Override

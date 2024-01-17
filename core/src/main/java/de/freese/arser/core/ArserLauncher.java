@@ -73,7 +73,7 @@ public final class ArserLauncher {
         unmarshaller.setSchema(schema);
         final ApplicationConfig applicationConfig = (ApplicationConfig) unmarshaller.unmarshal(xmlFile);
 
-        // ProxyUtils.setupProxy();
+        // ArserUtils.setupProxy();
 
         //        Logger root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         //        root.setLevel(Level.INFO);

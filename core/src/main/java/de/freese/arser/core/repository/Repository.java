@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.net.URI;
 
 import de.freese.arser.core.lifecycle.Lifecycle;
-import de.freese.arser.core.utils.HttpMethod;
 
 /**
  * @author Thomas Freese
@@ -21,7 +20,13 @@ public interface Repository extends Lifecycle {
      */
     String getName();
 
-    boolean supports(HttpMethod httpMethod);
+    default boolean isVirtual() {
+        return false;
+    }
+
+    default boolean isWriteable() {
+        return false;
+    }
 
     void write(URI resource, InputStream inputStream) throws Exception;
 }

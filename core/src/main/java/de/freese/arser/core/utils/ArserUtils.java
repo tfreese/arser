@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Thomas Freese
  */
-public final class ProxyUtils {
+public final class ArserUtils {
     /**
      * io.netty.handler.codec.http.HttpHeaderNames
      */
@@ -53,7 +53,8 @@ public final class ProxyUtils {
      * io.netty.handler.codec.http.HttpResponseStatus
      */
     public static final int HTTP_SERVICE_UNAVAILABLE = HttpURLConnection.HTTP_UNAVAILABLE;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyUtils.class);
+    public static final String SERVER_NAME = "ARtifact-SERver";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArserUtils.class);
 
     //    private static final FileNameMap FILE_NAME_MAP = URLConnection.getFileNameMap();
     //
@@ -78,7 +79,7 @@ public final class ProxyUtils {
         if (classLoader == null) {
             // No thread context class loader -> use class loader of this class.
             try {
-                classLoader = ProxyUtils.class.getClassLoader();
+                classLoader = ArserUtils.class.getClassLoader();
             }
             catch (Exception ex) {
                 // Cannot access class loader of this class.
@@ -178,7 +179,7 @@ public final class ProxyUtils {
     }
 
     public static void shutdown(final ExecutorService executorService) {
-        shutdown(executorService, LoggerFactory.getLogger(ProxyUtils.class));
+        shutdown(executorService, LoggerFactory.getLogger(ArserUtils.class));
     }
 
     public static void shutdown(final ExecutorService executorService, final Logger logger) {
@@ -264,7 +265,7 @@ public final class ProxyUtils {
         // return String.format("%.1f %cB", value, ci.previous());
     }
 
-    private ProxyUtils() {
+    private ArserUtils() {
         super();
     }
 }

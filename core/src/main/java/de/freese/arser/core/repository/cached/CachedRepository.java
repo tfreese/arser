@@ -9,8 +9,7 @@ import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.RepositoryResponse;
-import de.freese.arser.core.utils.HttpMethod;
-import de.freese.arser.core.utils.ProxyUtils;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
@@ -24,11 +23,6 @@ public class CachedRepository extends AbstractRepository {
 
         this.delegate = checkNotNull(delegate, "Repository");
         this.blobStore = checkNotNull(blobStore, "BlobStore");
-    }
-
-    @Override
-    public boolean supports(final HttpMethod httpMethod) {
-        return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod);
     }
 
     @Override
@@ -79,7 +73,7 @@ public class CachedRepository extends AbstractRepository {
 
         if (response != null) {
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Download {} Bytes [{}]: {} ", response.getContentLength(), ProxyUtils.toHumanReadable(response.getContentLength()), response.getUri());
+                getLogger().debug("Download {} Bytes [{}]: {} ", response.getContentLength(), ArserUtils.toHumanReadable(response.getContentLength()), response.getUri());
             }
 
             return new CachedRepositoryResponse(response, blobId, getBlobStore());

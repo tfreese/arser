@@ -11,7 +11,6 @@ import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.RepositoryResponse;
-import de.freese.arser.core.utils.HttpMethod;
 
 /**
  * @author Thomas Freese
@@ -28,8 +27,8 @@ public class BlobStoreRepository extends AbstractRepository {
     }
 
     @Override
-    public boolean supports(final HttpMethod httpMethod) {
-        return HttpMethod.HEAD.equals(httpMethod) || HttpMethod.GET.equals(httpMethod) || HttpMethod.PUT.equals(httpMethod);
+    public boolean isWriteable() {
+        return true;
     }
 
     @Override

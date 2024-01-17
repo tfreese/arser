@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import de.freese.arser.config.ClientConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
-import de.freese.arser.core.utils.ProxyUtils;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
@@ -75,6 +75,6 @@ public class JreHttpClientComponent extends AbstractLifecycle {
         this.httpClient.close();
         this.httpClient = null;
 
-        ProxyUtils.shutdown(this.executorService, getLogger());
+        ArserUtils.shutdown(this.executorService, getLogger());
     }
 }
