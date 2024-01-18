@@ -6,7 +6,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -15,8 +14,8 @@ import com.sun.net.httpserver.HttpHandler;
 
 import de.freese.arser.core.component.AbstractComponent;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.RepositoryResponse;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.request.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 import de.freese.arser.core.utils.HttpMethod;
 
@@ -63,11 +62,11 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
         try {
             if (HttpMethod.GET.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
-                handleGet(exchange, resourceRequest.getResource(), repository);
+                handleGet(exchange, resourceRequest, repository);
             }
             else if (HttpMethod.HEAD.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
-                handleHead(exchange, resourceRequest.getResource(), repository);
+                handleHead(exchange, resourceRequest, repository);
             }
             else if (HttpMethod.PUT.equals(httpMethod)) {
                 if (!repository.isWriteable()) {
@@ -83,7 +82,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
                     return;
                 }
 
-                handlePut(exchange, resourceRequest.getResource(), repository);
+                handlePut(exchange, resourceRequest, repository);
             }
             else {
                 getLogger().error("unknown method: {} from {}", httpMethod, exchange.getRemoteAddress());
@@ -117,11 +116,11 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
         }
     }
 
-    protected void handleGet(final HttpExchange exchange, final URI resource, final Repository repository) throws Exception {
-        final RepositoryResponse repositoryResponse = repository.getInputStream(resource);
+    protected void handleGet(final HttpExchange exchange, final ResourceRequest resourceRequest, final Repository repository) throws Exception {
+        final ResourceResponse resourceResponse = repository.getInputStream(resourceRequest);
 
-        if (repositoryResponse == null) {
-            final String message = "File not found: " + resource.toString();
+        if (resourceResponse == null) {
+            final String message = "File not found: " + resourceRequest.getResource();
             final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
 
             exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
@@ -135,21 +134,21 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
             return;
         }
 
-        final long fileLength = repositoryResponse.getContentLength();
+        final long fileLength = resourceResponse.getContentLength();
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(repositoryResponse.getFileName()));
+        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(resourceResponse.getFileName()));
         exchange.sendResponseHeaders(ArserUtils.HTTP_OK, fileLength);
 
         try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
-            repositoryResponse.transferTo(outputStream);
+            resourceResponse.transferTo(outputStream);
 
             outputStream.flush();
         }
     }
 
-    protected void handleHead(final HttpExchange exchange, final URI resource, final Repository repository) throws Exception {
-        final boolean exist = repository.exist(resource);
+    protected void handleHead(final HttpExchange exchange, final ResourceRequest resourceRequest, final Repository repository) throws Exception {
+        final boolean exist = repository.exist(resourceRequest);
 
         final int response = exist ? ArserUtils.HTTP_OK : ArserUtils.HTTP_NOT_FOUND;
 
@@ -160,9 +159,9 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     /**
      * Deploy
      **/
-    protected void handlePut(final HttpExchange exchange, final URI resource, final Repository repository) throws Exception {
+    protected void handlePut(final HttpExchange exchange, final ResourceRequest resourceRequest, final Repository repository) throws Exception {
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
-            repository.write(resource, inputStream);
+            repository.write(resourceRequest, inputStream);
         }
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);

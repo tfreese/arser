@@ -28,7 +28,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -42,6 +44,7 @@ import de.freese.arser.blobstore.memory.MemoryBlobStore;
 /**
  * @author Thomas Freese
  */
+@TestMethodOrder(MethodOrderer.MethodName.class)
 class TestBlobStore {
     private static final Path PATH_TEST = Paths.get(System.getProperty("java.io.tmpdir"), "blobStore");
 

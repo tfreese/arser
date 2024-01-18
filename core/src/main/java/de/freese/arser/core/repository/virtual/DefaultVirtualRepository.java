@@ -6,7 +6,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.RepositoryResponse;
+import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.request.ResourceResponse;
 
 /**
  * @author Thomas Freese
@@ -35,12 +36,12 @@ public class DefaultVirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final URI resource) {
+    protected boolean doExist(final ResourceRequest resourceRequest) {
         boolean exist = false;
 
         for (final Repository repository : repositories) {
             try {
-                exist = repository.exist(resource);
+                exist = repository.exist(resourceRequest);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
@@ -55,12 +56,12 @@ public class DefaultVirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected RepositoryResponse doGetInputStream(final URI resource) {
-        RepositoryResponse response = null;
+    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) {
+        ResourceResponse response = null;
 
         for (final Repository repository : repositories) {
             try {
-                response = repository.getInputStream(resource);
+                response = repository.getInputStream(resourceRequest);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());

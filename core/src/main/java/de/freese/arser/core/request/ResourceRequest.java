@@ -86,4 +86,9 @@ public final class ResourceRequest {
     public String getVersion() {
         return version;
     }
+
+    @Override
+    public String toString() {
+        return getResource().getPath();
+    }
 }

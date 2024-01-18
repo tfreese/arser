@@ -8,7 +8,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.function.Supplier;
 
-import de.freese.arser.core.repository.RepositoryResponse;
+import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.request.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -25,8 +26,8 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
     }
 
     @Override
-    protected boolean doExist(final URI resource) throws Exception {
-        final URI uri = createResourceUri(getUri(), resource);
+    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
+        final URI uri = createResourceUri(getUri(), resourceRequest.getResource());
 
         // @formatter:off
         final HttpRequest request = HttpRequest.newBuilder()
@@ -51,8 +52,8 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
     }
 
     @Override
-    protected RepositoryResponse doGetInputStream(final URI resource) throws Exception {
-        final URI uri = createResourceUri(getUri(), resource);
+    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) throws Exception {
+        final URI uri = createResourceUri(getUri(), resourceRequest.getResource());
 
         // @formatter:off
         final HttpRequest request = HttpRequest.newBuilder()
@@ -79,7 +80,7 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
 
         final long contentLength = response.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
 
-        return new RepositoryResponse(uri, contentLength, response.body());
+        return new ResourceResponse(resourceRequest, contentLength, response.body());
     }
 
     @Override

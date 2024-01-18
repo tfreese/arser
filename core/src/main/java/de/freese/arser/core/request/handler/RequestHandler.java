@@ -11,7 +11,7 @@ import de.freese.arser.core.request.ResourceResponse;
  * @author Thomas Freese
  */
 public interface RequestHandler {
-    void addRepository(String contextRoot, Repository repository);
+    void addRepository(Repository repository);
 
     boolean exist(ResourceRequest resourceRequest) throws Exception;
 

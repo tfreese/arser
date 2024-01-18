@@ -10,19 +10,19 @@ import java.util.Objects;
 
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
-import de.freese.arser.core.repository.RepositoryResponse;
+import de.freese.arser.core.request.ResourceResponse;
 
 /**
  * @author Thomas Freese
  */
-public class CachedRepositoryResponse extends RepositoryResponse {
+public class CachedResourceResponse extends ResourceResponse {
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     private final BlobId blobId;
     private final BlobStore blobStore;
 
-    public CachedRepositoryResponse(final RepositoryResponse repositoryResponse, final BlobId blobId, final BlobStore blobStore) {
-        super(repositoryResponse.getUri(), repositoryResponse.getContentLength(), repositoryResponse.getInputStream());
+    public CachedResourceResponse(final ResourceResponse resourceResponse, final BlobId blobId, final BlobStore blobStore) {
+        super(resourceResponse.getResourceRequest(), resourceResponse.getContentLength(), resourceResponse.getInputStream());
 
         this.blobId = Objects.requireNonNull(blobId, "BlobId required");
         this.blobStore = Objects.requireNonNull(blobStore, "BlobStore required");

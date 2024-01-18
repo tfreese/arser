@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.RepositoryResponse;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.request.ResourceResponse;
 
@@ -17,28 +16,28 @@ public class DefaultRequestHandler implements RequestHandler {
     private final Map<String, Repository> repositoryMap = new HashMap<>();
 
     @Override
-    public void addRepository(final String contextRoot, final Repository repository) {
-        if (repositoryMap.containsKey(contextRoot)) {
-            throw new IllegalStateException("contextRoot already exist: " + contextRoot);
+    public void addRepository(final Repository repository) {
+        final String name = repository.getName();
+
+        if (repositoryMap.containsKey(name)) {
+            throw new IllegalStateException("repository already exist: " + name);
         }
 
-        repositoryMap.put(contextRoot, repository);
+        repositoryMap.put(name, repository);
     }
 
     @Override
     public boolean exist(final ResourceRequest resourceRequest) throws Exception {
         final Repository repository = getRepository(resourceRequest.getContextRoot());
 
-        return repository.exist(resourceRequest.getResource());
+        return repository.exist(resourceRequest);
     }
 
     @Override
     public ResourceResponse getInputStream(final ResourceRequest resourceRequest) throws Exception {
         final Repository repository = getRepository(resourceRequest.getContextRoot());
 
-        final RepositoryResponse repositoryResponse = repository.getInputStream(resourceRequest.getResource());
-
-        return new ResourceResponse(resourceRequest, repositoryResponse.getContentLength(), repositoryResponse);
+        return repository.getInputStream(resourceRequest);
     }
 
     @Override
@@ -49,14 +48,14 @@ public class DefaultRequestHandler implements RequestHandler {
             throw new IllegalStateException("Repository is not writeable: " + repository.getName());
         }
 
-        repository.write(resourceRequest.getResource(), inputStream);
+        repository.write(resourceRequest, inputStream);
     }
 
-    protected Repository getRepository(final String contextRoot) {
-        final Repository repository = repositoryMap.get(contextRoot);
+    protected Repository getRepository(final String name) {
+        final Repository repository = repositoryMap.get(name);
 
         if (repository == null) {
-            throw new IllegalArgumentException("No Repository not found for contextRoot: " + contextRoot);
+            throw new IllegalArgumentException("Repository not found: " + name);
         }
 
         return repository;

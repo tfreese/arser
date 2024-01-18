@@ -10,7 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import de.freese.arser.core.repository.AbstractRepository;
-import de.freese.arser.core.repository.RepositoryResponse;
+import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.request.ResourceResponse;
 
 /**
  * @author Thomas Freese
@@ -34,8 +35,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final URI resource) {
-        final Path path = toPath(resource);
+    protected boolean doExist(final ResourceRequest resourceRequest) {
+        final Path path = toPath(resourceRequest.getResource());
 
         final boolean exist = Files.exists(path);
 
@@ -52,15 +53,15 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected RepositoryResponse doGetInputStream(final URI resource) throws Exception {
-        final Path path = toPath(resource);
+    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) throws Exception {
+        final Path path = toPath(resourceRequest.getResource());
 
         if (Files.exists(path)) {
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("getInputStream - found: {}", path);
             }
 
-            return new RepositoryResponse(resource, Files.size(path), Files.newInputStream(path));
+            return new ResourceResponse(resourceRequest, Files.size(path), Files.newInputStream(path));
         }
 
         if (getLogger().isDebugEnabled()) {
@@ -86,8 +87,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doWrite(final URI resource, final InputStream inputStream) throws Exception {
-        final Path path = toPath(resource);
+    protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
+        final Path path = toPath(resourceRequest.getResource());
 
         if (!Files.exists(path.getParent())) {
             Files.createDirectories(path.getParent());

@@ -2,18 +2,19 @@
 package de.freese.arser.core.repository;
 
 import java.io.InputStream;
-import java.net.URI;
 
 import de.freese.arser.core.lifecycle.Lifecycle;
+import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.request.ResourceResponse;
 
 /**
  * @author Thomas Freese
  */
 public interface Repository extends Lifecycle {
 
-    boolean exist(URI resource) throws Exception;
+    boolean exist(ResourceRequest resourceRequest) throws Exception;
 
-    RepositoryResponse getInputStream(URI resource) throws Exception;
+    ResourceResponse getInputStream(ResourceRequest resourceRequest) throws Exception;
 
     /**
      * The name is the context-root.
@@ -28,5 +29,5 @@ public interface Repository extends Lifecycle {
         return false;
     }
 
-    void write(URI resource, InputStream inputStream) throws Exception;
+    void write(ResourceRequest resourceRequest, InputStream inputStream) throws Exception;
 }

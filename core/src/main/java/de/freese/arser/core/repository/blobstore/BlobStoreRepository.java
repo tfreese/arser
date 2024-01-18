@@ -10,7 +10,8 @@ import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.repository.AbstractRepository;
-import de.freese.arser.core.repository.RepositoryResponse;
+import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.request.ResourceResponse;
 
 /**
  * @author Thomas Freese
@@ -32,7 +33,8 @@ public class BlobStoreRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final URI resource) throws Exception {
+    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
+        final URI resource = resourceRequest.getResource();
         final BlobId blobId = new BlobId(removeSnapshotTimestamp(resource));
 
         final boolean exist = getBlobStore().exists(blobId);
@@ -50,7 +52,8 @@ public class BlobStoreRepository extends AbstractRepository {
     }
 
     @Override
-    protected RepositoryResponse doGetInputStream(final URI resource) throws Exception {
+    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) throws Exception {
+        final URI resource = resourceRequest.getResource();
         final BlobId blobId = new BlobId(removeSnapshotTimestamp(resource));
 
         if (getBlobStore().exists(blobId)) {
@@ -60,7 +63,7 @@ public class BlobStoreRepository extends AbstractRepository {
 
             final Blob blob = getBlobStore().get(blobId);
 
-            return new RepositoryResponse(resource, blob.getLength(), blob.getInputStream());
+            return new ResourceResponse(resourceRequest, blob.getLength(), blob.getInputStream());
         }
 
         if (getLogger().isDebugEnabled()) {
@@ -71,7 +74,8 @@ public class BlobStoreRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doWrite(final URI resource, final InputStream inputStream) throws Exception {
+    protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
+        final URI resource = resourceRequest.getResource();
         final BlobId blobId = new BlobId(removeSnapshotTimestamp(resource));
 
         getBlobStore().create(blobId, inputStream);
