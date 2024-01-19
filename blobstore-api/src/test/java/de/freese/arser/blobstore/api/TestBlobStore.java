@@ -46,7 +46,7 @@ import de.freese.arser.blobstore.memory.MemoryBlobStore;
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class TestBlobStore {
-    private static final Path PATH_TEST = Paths.get(System.getProperty("java.io.tmpdir"), "blobStore");
+    private static final Path PATH_TEST = Paths.get(System.getProperty("java.io.tmpdir"), "arser-test", "blobStore");
 
     private static DataSource dataSourceDerby;
     private static DataSource dataSourceH2;

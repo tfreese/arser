@@ -1,5 +1,5 @@
 // Created: 03.05.2021
-package de.freese.arser.core.repository.cached;
+package de.freese.arser.core.request;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,7 +10,6 @@ import java.util.Objects;
 
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
-import de.freese.arser.core.request.ResourceResponse;
 
 /**
  * @author Thomas Freese

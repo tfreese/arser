@@ -61,6 +61,11 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
+    public URI getUri() {
+        return uri;
+    }
+
+    @Override
     public String toString() {
         return getName() + ": " + getUri();
     }
@@ -85,9 +90,5 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
-    }
-
-    protected URI getUri() {
-        return uri;
     }
 }

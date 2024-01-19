@@ -34,10 +34,6 @@ public class ResourceResponse {
         return path.substring(lastSlashIndex + 1);
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
-    }
-
     public ResourceRequest getResourceRequest() {
         return resourceRequest;
     }
@@ -53,5 +49,9 @@ public class ResourceResponse {
                 return is.transferTo(outputStream);
             }
         }
+    }
+
+    protected InputStream getInputStream() {
+        return inputStream;
     }
 }

@@ -8,6 +8,7 @@ import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
+import de.freese.arser.core.request.CachedResourceResponse;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.request.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;

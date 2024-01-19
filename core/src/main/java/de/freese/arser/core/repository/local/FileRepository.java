@@ -19,10 +19,6 @@ import de.freese.arser.core.request.ResourceResponse;
 public class FileRepository extends AbstractRepository {
     private final boolean writeable;
 
-    public FileRepository(final String name, final URI uri) {
-        this(name, uri, false);
-    }
-
     public FileRepository(final String name, final URI uri, final boolean writeable) {
         super(name, uri);
 
