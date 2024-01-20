@@ -9,6 +9,8 @@ dependencies {
     api("com.zaxxer:HikariCP")
     api("org.slf4j:jul-to-slf4j")
 
+    implementation("org.apache.ivy:ivy:2.5.2")
+
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime")
     runtimeOnly("org.hsqldb:hsqldb")
 

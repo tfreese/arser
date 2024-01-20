@@ -4,8 +4,8 @@
 
 <!--<proxy-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="arser-config.xsd">-->
 <!-- xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd" -->
-<application-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://github.com/tfreese/arser/config"
-                    xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd">
+<arser-settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://github.com/tfreese/arser/config"
+                xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd">
 
     <server-config>
         <port>7999</port>
@@ -14,11 +14,11 @@
         <thread-name-pattern>http-server-%d</thread-name-pattern>
     </server-config>
 
-    <client-config>
+    <http-client-config>
         <thread-pool-core-size>2</thread-pool-core-size>
         <thread-pool-max-size>6</thread-pool-max-size>
         <thread-name-pattern>http-client-%d</thread-name-pattern>
-    </client-config>
+    </http-client-config>
 
     <repositories>
         <remote>
@@ -29,14 +29,14 @@
         <!--            <name>spring-release</name>-->
         <!--            <uri>https://repo.spring.io/release</uri>-->
         <!--        </remote>-->
-        <!--        <remote>-->
-        <!--            <name>primefaces</name>-->
-        <!--            <uri>https://repository.primefaces.org</uri>-->
-        <!--            <storeConfig>-->
-        <!--                <type>file</type>-->
-        <!--                <uri>file:///tmp/arser/cache/primefaces</uri>-->
-        <!--            </storeConfig>-->
-        <!--        </remote>-->
+        <remote>
+            <name>primefaces</name>
+            <uri>https://repository.primefaces.org</uri>
+            <storeConfig>
+                <type>file</type>
+                <uri>file:///tmp/arser/cache/primefaces</uri>
+            </storeConfig>
+        </remote>
         <remote>
             <name>gradle-releases</name>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
@@ -70,7 +70,7 @@
             <name>public</name>
             <repository-name>maven-central</repository-name>
             <!--            <repository-name>spring-release</repository-name>-->
-            <!--            <repository-name>primefaces</repository-name>-->
+            <repository-name>primefaces</repository-name>
             <repository-name>gradle-releases</repository-name>
             <!--            <repository-name>third-party</repository-name>-->
             <!--            <repository-name>deploy-releases</repository-name>-->
@@ -88,4 +88,4 @@
     <!--        <jdbc-url>jdbc:string</jdbc-url>-->
     <!--    </db-monitoring>-->
 
-</application-config>
+</arser-settings>

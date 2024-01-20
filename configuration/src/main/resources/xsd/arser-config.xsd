@@ -13,14 +13,14 @@
 
     <!--    <import schemaLocation="baseTypes.xsd" namespace="http://baseTypes" />-->
 
-    <xs:element name="application-config">
+    <xs:element name="arser-settings">
         <xs:annotation>
-            <xs:documentation source="description">Configuration for the ARtifact-SERver.</xs:documentation>
+            <xs:documentation source="description">Configuration for the ARtifact-SERvice.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="server-config" type="ServerConfig" />
-                <xs:element name="client-config" type="ClientConfig" />
+                <xs:element name="http-client-config" type="HttpClientConfig" />
                 <xs:element name="repositories" type="Repositories" />
                 <!--                <xs:element name="db-monitoring" type="DbMonitoringConfig" minOccurs="0" />-->
             </xs:sequence>
@@ -46,7 +46,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="ClientConfig">
+    <xs:complexType name="HttpClientConfig">
         <xs:sequence>
             <xs:element name="thread-pool-core-size" type="xs:positiveInteger" />
             <xs:element name="thread-pool-max-size" type="xs:positiveInteger" />

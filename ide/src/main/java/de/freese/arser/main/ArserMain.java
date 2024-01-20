@@ -7,7 +7,7 @@ import de.freese.arser.core.ArserLauncher;
  * @author Thomas Freese
  */
 public final class ArserMain {
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) {
         ArserLauncher.main(args);
     }
 

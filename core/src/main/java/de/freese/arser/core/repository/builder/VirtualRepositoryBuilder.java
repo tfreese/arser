@@ -3,12 +3,12 @@ package de.freese.arser.core.repository.builder;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.RepositoryManager;
 import de.freese.arser.core.repository.configurer.VirtualRepositoryConfigurer;
-import de.freese.arser.core.repository.virtual.DefaultVirtualRepository;
+import de.freese.arser.core.repository.virtual.VirtualRepository;
 
 /**
  * @author Thomas Freese
@@ -16,7 +16,7 @@ import de.freese.arser.core.repository.virtual.DefaultVirtualRepository;
 public class VirtualRepositoryBuilder extends AbstractRepositoryBuilder implements VirtualRepositoryConfigurer {
     private List<String> repositoryNames;
 
-    public Repository build(final LifecycleManager lifecycleManager, final RepositoryManager repositoryManager) {
+    public Repository build(final LifecycleManager lifecycleManager, final Function<String, Repository> repositoryResolver) {
         validateName();
 
         Objects.requireNonNull(repositoryNames, "repositoryNames required");
@@ -26,17 +26,17 @@ public class VirtualRepositoryBuilder extends AbstractRepositoryBuilder implemen
             throw new IllegalStateException(message);
         }
 
-        final DefaultVirtualRepository virtualRepository = new DefaultVirtualRepository(getName());
+        final VirtualRepository virtualRepository = new VirtualRepository(getName());
 
         for (final String repositoryName : repositoryNames) {
-            final Repository repository = repositoryManager.getRepository(repositoryName);
+            final Repository repository = repositoryResolver.apply(repositoryName);
 
             if (repository == null) {
                 getLogger().error("Repository not found or configured: {}", repositoryName);
                 continue;
             }
 
-            if (repository instanceof final DefaultVirtualRepository vr) {
+            if (repository instanceof final VirtualRepository vr) {
                 getLogger().error("A VirtualRepository can not contain another VirtualRepository: {}", vr.getName());
                 continue;
             }

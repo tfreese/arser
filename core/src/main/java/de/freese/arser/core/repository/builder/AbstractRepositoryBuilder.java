@@ -3,19 +3,17 @@ package de.freese.arser.core.repository.builder;
 
 import java.net.URI;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.freese.arser.core.Arser;
 import de.freese.arser.core.repository.configurer.RepositoryConfigurer;
 
 /**
  * @author Thomas Freese
  */
 public abstract class AbstractRepositoryBuilder implements RepositoryConfigurer {
-    private static final Pattern PATTERN_NAME = Pattern.compile("([a-z0-9\\-_])+");
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private String name;
@@ -48,9 +46,7 @@ public abstract class AbstractRepositoryBuilder implements RepositoryConfigurer 
             throw new IllegalArgumentException("name is empty");
         }
 
-        if (!PATTERN_NAME.matcher(name).matches()) {
-            throw new IllegalArgumentException("name must match the pattern: " + PATTERN_NAME);
-        }
+        Arser.validateRepositoryName(name);
     }
 
     protected void validateUri() {

@@ -9,7 +9,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import de.freese.arser.config.ClientConfig;
+import de.freese.arser.config.HttpClientConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ArserUtils;
@@ -19,15 +19,15 @@ import de.freese.arser.core.utils.ArserUtils;
  */
 public class JreHttpClientComponent extends AbstractLifecycle {
 
-    private final ClientConfig clientConfig;
+    private final HttpClientConfig httpClientConfig;
 
     private ExecutorService executorService;
     private HttpClient httpClient;
 
-    public JreHttpClientComponent(final ClientConfig clientConfig) {
+    public JreHttpClientComponent(final HttpClientConfig httpClientConfig) {
         super();
 
-        this.clientConfig = checkNotNull(clientConfig, "ClientConfig");
+        this.httpClientConfig = checkNotNull(httpClientConfig, "HttpClientConfig");
     }
 
     public HttpClient getHttpClient() {
@@ -38,14 +38,14 @@ public class JreHttpClientComponent extends AbstractLifecycle {
     protected void doStart() throws Exception {
         super.doStart();
 
-        checkNotNull(clientConfig, "ClientConfig");
-        checkValue(clientConfig.getThreadPoolCoreSize(), value -> value <= 0 ? ("ThreadPoolCoreSize has invalid range: " + value) : null);
-        checkValue(clientConfig.getThreadPoolMaxSize(), value -> value <= 0 ? ("ThreadPoolMaxSize has invalid range: " + value) : null);
-        checkNotNull(clientConfig.getThreadNamePattern(), "ThreadNamePattern");
+        checkNotNull(httpClientConfig, "ClientConfig");
+        checkValue(httpClientConfig.getThreadPoolCoreSize(), value -> value <= 0 ? ("ThreadPoolCoreSize has invalid range: " + value) : null);
+        checkValue(httpClientConfig.getThreadPoolMaxSize(), value -> value <= 0 ? ("ThreadPoolMaxSize has invalid range: " + value) : null);
+        checkNotNull(httpClientConfig.getThreadNamePattern(), "ThreadNamePattern");
 
-        final int threadPoolCoreSize = clientConfig.getThreadPoolCoreSize();
-        final int threadPoolMaxSize = clientConfig.getThreadPoolMaxSize();
-        final String threadNamePattern = clientConfig.getThreadNamePattern();
+        final int threadPoolCoreSize = httpClientConfig.getThreadPoolCoreSize();
+        final int threadPoolMaxSize = httpClientConfig.getThreadPoolMaxSize();
+        final String threadNamePattern = httpClientConfig.getThreadNamePattern();
 
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));

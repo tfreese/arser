@@ -1,5 +1,5 @@
 // Created: 03.05.2021
-package de.freese.arser.core.request;
+package de.freese.arser.core.response;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -14,7 +14,7 @@ import de.freese.arser.blobstore.api.BlobStore;
 /**
  * @author Thomas Freese
  */
-public class CachedResourceResponse extends ResourceResponse {
+public class CachedResourceResponse extends AbstractResourceResponse {
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
     private final BlobId blobId;

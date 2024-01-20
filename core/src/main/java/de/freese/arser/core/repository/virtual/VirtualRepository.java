@@ -7,16 +7,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.request.ResourceResponse;
+import de.freese.arser.core.response.ResourceResponse;
 
 /**
  * @author Thomas Freese
  */
-public class DefaultVirtualRepository extends AbstractRepository {
+public class VirtualRepository extends AbstractRepository {
 
     private final CopyOnWriteArrayList<Repository> repositories = new CopyOnWriteArrayList<>();
 
-    public DefaultVirtualRepository(final String name) {
+    public VirtualRepository(final String name) {
         super(name, URI.create("virtual"));
     }
 
@@ -36,12 +36,12 @@ public class DefaultVirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) {
+    protected boolean doExist(final ResourceRequest request) {
         boolean exist = false;
 
         for (final Repository repository : repositories) {
             try {
-                exist = repository.exist(resourceRequest);
+                exist = repository.exist(request);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
@@ -56,12 +56,12 @@ public class DefaultVirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) {
+    protected ResourceResponse doGetInputStream(final ResourceRequest request) {
         ResourceResponse response = null;
 
         for (final Repository repository : repositories) {
             try {
-                response = repository.getInputStream(resourceRequest);
+                response = repository.getInputStream(request);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());

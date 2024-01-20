@@ -38,18 +38,7 @@ public class JreHttpServer extends AbstractArserServer {
         this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         this.httpServer.setExecutor(executorService);
 
-        //        getContextRoots().forEach((contextRoot, repository) -> {
-        //            final String path = contextRoot.startsWith("/") ? contextRoot : ("/" + contextRoot);
-        //
-        //            getLogger().info("add contextRoot '{}' for {}/{}", path, repository.getName(), repository.getClass().getSimpleName());
-        //
-        //            this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
-        //
-        //            //            final HttpContext httpContext = this.httpServer.createContext(path, new JreHttpServerHandlerForRepository(repository));
-        //            //            httpContexts.add(httpContext);
-        //        });
-
-        this.httpServer.createContext("/", new JreHttpServerHandler(getContextRoots()));
+        this.httpServer.createContext("/", new JreHttpServerHandler(getArser()));
 
         this.httpServer.start();
         //        new Thread(this.httpServer::start, "arser").start();

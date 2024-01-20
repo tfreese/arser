@@ -6,16 +6,16 @@ import java.net.URI;
 
 import de.freese.arser.core.lifecycle.Lifecycle;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.request.ResourceResponse;
+import de.freese.arser.core.response.ResourceResponse;
 
 /**
  * @author Thomas Freese
  */
 public interface Repository extends Lifecycle {
 
-    boolean exist(ResourceRequest resourceRequest) throws Exception;
+    boolean exist(ResourceRequest request) throws Exception;
 
-    ResourceResponse getInputStream(ResourceRequest resourceRequest) throws Exception;
+    ResourceResponse getInputStream(ResourceRequest request) throws Exception;
 
     /**
      * The name is the context-root.
@@ -32,5 +32,5 @@ public interface Repository extends Lifecycle {
         return false;
     }
 
-    void write(ResourceRequest resourceRequest, InputStream inputStream) throws Exception;
+    void write(ResourceRequest request, InputStream inputStream) throws Exception;
 }

@@ -53,7 +53,7 @@ public final class ArserUtils {
      * io.netty.handler.codec.http.HttpResponseStatus
      */
     public static final int HTTP_SERVICE_UNAVAILABLE = HttpURLConnection.HTTP_UNAVAILABLE;
-    public static final String SERVER_NAME = "ARtifact-SERver";
+    public static final String SERVER_NAME = "ARtifact-SERvice";
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserUtils.class);
 
     //    private static final FileNameMap FILE_NAME_MAP = URLConnection.getFileNameMap();

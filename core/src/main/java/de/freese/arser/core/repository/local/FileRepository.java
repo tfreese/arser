@@ -11,7 +11,8 @@ import java.nio.file.Paths;
 
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.request.ResourceResponse;
+import de.freese.arser.core.response.DefaultResourceResponse;
+import de.freese.arser.core.response.ResourceResponse;
 
 /**
  * @author Thomas Freese
@@ -31,8 +32,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) {
-        final Path path = toPath(resourceRequest.getResource());
+    protected boolean doExist(final ResourceRequest request) {
+        final Path path = toPath(request.getResource());
 
         final boolean exist = Files.exists(path);
 
@@ -49,15 +50,15 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) throws Exception {
-        final Path path = toPath(resourceRequest.getResource());
+    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+        final Path path = toPath(request.getResource());
 
         if (Files.exists(path)) {
             if (getLogger().isDebugEnabled()) {
                 getLogger().debug("getInputStream - found: {}", path);
             }
 
-            return new ResourceResponse(resourceRequest, Files.size(path), Files.newInputStream(path));
+            return new DefaultResourceResponse(request, Files.size(path), Files.newInputStream(path));
         }
 
         if (getLogger().isDebugEnabled()) {
@@ -83,8 +84,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
-        final Path path = toPath(resourceRequest.getResource());
+    protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
+        final Path path = toPath(request.getResource());
 
         if (!Files.exists(path.getParent())) {
             Files.createDirectories(path.getParent());

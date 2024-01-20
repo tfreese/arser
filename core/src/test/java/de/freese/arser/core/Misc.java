@@ -11,7 +11,15 @@ import java.util.regex.Pattern;
 public final class Misc {
     public static void main(final String[] args) throws Exception {
         testUrl();
-        //        removeSnapshotTimestamp();
+        removeSnapshotTimestamp();
+    }
+
+    private static void printlnOut(final Object value) {
+        printlnOut(String.valueOf(value));
+    }
+
+    private static void printlnOut(final String text) {
+        System.out.println(text);
     }
 
     private static void removeSnapshotTimestamp() throws Exception {
@@ -19,10 +27,10 @@ public final class Misc {
         final Matcher matcher = pattern.matcher("/de/freese/arser/test-project/0.0.1-SNAPSHOT/test-project-0.0.1-20230806.084242-1.pom");
 
         if (matcher.find()) {
-            System.out.println(matcher.group());
+            printlnOut(matcher.group());
         }
 
-        System.out.println(matcher.replaceAll("SNAPSHOT"));
+        printlnOut(matcher.replaceAll("SNAPSHOT"));
     }
 
     private static void testUrl() throws Exception {
@@ -30,11 +38,11 @@ public final class Misc {
 
         final String relative = "public-cached";
 
-        System.out.println(uri.relativize(URI.create(relative)));
-        System.out.println(uri.resolve(URI.create(relative)));
-        System.out.println(uri.resolve(relative));
+        printlnOut(uri.relativize(URI.create(relative)));
+        printlnOut(uri.resolve(URI.create(relative)));
+        printlnOut(uri.resolve(relative));
 
-        System.out.println(uri.resolve(relative));
+        printlnOut(uri.resolve(relative));
     }
 
     private Misc() {

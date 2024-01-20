@@ -6,7 +6,7 @@ import java.net.URI;
 
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.request.ResourceResponse;
+import de.freese.arser.core.response.ResourceResponse;
 
 /**
  * @author Thomas Freese
@@ -28,31 +28,31 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
-    public boolean exist(final ResourceRequest resourceRequest) throws Exception {
+    public boolean exist(final ResourceRequest request) throws Exception {
         if (!isStarted()) {
             getLogger().warn("Component not started: {}", getName());
             return false;
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("exist: {}", resourceRequest.getResource());
+            getLogger().debug("exist: {}", request.getResource());
         }
 
-        return doExist(resourceRequest);
+        return doExist(request);
     }
 
     @Override
-    public ResourceResponse getInputStream(final ResourceRequest resourceRequest) throws Exception {
+    public ResourceResponse getInputStream(final ResourceRequest request) throws Exception {
         if (!isStarted()) {
             getLogger().warn("Component not started: {}", getName());
             return null;
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream: {}", resourceRequest.getResource());
+            getLogger().debug("getInputStream: {}", request.getResource());
         }
 
-        return doGetInputStream(resourceRequest);
+        return doGetInputStream(request);
     }
 
     @Override
@@ -71,24 +71,24 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
-    public void write(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
+    public void write(final ResourceRequest request, final InputStream inputStream) throws Exception {
         if (!isStarted()) {
             getLogger().warn("Component not started: {}", getName());
             return;
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("write: {}", resourceRequest.getResource());
+            getLogger().debug("write: {}", request.getResource());
         }
 
-        doWrite(resourceRequest, inputStream);
+        doWrite(request, inputStream);
     }
 
-    protected abstract boolean doExist(ResourceRequest resourceRequest) throws Exception;
+    protected abstract boolean doExist(ResourceRequest request) throws Exception;
 
-    protected abstract ResourceResponse doGetInputStream(ResourceRequest resourceRequest) throws Exception;
+    protected abstract ResourceResponse doGetInputStream(ResourceRequest request) throws Exception;
 
-    protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
+    protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
     }
 }

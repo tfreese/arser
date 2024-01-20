@@ -8,9 +8,10 @@ import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.request.CachedResourceResponse;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.request.ResourceResponse;
+import de.freese.arser.core.response.CachedResourceResponse;
+import de.freese.arser.core.response.DefaultResourceResponse;
+import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -28,8 +29,8 @@ public class CachedRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
-        final URI resource = resourceRequest.getResource();
+    protected boolean doExist(final ResourceRequest request) throws Exception {
+        final URI resource = request.getResource();
         final BlobId blobId = new BlobId(resource);
 
         final boolean exist = getBlobStore().exists(blobId);
@@ -46,16 +47,16 @@ public class CachedRepository extends AbstractRepository {
             getLogger().debug("exist - not found: {}", resource);
         }
 
-        return this.delegate.exist(resourceRequest);
+        return this.delegate.exist(request);
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) throws Exception {
-        final URI resource = resourceRequest.getResource();
+    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+        final URI resource = request.getResource();
 
         if (resource.getPath().endsWith("maven-metadata.xml")) {
             // Never save these files, versions:display-dependency-updates won't work !
-            return this.delegate.getInputStream(resourceRequest);
+            return this.delegate.getInputStream(request);
         }
 
         final BlobId blobId = new BlobId(resource);
@@ -67,14 +68,14 @@ public class CachedRepository extends AbstractRepository {
 
             final Blob blob = getBlobStore().get(blobId);
 
-            return new ResourceResponse(resourceRequest, blob.getLength(), blob.getInputStream());
+            return new DefaultResourceResponse(request, blob.getLength(), blob.getInputStream());
         }
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("getInputStream - not found: {}", resource);
         }
 
-        final ResourceResponse response = this.delegate.getInputStream(resourceRequest);
+        final ResourceResponse response = this.delegate.getInputStream(request);
 
         if (response != null) {
             if (getLogger().isDebugEnabled()) {

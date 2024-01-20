@@ -9,7 +9,8 @@ import java.net.http.HttpResponse;
 import java.util.function.Supplier;
 
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.request.ResourceResponse;
+import de.freese.arser.core.response.DefaultResourceResponse;
+import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -26,11 +27,11 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
-        final URI uri = createResourceUri(getUri(), resourceRequest.getResource());
+    protected boolean doExist(final ResourceRequest request) throws Exception {
+        final URI uri = createResourceUri(getUri(), request.getResource());
 
         // @formatter:off
-        final HttpRequest request = HttpRequest.newBuilder()
+        final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .method("HEAD", HttpRequest.BodyPublishers.noBody())
@@ -39,24 +40,24 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
         // @formatter:on
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("exist - Request: {}", request);
+            getLogger().debug("exist - Request: {}", httpRequest);
         }
 
-        final HttpResponse<Void> response = getHttpClient().send(request, HttpResponse.BodyHandlers.discarding());
+        final HttpResponse<Void> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.discarding());
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("exist - Response: {}", response);
+            getLogger().debug("exist - Response: {}", httpResponse);
         }
 
-        return response.statusCode() == ArserUtils.HTTP_OK;
+        return httpResponse.statusCode() == ArserUtils.HTTP_OK;
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest resourceRequest) throws Exception {
-        final URI uri = createResourceUri(getUri(), resourceRequest.getResource());
+    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+        final URI uri = createResourceUri(getUri(), request.getResource());
 
         // @formatter:off
-        final HttpRequest request = HttpRequest.newBuilder()
+        final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .GET()
@@ -65,22 +66,22 @@ public class JreHttpRemoteRepository extends AbstractRemoteRepository {
         // @formatter:on
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - Request: {}", request);
+            getLogger().debug("getInputStream - Request: {}", httpRequest);
         }
 
-        final HttpResponse<InputStream> response = getHttpClient().send(request, HttpResponse.BodyHandlers.ofInputStream());
+        final HttpResponse<InputStream> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - Response: {}", response);
+            getLogger().debug("getInputStream - Response: {}", httpResponse);
         }
 
-        if (response.statusCode() != ArserUtils.HTTP_OK) {
+        if (httpResponse.statusCode() != ArserUtils.HTTP_OK) {
             return null;
         }
 
-        final long contentLength = response.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
+        final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
 
-        return new ResourceResponse(resourceRequest, contentLength, response.body());
+        return new DefaultResourceResponse(request, contentLength, httpResponse.body());
     }
 
     @Override
