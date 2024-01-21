@@ -13,7 +13,7 @@ import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.cached.CachedRepository;
 import de.freese.arser.core.repository.configurer.RemoteRepositoryConfigurer;
-import de.freese.arser.core.repository.remote.JreHttpRemoteRepository;
+import de.freese.arser.core.repository.remote.JreHttpClientRemoteRepository;
 
 /**
  * @author Thomas Freese
@@ -25,7 +25,7 @@ public class RemoteRepositoryBuilder extends AbstractRepositoryBuilder implement
         validateName();
         validateUri();
 
-        Repository repository = new JreHttpRemoteRepository(getName(), getUri(), httpClientComponent::getHttpClient);
+        Repository repository = new JreHttpClientRemoteRepository(getName(), getUri(), httpClientComponent::getHttpClient);
         lifecycleManager.add(repository);
 
         if (storeConfig != null) {

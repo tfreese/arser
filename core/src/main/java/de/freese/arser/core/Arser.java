@@ -33,8 +33,8 @@ public final class Arser extends AbstractLifecycle {
     /**
      * Only for Test-Cases.
      */
-    public static Arser newInstance(final LifecycleManager lifecycleManager) {
-        return new Arser(lifecycleManager);
+    public static Arser newInstance() {
+        return new Arser(new LifecycleManager());
     }
 
     public static Arser newInstance(final ArserSettings settings) {

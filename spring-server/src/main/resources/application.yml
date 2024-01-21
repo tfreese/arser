@@ -1,0 +1,51 @@
+# =================================================================================================
+# COMMON SPRING BOOT PROPERTIES
+# https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html
+# =================================================================================================
+
+# =================================================================================================
+# Application Properties
+app:
+    message:
+        welcome: Hello Tommy
+
+info:
+    app:
+        name: ${project.artifactId}
+        description: ${project.description}
+        version: ${project.version}
+
+# =================================================================================================
+# Spring Properties
+spring:
+    main:
+        banner-mode: CONSOLE
+        web-application-type: SERVLET
+    output:
+        ansi:
+            enabled: DETECT
+    servlet:
+        encoding:
+            enabled: true
+            charset: UTF-8
+    web:
+        locale: de_DE
+
+# =================================================================================================
+# Server Properties
+server:
+    compression:
+        enabled: false
+    error:
+        whitelabel:
+            enabled: true
+    http2:
+        enabled: true
+    port: 7999
+    servlet:
+        context-path: /
+        session:
+            timeout: 30
+    shutdown: graceful
+    ssl:
+        enabled: false

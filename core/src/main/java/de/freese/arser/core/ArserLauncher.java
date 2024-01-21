@@ -18,7 +18,6 @@ import de.freese.arser.core.settings.ArserSettings;
  * @author Thomas Freese
  */
 public final class ArserLauncher {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserLauncher.class);
 
     public static void main(final String[] args) {

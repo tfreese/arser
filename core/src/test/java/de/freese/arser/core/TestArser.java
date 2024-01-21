@@ -25,7 +25,7 @@ import de.freese.arser.core.component.JreHttpClientComponent;
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.local.FileRepository;
-import de.freese.arser.core.repository.remote.JreHttpRemoteRepository;
+import de.freese.arser.core.repository.remote.JreHttpClientRemoteRepository;
 import de.freese.arser.core.repository.virtual.VirtualRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.settings.ArserSettings;
@@ -78,10 +78,11 @@ class TestArser {
         httpClientComponent = new JreHttpClientComponent(arserSettings.getHttpClientConfig());
         lifecycleManager.add(httpClientComponent);
 
-        repositoryMavenCentral = new JreHttpRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"), httpClientComponent::getHttpClient);
+        repositoryMavenCentral = new JreHttpClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"), httpClientComponent::getHttpClient);
         lifecycleManager.add(repositoryMavenCentral);
 
-        repositoryGradleReleases = new JreHttpRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), httpClientComponent::getHttpClient);
+        repositoryGradleReleases = new JreHttpClientRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"),
+                httpClientComponent::getHttpClient);
         lifecycleManager.add(repositoryGradleReleases);
 
         repositoryLocalWriteable = new FileRepository("deploy-snapshots", PATH_TEST.resolve("deploy-snapshots").toUri(), true);
@@ -98,7 +99,7 @@ class TestArser {
 
     @Test
     void testLocalWriteable() throws Exception {
-        final Arser arser = Arser.newInstance(lifecycleManager);
+        final Arser arser = Arser.newInstance();
         arser.addRepository(repositoryLocalWriteable);
 
         final URI resource = URI.create("/" + repositoryLocalWriteable.getName() + "/org/test/0.0.1/test-0.0.1.pom");
@@ -120,7 +121,7 @@ class TestArser {
 
     @Test
     void testRemoteGradleReleases() throws Exception {
-        final Arser arser = Arser.newInstance(lifecycleManager);
+        final Arser arser = Arser.newInstance();
         arser.addRepository(repositoryGradleReleases);
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/gradle-releases/org/gradle/gradle-tooling-api/8.2.1/gradle-tooling-api-8.2.1.pom"));
@@ -131,7 +132,7 @@ class TestArser {
 
     @Test
     void testRemoteMavenCentral() throws Exception {
-        final Arser arser = Arser.newInstance(lifecycleManager);
+        final Arser arser = Arser.newInstance();
         arser.addRepository(repositoryMavenCentral);
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/maven-central/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom"));
@@ -142,7 +143,7 @@ class TestArser {
 
     @Test
     void testVirtual() throws Exception {
-        final Arser arser = Arser.newInstance(lifecycleManager);
+        final Arser arser = Arser.newInstance();
         arser.addRepository(repositoryVirtual);
 
         // Only in https://repo.gradle.org/gradle/libs-releases

@@ -17,9 +17,6 @@ import de.freese.arser.core.utils.ArserUtils;
  * @author Thomas Freese
  */
 public class JreHttpServer extends AbstractArserServer {
-
-    //    private final List<HttpContext> httpContexts = new ArrayList<>();
-
     private ExecutorService executorService;
     private HttpServer httpServer;
 

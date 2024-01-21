@@ -10,18 +10,26 @@ import java.util.List;
  * @author Thomas Freese
  */
 public final class ResourceRequest {
+    /**
+     * /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
+     */
     public static ResourceRequest of(final URI requestUri) {
-        String path = requestUri.getPath();
+        return of(requestUri.getPath());
+    }
+
+    /**
+     * /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
+     */
+    public static ResourceRequest of(final String requestPath) {
+        String path = requestPath;
 
         // Strip Leading /
-        // /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
         path = path.substring(1);
 
         // Get first Element
         final String contextRoot = path.substring(0, path.indexOf('/'));
 
         // Rest of Path
-        // /org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
         final String resourcePath = path.substring(contextRoot.length());
         final URI resource = URI.create(resourcePath);
 

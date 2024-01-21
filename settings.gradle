@@ -15,3 +15,5 @@ include "configuration"
 include "core"
 include "ide"
 include "application"
+include 'spring-server'
+
