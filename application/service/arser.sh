@@ -5,6 +5,11 @@
 BASEDIR=$(dirname $0) #Verzeichnis des Skripts
 
 PID_FILE="arser.pid"
+LOG_DIR="$BASEDIR/../logs"
+
+if [ ! -e "$LOG_DIR" ]; then
+    mkdir "$LOG_DIR"
+fi
 
 start()
 {
@@ -22,7 +27,7 @@ start()
     if [ "$IS_RUNNING" == "0" ]; then
         echo -n "Starting arser";
 
-        java -cp "$BASEDIR/../libs/*:$BASEDIR/../resources" de.freese.arser.core.ArserLauncher >> "$BASEDIR/../logs/console.log" 2>&1 &
+        java -cp "$BASEDIR/../libs/*:$BASEDIR/../resources" de.freese.arser.core.ArserLauncher >> "$LOG_DIR/console.log" 2>&1 &
 
         echo $! > $PID_FILE && chmod 600 $PID_FILE;
         echo " with PID: $(cat $PID_FILE)";
