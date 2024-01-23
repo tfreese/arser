@@ -6,9 +6,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.resilient.ResilientHttpClient;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
@@ -17,13 +19,14 @@ import de.freese.arser.core.utils.ArserUtils;
  * @author Thomas Freese
  */
 public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
-
     private final Supplier<HttpClient> httpClientSupplier;
+
+    private HttpClient httpClient;
 
     public JreHttpClientRemoteRepository(final String name, final URI uri, final Supplier<HttpClient> httpClientSupplier) {
         super(name, uri);
 
-        this.httpClientSupplier = checkNotNull(httpClientSupplier, "Supplier<HttpClient>");
+        this.httpClientSupplier = assertNotNull(httpClientSupplier, () -> "Supplier<HttpClient>");
     }
 
     @Override
@@ -88,10 +91,19 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
     protected void doStart() throws Exception {
         super.doStart();
 
-        checkNotNull(httpClientSupplier, "HttpClientSupplier");
+        assertNotNull(httpClientSupplier, () -> "HttpClientSupplier");
+
+        // @formatter:off
+        final ResilientHttpClient.ResilientHttpClientBuilder resilientHttpClientBuilder =  ResilientHttpClient.newBuilder(httpClientSupplier.get())
+                .retries(2)
+                .retryDuration(Duration.ofMillis(750))
+                ;
+        // @formatter:on
+
+        httpClient = resilientHttpClientBuilder.build();
     }
 
     protected HttpClient getHttpClient() {
-        return httpClientSupplier.get();
+        return httpClient;
     }
 }

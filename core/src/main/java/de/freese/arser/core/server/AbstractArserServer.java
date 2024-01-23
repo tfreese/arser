@@ -42,12 +42,12 @@ public abstract class AbstractArserServer extends AbstractLifecycle implements A
     protected void doStart() throws Exception {
         super.doStart();
 
-        checkNotNull(arser, "arser");
-        checkNotNull(serverConfig, "ServerConfig");
-        checkValue(serverConfig.getPort(), value -> value <= 0 ? ("Port has invalid range: " + value) : null);
-        checkValue(serverConfig.getThreadPoolCoreSize(), value -> value <= 0 ? ("ThreadPoolCoreSize has invalid range: " + value) : null);
-        checkValue(serverConfig.getThreadPoolMaxSize(), value -> value <= 0 ? ("ThreadPoolMaxSize has invalid range: " + value) : null);
-        checkNotNull(serverConfig.getThreadNamePattern(), "ThreadNamePattern");
+        assertNotNull(arser, () -> "arser");
+        assertNotNull(serverConfig, () -> "ServerConfig");
+        assertValue(serverConfig.getPort(), value -> value <= 0, () -> "Port has invalid range");
+        assertValue(serverConfig.getThreadPoolCoreSize(), value -> value <= 0, () -> "ThreadPoolCoreSize has invalid range");
+        assertValue(serverConfig.getThreadPoolMaxSize(), value -> value <= 0, () -> "ThreadPoolMaxSize has invalid range");
+        assertNotNull(serverConfig.getThreadNamePattern(), () -> "ThreadNamePattern");
     }
 
     protected Arser getArser() {

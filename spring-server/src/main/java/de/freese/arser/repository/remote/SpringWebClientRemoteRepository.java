@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URI;
+import java.time.Duration;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
 
 import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
@@ -30,7 +32,7 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
     public SpringWebClientRemoteRepository(final String name, final URI uri, final WebClient webClient) {
         super(name, uri);
 
-        this.webClient = checkNotNull(webClient, "webClient");
+        this.webClient = assertNotNull(webClient, () -> "webClient");
     }
 
     @Override
@@ -42,6 +44,7 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(Boolean.class)) // Liefert Header, Status und ResponseBody.
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
                 ;
         // @formatter:on
 
@@ -67,6 +70,7 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
                 .retrieve()
 //                .onStatus(status -> status != HttpStatus.OK, clientResponse -> Mono.error(Exception::new))
                 .toEntityFlux(BodyExtractors.toDataBuffers())
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
                 ;
         // @formatter:on
 

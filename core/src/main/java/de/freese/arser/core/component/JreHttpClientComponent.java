@@ -27,7 +27,7 @@ public class JreHttpClientComponent extends AbstractLifecycle {
     public JreHttpClientComponent(final HttpClientConfig httpClientConfig) {
         super();
 
-        this.httpClientConfig = checkNotNull(httpClientConfig, "HttpClientConfig");
+        this.httpClientConfig = assertNotNull(httpClientConfig, () -> "HttpClientConfig");
     }
 
     public HttpClient getHttpClient() {
@@ -38,20 +38,17 @@ public class JreHttpClientComponent extends AbstractLifecycle {
     protected void doStart() throws Exception {
         super.doStart();
 
-        checkNotNull(httpClientConfig, "ClientConfig");
-        checkValue(httpClientConfig.getThreadPoolCoreSize(), value -> value <= 0 ? ("ThreadPoolCoreSize has invalid range: " + value) : null);
-        checkValue(httpClientConfig.getThreadPoolMaxSize(), value -> value <= 0 ? ("ThreadPoolMaxSize has invalid range: " + value) : null);
-        checkNotNull(httpClientConfig.getThreadNamePattern(), "ThreadNamePattern");
+        assertNotNull(httpClientConfig, () -> "ClientConfig");
 
-        final int threadPoolCoreSize = httpClientConfig.getThreadPoolCoreSize();
-        final int threadPoolMaxSize = httpClientConfig.getThreadPoolMaxSize();
-        final String threadNamePattern = httpClientConfig.getThreadNamePattern();
+        final int threadPoolCoreSize = assertValue(httpClientConfig.getThreadPoolCoreSize(), value -> value <= 0, () -> "ThreadPoolCoreSize has invalid range");
+        final int threadPoolMaxSize = assertValue(httpClientConfig.getThreadPoolMaxSize(), value -> value <= 0, () -> "ThreadPoolMaxSize has invalid range");
+        final String threadNamePattern = assertNotNull(httpClientConfig.getThreadNamePattern(), () -> "ThreadNamePattern");
 
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));
 
         // @formatter:off
-        final HttpClient.Builder builder = HttpClient.newBuilder()
+        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .proxy(ProxySelector.getDefault())
@@ -64,7 +61,7 @@ public class JreHttpClientComponent extends AbstractLifecycle {
         // .sslContext(SSLContext.getDefault())
         // .sslParameters(new SSLParameters())
 
-        this.httpClient = builder.build();
+        this.httpClient = httpClientBuilder.build();
     }
 
     @Override

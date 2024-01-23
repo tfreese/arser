@@ -16,7 +16,7 @@ public class LifecycleManager extends AbstractLifecycle {
     private final CopyOnWriteArrayList<Lifecycle> components = new CopyOnWriteArrayList<>();
 
     public void add(final Lifecycle component) {
-        checkNotNull(component, "Lifecycle");
+        assertNotNull(component, () -> "Lifecycle");
 
         final boolean added = components.addIfAbsent(component);
 
@@ -26,13 +26,13 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void add(final LifecycleAware component) {
-        checkNotNull(component, "LifecycleAware");
+        assertNotNull(component, () -> "LifecycleAware");
 
         add(component.getLifecycle());
     }
 
     public void add(final Lifecycle... components) {
-        checkNotNull(components, "Lifecycles");
+        assertNotNull(components, () -> "Lifecycles");
 
         for (Lifecycle component : components) {
             add(component);
@@ -40,7 +40,7 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void add(final LifecycleAware... components) {
-        checkNotNull(components, "LifecycleAwares");
+        assertNotNull(components, () -> "LifecycleAwares");
 
         for (LifecycleAware component : components) {
             add(component.getLifecycle());
@@ -54,7 +54,7 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void remove(final Lifecycle component) {
-        checkNotNull(component, "Lifecycle");
+        assertNotNull(component, () -> "Lifecycle");
 
         final boolean removed = components.remove(component);
 
@@ -64,13 +64,13 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void remove(final LifecycleAware component) {
-        checkNotNull(component, "LifecycleAware");
+        assertNotNull(component, () -> "LifecycleAware");
 
         remove(component.getLifecycle());
     }
 
     public void remove(final Lifecycle... components) {
-        checkNotNull(components, "Lifecycles");
+        assertNotNull(components, () -> "Lifecycles");
 
         for (Lifecycle component : components) {
             remove(component);
@@ -78,7 +78,7 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void remove(final LifecycleAware... components) {
-        checkNotNull(components, "LifecycleAwares");
+        assertNotNull(components, () -> "LifecycleAwares");
 
         for (LifecycleAware component : components) {
             remove(component.getLifecycle());

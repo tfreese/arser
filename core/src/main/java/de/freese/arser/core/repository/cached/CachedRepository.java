@@ -24,8 +24,8 @@ public class CachedRepository extends AbstractRepository {
     public CachedRepository(final Repository delegate, final BlobStore blobStore) {
         super(delegate.getName(), URI.create("cached"));
 
-        this.delegate = checkNotNull(delegate, "Repository");
-        this.blobStore = checkNotNull(blobStore, "BlobStore");
+        this.delegate = assertNotNull(delegate, () -> "Repository");
+        this.blobStore = assertNotNull(blobStore, () -> "BlobStore");
     }
 
     @Override

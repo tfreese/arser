@@ -2,7 +2,8 @@
 package de.freese.arser.core.component;
 
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,21 +13,29 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractComponent {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    protected final <T> T checkNotNull(final T object, final String postfix) {
-        return Objects.requireNonNull(object, postfix + " required");
+    protected static <T> T assertNotNull(final T value, final Supplier<String> postfixSupplier) {
+        return Objects.requireNonNull(value, () -> postfixSupplier.get() + " required");
     }
 
-    protected final <T> T checkValue(final T object, final Function<T, String> validator) {
-        final String message = validator.apply(object);
+    protected static <T> T assertValue(final T value, final Predicate<T> predicate, final Supplier<String> messageSupplier) {
+        if (predicate.test(value)) {
+            final String message = messageSupplier.get();
 
-        if (message != null && !message.isBlank()) {
-            throw new IllegalArgumentException(message);
+            if (message == null || message.isBlank()) {
+                throw new IllegalArgumentException();
+            }
+            else if (message.endsWith(":")) {
+                throw new IllegalArgumentException(message + " " + value);
+            }
+            else {
+                throw new IllegalArgumentException(message + ": " + value);
+            }
         }
 
-        return object;
+        return value;
     }
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected Logger getLogger() {
         return logger;

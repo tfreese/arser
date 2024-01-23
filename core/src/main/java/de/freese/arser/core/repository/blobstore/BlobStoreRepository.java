@@ -25,7 +25,7 @@ public class BlobStoreRepository extends AbstractRepository {
     public BlobStoreRepository(final String name, final URI uri, final BlobStore blobStore) {
         super(name, uri);
 
-        this.blobStore = checkNotNull(blobStore, "BlobStore");
+        this.blobStore = assertNotNull(blobStore, () -> "BlobStore");
     }
 
     @Override

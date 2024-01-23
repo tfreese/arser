@@ -20,7 +20,7 @@ public class BlobStoreComponent extends AbstractLifecycle {
     public BlobStoreComponent(final BlobStore blobStore) {
         super();
 
-        this.blobStore = checkNotNull(blobStore, "BlobStore");
+        this.blobStore = assertNotNull(blobStore, () -> "BlobStore");
     }
 
     public BlobStore getBlobStore() {

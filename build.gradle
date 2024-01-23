@@ -19,6 +19,8 @@ subprojects {
         }
 
         dependencies {
+            dependency("dev.failsafe:failsafe:$version_failsafe")
+            
             dependencySet(group: "com.sun.xml.bind:", version: "$version_jaxb") {
                 entry "jaxb-xjc"
                 entry "jaxb-impl"

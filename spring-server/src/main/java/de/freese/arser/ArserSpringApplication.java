@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Thomas Freese
  */
 @SpringBootApplication
-public class ArserApplication {
+public class ArserSpringApplication {
     public static void main(final String[] args) {
-        SpringApplication.run(ArserApplication.class, args);
+        SpringApplication.run(ArserSpringApplication.class, args);
     }
 }

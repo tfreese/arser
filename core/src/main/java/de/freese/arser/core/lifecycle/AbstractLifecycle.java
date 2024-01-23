@@ -33,12 +33,12 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
             ensure(State.NEW, State.STOPPED); // check again now we have lock
 
             try {
-                getLogger().info("Starting: " + this);
+                getLogger().info("Starting: {}", this);
 
                 doStart();
 
                 currentState = State.STARTED;
-                getLogger().info("Started: " + this);
+                getLogger().info("Started: {}", this);
             }
             catch (Throwable failure) {
                 doFailed("start", failure);
@@ -58,13 +58,13 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
             ensure(State.STARTED); // check again now we have lock
 
             try {
-                getLogger().info("Stopping: " + this);
+                getLogger().info("Stopping: {}", this);
 
                 doStop();
 
                 currentState = State.STOPPED;
 
-                getLogger().info("Stopped " + this);
+                getLogger().info("Stopped {}", this);
             }
             catch (Throwable failure) {
                 doFailed("stop", failure);
@@ -80,8 +80,8 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
 
         currentState = State.FAILED;
 
-        if (cause instanceof Exception) {
-            throw (Exception) cause;
+        if (cause instanceof Exception exception) {
+            throw exception;
         }
 
         throw new Exception(cause);

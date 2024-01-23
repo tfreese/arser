@@ -27,7 +27,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     JreHttpServerHandler(final Arser arser) {
         super();
 
-        this.arser = checkNotNull(arser, "arser");
+        this.arser = assertNotNull(arser, () -> "arser");
     }
 
     @Override

@@ -21,7 +21,7 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     public void add(final Repository repository) {
-        checkNotNull(repository, "Repository");
+        assertNotNull(repository, () -> "Repository");
 
         final boolean added = repositories.addIfAbsent(repository);
 
