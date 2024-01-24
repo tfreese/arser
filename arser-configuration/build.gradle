@@ -1,0 +1,83 @@
+plugins {
+    id "java-library"
+}
+
+configurations {
+    jaxb
+}
+
+//checkstyle {
+//    checkstyleTest.enabled = false
+//}
+
+dependencies {
+    jaxb "com.sun.xml.bind:jaxb-impl"
+    jaxb "com.sun.xml.bind:jaxb-xjc" // xsd -> java
+    jaxb "com.sun.xml.bind:jaxb-jxc" // java -> xsd
+
+//    compile(files(genJaxb.classesDir).builtBy(genJaxb))
+
+    api("jakarta.xml.bind:jakarta.xml.bind-api")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir(layout.buildDirectory.get().dir("generated").dir("jaxb"))
+        }
+    }
+
+//    other {
+//        java {
+//            srcDir "src/other/java"
+//        }
+//        resources {
+//            srcDir "src/other/resources"
+//        }
+//
+//        compileClasspath += sourceSets.main.compileClasspath
+//        runtimeClasspath += sourceSets.main.runtimeClasspath
+//    }
+}
+
+tasks.register("genJaxb") {
+    group = "Arser"
+
+    def resourcesDir = layout.projectDirectory.dir("src").dir("main").dir("resources").dir("xsd")
+    def schema = resourcesDir.file("arser-config.xsd")
+    inputs.file schema
+    def binding = resourcesDir.file("schema.xjb")
+    inputs.file binding
+
+    def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
+    outputs.dir destDir
+
+    doLast {
+        mkdir destDir
+
+        ant {
+            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath
+
+            xjc(destdir: destDir,
+                    schema: schema,
+                    binding: binding,
+                    package: "de.freese.arser.config",
+                    encoding: compileJava.options.encoding,
+                    readonly: true,
+                    extension: true) {
+                arg(value: "-npa")
+                //schema(dir: destDir, includes: "*.xsd")
+            }
+
+//            taskdef name: "jxc", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.jaxb.asPath
+//
+//            jxc(srcdir: destDir,
+//                    destdir: layout.buildDirectory.get(),
+//                    includeAntRuntime: "false",
+//                    verbose: false) {
+//                //schema(file: "CustomSchema.xsd", namespace: "")
+//            }
+        }
+    }
+}
+compileJava.dependsOn "genJaxb"

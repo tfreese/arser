@@ -11,9 +11,9 @@ pluginManagement {
 //rootProject.name = "base"
 
 include "blobstore-api"
-include "configuration"
-include "core"
-include "ide"
-include "application"
-include 'spring-server'
-
+include "arser-configuration"
+include "arser-core"
+include "server-jre"
+include 'server-spring'
+include 'arser-test'
+include "arser-application"

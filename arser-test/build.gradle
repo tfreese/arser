@@ -1,0 +1,18 @@
+plugins {
+    id "java"
+}
+
+dependencies {
+    // testImplementation(project(":arser-core"))
+    testImplementation(project(":server-jre"))
+
+    testRuntimeOnly("org.slf4j:slf4j-simple")
+}
+
+jar {
+    enabled = false
+}
+
+test {
+    enabled = false
+}

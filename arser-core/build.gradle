@@ -1,0 +1,19 @@
+plugins {
+    id "java-library"
+}
+
+dependencies {
+    api(project(":blobstore-api"))
+    api(project(":arser-configuration"))
+
+    api("com.zaxxer:HikariCP")
+    api("org.slf4j:jul-to-slf4j")
+
+    implementation("dev.failsafe:failsafe")
+//    implementation("org.apache.ivy:ivy:2.5.2")
+
+    runtimeOnly("org.glassfish.jaxb:jaxb-runtime")
+    runtimeOnly("org.hsqldb:hsqldb")
+
+    testImplementation("org.slf4j:slf4j-simple")
+}

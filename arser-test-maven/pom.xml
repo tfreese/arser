@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.freese.arser</groupId>
+    <artifactId>arser-test-maven</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>${project.groupId} - ${project.artifactId}</name>
+    <description>Arser Test Maven</description>
+
+    <!-- mvn -f test-project/pom.xml -s settings_proxy.xml -U clean install -->
+    <!-- mvn -f test-project/pom.xml -s settings_proxy.xml versions:display-dependency-updates -->
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.propertiesEncoding>UTF-8</project.build.propertiesEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
+        <buildTimestamp>${maven.build.timestamp}</buildTimestamp>
+        <createChecksum>true</createChecksum>
+
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+
+        <gradle-tooling-api.version>8.2.1</gradle-tooling-api.version>
+        <primefaces-themes.version>1.0.10</primefaces-themes.version>
+        <slf4j.version>2.0.7</slf4j.version>
+        <junit-jupiter.version>5.9.3</junit-jupiter.version>
+
+        <maven-toolchains-plugin.version>3.1.0</maven-toolchains-plugin.version>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>repo-releases</id>
+            <url>http://localhost:7999/deploy-releases</url>
+            <name>Enthält deployte Release Artefakte</name>
+        </repository>
+        <snapshotRepository>
+            <id>repo-snapshots</id>
+            <url>http://localhost:7999/deploy-snapshots</url>
+            <name>Enthält deployte Snapshot Artefakte</name>
+        </snapshotRepository>
+        <site>
+            <id>repo-sites</id>
+            <url>http://localhost:7999/deploy-sites</url>
+            <!--            <url>file:/tmp/maven-distribution/sites/${project.version}</url>-->
+            <name>Enthält die generierten Homepages</name>
+        </site>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+        </plugins>
+    </build>
+
+    <modules>
+        <module>test-project</module>
+        <module>test-project-deployed</module>
+    </modules>
+</project>

@@ -1,0 +1,28 @@
+plugins {
+    id "java-library"
+//    id "application"
+}
+
+ext {
+    main = "de.freese.arser.ArserJreServerApplication"
+}
+
+//application {
+//    mainClass = project.main
+//}
+
+jar {
+    enabled = false
+
+    manifest {
+        attributes(
+                "Main-Class": project.main
+        )
+    }
+}
+
+dependencies {
+    api(project(":arser-core"))
+
+    runtimeOnly("org.slf4j:slf4j-simple")
+}
