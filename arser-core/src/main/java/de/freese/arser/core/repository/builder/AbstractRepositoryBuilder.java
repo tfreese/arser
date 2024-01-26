@@ -18,12 +18,14 @@ public abstract class AbstractRepositoryBuilder<T extends AbstractRepositoryBuil
     private String name;
     private URI uri;
 
+    // @SuppressWarnings("unchecked")
     public T name(final String name) {
         this.name = name;
 
         return (T) this;
     }
 
+    // @SuppressWarnings("unchecked")
     public T uri(final URI uri) {
         this.uri = uri;
 

@@ -1,5 +1,5 @@
 // Created: 21.01.24
-package de.freese.arser.repository.remote;
+package de.freese.arser.spring.repository.remote;
 
 import java.io.IOException;
 import java.io.PipedInputStream;

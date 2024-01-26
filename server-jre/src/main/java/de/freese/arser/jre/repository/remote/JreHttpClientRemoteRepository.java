@@ -1,5 +1,5 @@
 // Created: 22.07.23
-package de.freese.arser.repository.remote;
+package de.freese.arser.jre.repository.remote;
 
 import java.io.InputStream;
 import java.net.URI;

@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    main = "de.freese.arser.ArserJreServerApplication"
+    main = "de.freese.arser.jre.ArserJreServerApplication"
 }
 
 //application {
@@ -12,7 +12,7 @@ ext {
 //}
 
 jar {
-    enabled = false
+    enabled = true
 
     manifest {
         attributes(

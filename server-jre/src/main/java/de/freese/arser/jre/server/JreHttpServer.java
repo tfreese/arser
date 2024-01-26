@@ -1,5 +1,5 @@
 // Created: 22.07.23
-package de.freese.arser.server;
+package de.freese.arser.jre.server;
 
 import java.net.InetSocketAddress;
 import java.util.Objects;

@@ -3,7 +3,6 @@ plugins {
 }
 
 dependencies {
-    // testImplementation(project(":arser-core"))
     testImplementation(project(":server-jre"))
 
     testRuntimeOnly("org.slf4j:slf4j-simple")
@@ -14,5 +13,5 @@ jar {
 }
 
 test {
-    enabled = false
+    enabled = true
 }

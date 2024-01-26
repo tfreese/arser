@@ -1,5 +1,5 @@
 // Created: 21.01.24
-package de.freese.arser;
+package de.freese.arser.spring;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

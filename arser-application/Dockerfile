@@ -22,12 +22,12 @@ VOLUME /tmp
 EXPOSE 7999
 
 ENTRYPOINT exec java \
- $VM_PARAMS \
+ "$VM_PARAMS" \
  -XX:TieredStopAtLevel=1 \
  -Djava.security.egd=file:/dev/./urandom \
  -jar \
  /app/app.jar \
- $0 $@
+ "$0" $@
  
 #ENTRYPOINT ["java",\
 # "-Xms256m",\

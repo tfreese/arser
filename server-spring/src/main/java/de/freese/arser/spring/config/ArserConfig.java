@@ -1,5 +1,5 @@
 // Created: 21.01.24
-package de.freese.arser.config;
+package de.freese.arser.spring.config;
 
 import java.net.URI;
 
@@ -13,7 +13,7 @@ import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.local.FileRepository;
 import de.freese.arser.core.repository.virtual.VirtualRepository;
 import de.freese.arser.core.utils.ArserUtils;
-import de.freese.arser.repository.remote.SpringWebClientRemoteRepository;
+import de.freese.arser.spring.repository.remote.SpringWebClientRemoteRepository;
 
 /**
  * @author Thomas Freese

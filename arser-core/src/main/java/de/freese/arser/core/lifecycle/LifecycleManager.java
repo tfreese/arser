@@ -31,22 +31,6 @@ public class LifecycleManager extends AbstractLifecycle {
         add(component.getLifecycle());
     }
 
-    public void add(final Lifecycle... components) {
-        assertNotNull(components, () -> "Lifecycles");
-
-        for (Lifecycle component : components) {
-            add(component);
-        }
-    }
-
-    public void add(final LifecycleAware... components) {
-        assertNotNull(components, () -> "LifecycleAwares");
-
-        for (LifecycleAware component : components) {
-            add(component.getLifecycle());
-        }
-    }
-
     public void clear() {
         components.clear();
 
@@ -67,22 +51,6 @@ public class LifecycleManager extends AbstractLifecycle {
         assertNotNull(component, () -> "LifecycleAware");
 
         remove(component.getLifecycle());
-    }
-
-    public void remove(final Lifecycle... components) {
-        assertNotNull(components, () -> "Lifecycles");
-
-        for (Lifecycle component : components) {
-            remove(component);
-        }
-    }
-
-    public void remove(final LifecycleAware... components) {
-        assertNotNull(components, () -> "LifecycleAwares");
-
-        for (LifecycleAware component : components) {
-            remove(component.getLifecycle());
-        }
     }
 
     public int size() {

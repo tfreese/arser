@@ -1,5 +1,5 @@
 // Created: 14.01.24
-package de.freese.arser.repository.builder;
+package de.freese.arser.jre.repository.builder;
 
 import java.net.URI;
 
@@ -13,7 +13,7 @@ import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.builder.AbstractRepositoryBuilder;
 import de.freese.arser.core.repository.cached.CachedRepository;
-import de.freese.arser.repository.remote.JreHttpClientRemoteRepository;
+import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
 
 /**
  * @author Thomas Freese

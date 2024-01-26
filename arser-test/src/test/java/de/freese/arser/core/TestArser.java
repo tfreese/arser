@@ -28,7 +28,7 @@ import de.freese.arser.core.repository.local.FileRepository;
 import de.freese.arser.core.repository.virtual.VirtualRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.settings.ArserSettings;
-import de.freese.arser.repository.remote.JreHttpClientRemoteRepository;
+import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
 
 /**
  * @author Thomas Freese
@@ -37,7 +37,6 @@ import de.freese.arser.repository.remote.JreHttpClientRemoteRepository;
 class TestArser {
     private static final Path PATH_TEST = Paths.get(System.getProperty("java.io.tmpdir"), "arser-test", "requestHandler");
 
-    private static JreHttpClientComponent httpClientComponent;
     private static LifecycleManager lifecycleManager;
     private static Repository repositoryGradleReleases;
     private static Repository repositoryLocalWriteable;
@@ -75,7 +74,7 @@ class TestArser {
         arserSettings.getHttpClientConfig().setThreadPoolCoreSize(2);
         arserSettings.getHttpClientConfig().setThreadPoolMaxSize(4);
 
-        httpClientComponent = new JreHttpClientComponent(arserSettings.getHttpClientConfig());
+        final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(arserSettings.getHttpClientConfig());
         lifecycleManager.add(httpClientComponent);
 
         repositoryMavenCentral = new JreHttpClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"), httpClientComponent::getHttpClient);
@@ -114,6 +113,7 @@ class TestArser {
         final URI fileRelativeResourceUri = URI.create(resource.getPath().substring(1));
         final URI fileAbsoluteUri = repositoryLocalWriteable.getUri().resolve(fileRelativeResourceUri);
         final Path path = Paths.get(fileAbsoluteUri);
+
         assertTrue(Files.exists(path));
         assertTrue(Files.isReadable(path));
         assertTrue(Files.size(path) > 1L);
@@ -149,11 +149,13 @@ class TestArser {
         // Only in https://repo.gradle.org/gradle/libs-releases
         ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/public/org/gradle/gradle-tooling-api/8.2.1/gradle-tooling-api-8.2.1.pom"));
         boolean exist = arser.exist(resourceRequest);
+
         assertTrue(exist);
 
         // Only in https://repo1.maven.org/maven2
         resourceRequest = ResourceRequest.of(URI.create("/public/org/apache/maven/maven/3.8.4/maven-3.8.4.pom"));
         exist = arser.exist(resourceRequest);
+
         assertTrue(exist);
     }
 }

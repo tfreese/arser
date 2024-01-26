@@ -1,5 +1,5 @@
 // Created: 21.01.24
-package de.freese.arser.facade;
+package de.freese.arser.spring.facade;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -7,8 +7,6 @@ import java.io.InputStream;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +25,7 @@ import de.freese.arser.core.response.ResourceResponse;
 @RestController
 @RequestMapping(path = "**")
 public class ArserRestController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArserRestController.class);
+    // private static final Logger LOGGER = LoggerFactory.getLogger(ArserRestController.class);
 
     @Resource
     private Arser arser;
