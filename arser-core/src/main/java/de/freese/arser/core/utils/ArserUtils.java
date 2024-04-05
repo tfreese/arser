@@ -102,14 +102,14 @@ public final class ArserUtils {
     public static void setupProxy() throws UnknownHostException {
         final String domain = System.getenv("userdomain");
 
-        if ((domain != null) && !domain.equals(System.getProperty("DOMAIN"))) {
+        if (domain != null && !domain.equals(System.getProperty("DOMAIN"))) {
             return;
         }
 
         final InetAddress address = InetAddress.getLocalHost();
         final String canonicalHostName = address.getCanonicalHostName();
 
-        if ((canonicalHostName != null) && !canonicalHostName.endsWith(System.getProperty("HOST"))) {
+        if (canonicalHostName != null && !canonicalHostName.endsWith(System.getProperty("HOST"))) {
             return;
         }
 

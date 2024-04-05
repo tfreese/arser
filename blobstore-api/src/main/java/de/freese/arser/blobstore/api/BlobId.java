@@ -36,7 +36,7 @@ public class BlobId implements Serializable, Comparable<BlobId> {
             return true;
         }
 
-        if ((o == null) || (getClass() != o.getClass())) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 

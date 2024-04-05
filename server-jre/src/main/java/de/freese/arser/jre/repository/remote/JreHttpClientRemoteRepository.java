@@ -60,14 +60,11 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
     protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
 
-        // @formatter:off
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .GET()
-                .build()
-                ;
-        // @formatter:on
+                .build();
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("getInputStream - Request: {}", httpRequest);
@@ -94,12 +91,9 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
 
         assertNotNull(httpClientSupplier, () -> "HttpClientSupplier");
 
-        // @formatter:off
-        final ResilientHttpClient.ResilientHttpClientBuilder resilientHttpClientBuilder =  ResilientHttpClient.newBuilder(httpClientSupplier.get())
+        final ResilientHttpClient.ResilientHttpClientBuilder resilientHttpClientBuilder = ResilientHttpClient.newBuilder(httpClientSupplier.get())
                 .retries(2)
-                .retryDuration(Duration.ofMillis(750))
-                ;
-        // @formatter:on
+                .retryDuration(Duration.ofMillis(750));
 
         httpClient = resilientHttpClientBuilder.build();
     }

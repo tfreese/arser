@@ -63,16 +63,13 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
     protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
 
-        // @formatter:off
         final Mono<ResponseEntity<Flux<DataBuffer>>> response = webClient.get()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .retrieve()
-//                .onStatus(status -> status != HttpStatus.OK, clientResponse -> Mono.error(Exception::new))
+                // .onStatus(status -> status != HttpStatus.OK, clientResponse -> Mono.error(Exception::new))
                 .toEntityFlux(BodyExtractors.toDataBuffers())
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
-                ;
-        // @formatter:on
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)));
 
         final ResponseEntity<Flux<DataBuffer>> responseEntity = response.block();
 
@@ -93,14 +90,11 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
         }
 
         // Variant 1
-        // @formatter:off
-//        final InputStream inputStream = dataBufferFlux
-//                .filter(Objects::nonNull)
-//                .map(dataBuffer -> dataBuffer.asInputStream(true))
-//                .reduce(SequenceInputStream::new)
-//                .block()
-//                ;
-        // @formatter:on
+        // final InputStream inputStream = dataBufferFlux
+        //         .filter(Objects::nonNull)
+        //         .map(dataBuffer -> dataBuffer.asInputStream(true))
+        //         .reduce(SequenceInputStream::new)
+        //         .block();
 
         // Variant 2
         final PipedOutputStream outputStream = new PipedOutputStream();
