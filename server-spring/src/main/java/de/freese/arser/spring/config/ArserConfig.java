@@ -89,10 +89,8 @@ public class ArserConfig {
 
     @Bean
     WebClient.Builder webClientBuilder() {
-        // @formatter:off
         return WebClient.builder()
                 .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024));
-        // @formatter:on
     }
 }

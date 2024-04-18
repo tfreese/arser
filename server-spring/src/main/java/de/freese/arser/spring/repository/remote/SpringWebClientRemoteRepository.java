@@ -39,14 +39,11 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
     protected boolean doExist(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
 
-        // @formatter:off
         final Mono<ResponseEntity<Boolean>> response = webClient.head()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(Boolean.class)) // Liefert Header, Status und ResponseBody.
-                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
-                ;
-        // @formatter:on
+                .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)));
 
         final ResponseEntity<Boolean> responseEntity = response.block();
 

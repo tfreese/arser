@@ -47,15 +47,13 @@ public class JreHttpClientComponent extends AbstractLifecycle {
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));
 
-        // @formatter:off
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .proxy(ProxySelector.getDefault())
                 .connectTimeout(Duration.ofSeconds(3))
-                .executor(this.executorService)
-                ;
-        // @formatter:on
+                .executor(this.executorService);
+
         // .authenticator(Authenticator.getDefault())
         // .cookieHandler(CookieHandler.getDefault())
         // .sslContext(SSLContext.getDefault())

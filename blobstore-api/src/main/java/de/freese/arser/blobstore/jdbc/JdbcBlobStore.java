@@ -165,7 +165,6 @@ public class JdbcBlobStore extends AbstractBlobStore {
              InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-            // @formatter:off
             final String script = bufferedReader.lines()
                     .filter(Objects::nonNull)
                     .filter(l -> !l.isEmpty())
@@ -175,7 +174,6 @@ public class JdbcBlobStore extends AbstractBlobStore {
                     .map(String::strip)
                     .filter(l -> !l.isEmpty())
                     .collect(Collectors.joining(" "));
-            // @formatter:on
 
             // SQLs ending with ';'.
             try (Scanner scanner = new Scanner(script)) {

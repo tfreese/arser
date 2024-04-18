@@ -123,7 +123,6 @@ class TestBlobStore {
     }
 
     static Stream<Arguments> createArgumentes() throws Exception {
-        // @formatter:off
         return Stream.of(
                 Arguments.of("Memory", new MemoryBlobStore()),
                 Arguments.of("File", new FileBlobStore(PATH_TEST.toUri())),
@@ -131,7 +130,6 @@ class TestBlobStore {
                 Arguments.of("DataSource-HSQLDB", new JdbcBlobStore(() -> dataSourceHsqldb)),
                 Arguments.of("DataSource-Derby", new JdbcBlobStore(() -> dataSourceDerby))
         );
-        // @formatter:on
     }
 
     @AfterEach

@@ -87,38 +87,29 @@ public final class ArserJreServerApplication {
 
         // LocalRepository
         arserSettings.getLocalRepositories().forEach(localRepoConfig -> {
-            // @formatter:off
             final LocalRepositoryBuilder builder = new LocalRepositoryBuilder()
                     .name(localRepoConfig.getName())
                     .uri(URI.create(localRepoConfig.getPath()))
-                    .writeable(localRepoConfig.isWriteable())
-                    ;
-            // @formatter:on
+                    .writeable(localRepoConfig.isWriteable());
 
             arser.addRepository(builder.build(lifecycleManager));
         });
 
         // RemoteRepository
         arserSettings.getRemoteRepositories().forEach(remoteRepoConfig -> {
-            // @formatter:off
             final RemoteRepositoryBuilder builder = new RemoteRepositoryBuilder()
                     .name(remoteRepoConfig.getName())
                     .uri(URI.create(remoteRepoConfig.getUri()))
-                    .storeConfig(remoteRepoConfig.getStoreConfig())
-                    ;
-            // @formatter:off
+                    .storeConfig(remoteRepoConfig.getStoreConfig());
 
             arser.addRepository(builder.build(lifecycleManager, httpClientComponent));
         });
 
         // VirtualRepository
         arserSettings.getVirtualRepositories().forEach(virtualRepoConfig -> {
-            // @formatter:off
             final VirtualRepositoryBuilder builder = new VirtualRepositoryBuilder()
                     .name(virtualRepoConfig.getName())
-                    .repositoryNames(virtualRepoConfig.getRepositoryNames())
-                    ;
-            // @formatter:off
+                    .repositoryNames(virtualRepoConfig.getRepositoryNames());
 
             arser.addRepository(builder.build(lifecycleManager, arser::getRepository));
         });

@@ -34,14 +34,11 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
     protected boolean doExist(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
 
-        // @formatter:off
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .method("HEAD", HttpRequest.BodyPublishers.noBody())
-                .build()
-                ;
-        // @formatter:on
+                .build();
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("exist - Request: {}", httpRequest);
