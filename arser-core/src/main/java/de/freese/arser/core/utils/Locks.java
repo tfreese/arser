@@ -21,6 +21,9 @@ public final class Locks {
             }
         }
         catch (InterruptedException ex) {
+            // Restore interrupted state.
+            Thread.currentThread().interrupt();
+            
             throw new RuntimeException(ex);
         }
 

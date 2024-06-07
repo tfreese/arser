@@ -2,7 +2,6 @@
 package de.freese.arser.core.lifecycle;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -91,10 +90,7 @@ public class LifecycleManager extends AbstractLifecycle {
 
         final List<Throwable> throwables = new ArrayList<>(count);
 
-        final List<Lifecycle> copy = new ArrayList<>(components);
-        Collections.reverse(copy);
-
-        for (Lifecycle component : copy) {
+        for (Lifecycle component : components.reversed()) {
             try {
                 component.stop();
             }

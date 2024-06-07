@@ -210,6 +210,12 @@ public class ResilientHttpClient extends HttpClient {
             try {
                 return send(request, responseBodyHandler);
             }
+            catch (InterruptedException ex) {
+                // Restore interrupted state.
+                Thread.currentThread().interrupt();
+
+                throw new RuntimeException(ex);
+            }
             catch (RuntimeException ex) {
                 throw ex; // Also avoids double wrapping CompletionExceptions below.
             }

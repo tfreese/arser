@@ -182,8 +182,11 @@ public class JdbcBlobStore extends AbstractBlobStore {
                 while (scanner.hasNext()) {
                     final String sql = scanner.next().strip();
                     getLogger().info("execute: {}", sql);
-                    statement.execute(sql);
+                    // statement.execute(sql);
+                    statement.addBatch(sql);
                 }
+
+                statement.executeBatch();
             }
         }
     }

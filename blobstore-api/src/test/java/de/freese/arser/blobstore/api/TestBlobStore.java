@@ -122,7 +122,7 @@ class TestBlobStore {
         dataSourceDerby = new HikariDataSource(config);
     }
 
-    static Stream<Arguments> createArgumentes() throws Exception {
+    static Stream<Arguments> createArgumentes() {
         return Stream.of(
                 Arguments.of("Memory", new MemoryBlobStore()),
                 Arguments.of("File", new FileBlobStore(PATH_TEST.toUri())),
