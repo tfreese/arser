@@ -53,6 +53,7 @@ tasks.register("buildApp", Copy) {
 
 //    eachFile { println it.name }
 }
+
 //tasks.register("buildApp") {
 //    group = "Arser"
 //
@@ -206,3 +207,42 @@ tasks.register("deployApp", Sync) {
 //    }
 //}
 //clean.finalizedBy("deleteAppFolder")
+
+// tasks.register("backup") {
+//     group = "MyTasks"
+//
+//     doLast {
+//         ant.lifecycleLogLevel = "INFO"
+//
+//         ant.sync(todir: layout.projectDirectory.dir("root").dir("dst"), overwrite: true, verbose: true) {
+//             fileset(dir: "src") {
+//                 include(name: "**/*.gradle")
+//                 include(name: "**/gradle.properties")
+//             }
+//         }
+//
+//         // delete layout.projectDirectory.dir("root ").dir("dst")
+//         //
+//         // copy {
+//         //     from "src"
+//         //     into layout.projectDirectory.dir("root").dir("dst")
+//         //     include "**/*.gradle"
+//         //     include "**/gradle.properties"
+//         //     includeEmptyDirs = false
+//         // }
+//
+//         // CopySpec gradleSpec = copySpec {
+//         //     from("src") {
+//         //         include "**/*.gradle"
+//         //         include "**/gradle.properties"
+//         //         includeEmptyDirs = false
+//         //     }
+//         //     into("dst")
+//         // }
+//         //
+//         // copy {
+//         //     into layout.projectDirectory.dir("root")
+//         //     with(gradleSpec)
+//         // }
+//     }
+// }
