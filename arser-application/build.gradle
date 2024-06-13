@@ -54,10 +54,36 @@ tasks.register("buildApp", Copy) {
 //    eachFile { println it.name }
 }
 
-//tasks.register("buildApp") {
+// dependsOn(":parent:build")
+// build.finalizedBy("copy")
+//
+//// Register ANT-Tasks as Gradle-Tasks with Prefix "ant-" in Group "other".
+//ant.importBuild("ant_build.xml") { antTargetName -> "ant-" + antTargetName }
+//
+//// Set group property for all Ant tasks.
+//tasks.matching { task -> task.name.startsWith("ant-") }.configureEach{ group = "Ant" }
+//
+// // Target "buildHelp" in ant-hilfe.xml
+// "ant-buildHelp" {
+//     // Use Build-Cache: Tasks in depends="..." will be executed before.
+//     inputs.dir layout.projectDirectory.dir("src").dir("main").dir("resources")
+//     outputs.dir layout.projectDirectory.dir("dist")
+//
+//     // doLast {
+//     //     println("copy help")
+//     //     copy {
+//     //         from layout.projectDirectory.dir("dist")
+//     //         into layout.projectDirectory.dir("..").dir("hilfe")
+//     //     }
+//     // }
+// }
+// build.finalizedBy("ant-buildHelp")
+// //buildHelp.dependsOn("ant-buildHelp")
+
+// tasks.register("buildApp") {
 //    group = "Arser"
 //
-//    doLast {
+//     doLast {
 //        println("build " + project.name)
 //
 //        Directory appFolder = layout.projectDirectory.dir("app")
@@ -99,8 +125,20 @@ tasks.register("buildApp", Copy) {
 ////            }
 ////            into(appFolder.dir("resources"))
 ////        }
-//    }
-//}
+//
+//         copy {
+//             into appFolder.resolve("bin")
+//             rename("a-" + project.version + ". properties", "a. properties")
+//
+//             from(layout.projectDirectory.dir("..").dir("dir1") {
+//                 include "*. properties "
+//             }
+//             from(layout.projectDirectory.dir("..").dir("dir2") {
+//                 include "a.properties"
+//             }
+//         }
+//     }
+// }
 
 // No verbose-Mode
 tasks.register("deployApp", Sync) {
