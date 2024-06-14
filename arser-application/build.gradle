@@ -111,19 +111,19 @@ tasks.register("buildApp", Copy) {
 //        }
 //
 ////        copy {
-////            from(layout.projectDirectory.dir("service").file("arser.sh"))
 ////            into(appFolder.dir("bin"))
+////            from(layout.projectDirectory.dir("service").file("arser.sh"))
 ////        }
 ////        copy {
-////            from(configurations.runtimeClasspath)
 ////            into(appFolder.dir("libs"))
+////            from(configurations.runtimeClasspath)
 ////        }
 ////        copy {
+////            into(appFolder.dir("resources"))
 ////            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
 ////                include "log4j2.xml"
 ////                include "arser-config.xml"
 ////            }
-////            into(appFolder.dir("resources"))
 ////        }
 //
 //         copy {
@@ -283,4 +283,15 @@ tasks.register("deployApp", Sync) {
 //         //     with(gradleSpec)
 //         // }
 //     }
+// }
+
+// myMethod(layout.buildDirectory)
+//
+// def myMethod(Provider<Directory> dir) {
+//     println(dir.get())
+// }
+//
+// Syntax for own File.
+// ext.myMethod = { Provider<Directory> dir ->
+//     println(dir.get())
 // }
