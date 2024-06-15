@@ -18,18 +18,16 @@ public abstract class AbstractRepositoryBuilder<T extends AbstractRepositoryBuil
     private String name;
     private URI uri;
 
-    // @SuppressWarnings("unchecked")
     public T name(final String name) {
         this.name = name;
 
-        return (T) this;
+        return self();
     }
 
-    // @SuppressWarnings("unchecked")
     public T uri(final URI uri) {
         this.uri = uri;
 
-        return (T) this;
+        return self();
     }
 
     protected Logger getLogger() {
@@ -43,6 +41,8 @@ public abstract class AbstractRepositoryBuilder<T extends AbstractRepositoryBuil
     protected URI getUri() {
         return uri;
     }
+
+    protected abstract T self();
 
     protected void validateName() {
         Objects.requireNonNull(name, "name required");

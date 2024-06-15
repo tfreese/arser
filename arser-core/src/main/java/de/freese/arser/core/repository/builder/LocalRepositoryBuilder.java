@@ -41,6 +41,11 @@ public class LocalRepositoryBuilder extends AbstractRepositoryBuilder<LocalRepos
     }
 
     @Override
+    protected LocalRepositoryBuilder self() {
+        return this;
+    }
+
+    @Override
     protected void validateUri() {
         super.validateUri();
 

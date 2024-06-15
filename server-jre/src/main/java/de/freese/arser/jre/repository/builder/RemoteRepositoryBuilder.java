@@ -60,6 +60,11 @@ public class RemoteRepositoryBuilder extends AbstractRepositoryBuilder<RemoteRep
     }
 
     @Override
+    protected RemoteRepositoryBuilder self() {
+        return this;
+    }
+
+    @Override
     protected void validateUri() {
         super.validateUri();
 

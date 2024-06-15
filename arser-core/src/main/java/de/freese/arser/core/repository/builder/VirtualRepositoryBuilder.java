@@ -53,4 +53,9 @@ public class VirtualRepositoryBuilder extends AbstractRepositoryBuilder<VirtualR
 
         return this;
     }
+
+    @Override
+    protected VirtualRepositoryBuilder self() {
+        return this;
+    }
 }
