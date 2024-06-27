@@ -28,14 +28,6 @@ public abstract class AbstractResourceResponse implements ResourceResponse {
     }
 
     @Override
-    public String getFileName() {
-        final String path = getResourceRequest().getResource().getPath();
-        final int lastSlashIndex = path.lastIndexOf('/');
-
-        return path.substring(lastSlashIndex + 1);
-    }
-
-    @Override
     public InputStream getInputStream() {
         return inputStream;
     }

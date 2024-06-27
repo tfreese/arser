@@ -14,7 +14,12 @@ public interface ResourceResponse {
 
     long getContentLength();
 
-    String getFileName();
+    default String getFileName() {
+        final String path = getResourceRequest().getResource().getPath();
+        final int lastSlashIndex = path.lastIndexOf('/');
+
+        return path.substring(lastSlashIndex + 1);
+    }
 
     InputStream getInputStream();
 

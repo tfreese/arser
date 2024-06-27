@@ -30,6 +30,9 @@ test {
 
 tasks.register("buildApp", Copy) {
     group = "Arser"
+    description = "build the app"
+
+    dependsOn(":arser-test:build")
 
     println("build " + project.name)
 
@@ -54,95 +57,12 @@ tasks.register("buildApp", Copy) {
 //    eachFile { println it.name }
 }
 
-// dependsOn(":parent:build")
-// build.finalizedBy("copy")
-//
-//// Register ANT-Tasks as Gradle-Tasks with Prefix "ant-" in Group "other".
-//ant.importBuild("ant_build.xml") { antTargetName -> "ant-" + antTargetName }
-//
-//// Set group property for all Ant tasks.
-//tasks.matching { task -> task.name.startsWith("ant-") }.configureEach{ group = "Ant" }
-//
-// // Target "buildHelp" in ant-hilfe.xml
-// "ant-buildHelp" {
-//     // Use Build-Cache: Tasks in depends="..." will be executed before.
-//     inputs.dir layout.projectDirectory.dir("src").dir("main").dir("resources")
-//     outputs.dir layout.projectDirectory.dir("dist")
-//
-//     // doLast {
-//     //     println("copy help")
-//     //     copy {
-//     //         from layout.projectDirectory.dir("dist")
-//     //         into layout.projectDirectory.dir("..").dir("hilfe")
-//     //     }
-//     // }
-// }
-// build.finalizedBy("ant-buildHelp")
-// //buildHelp.dependsOn("ant-buildHelp")
-
-// tasks.register("buildApp") {
-//    group = "Arser"
-//
-//     doLast {
-//        println("build " + project.name)
-//
-//        Directory appFolder = layout.projectDirectory.dir("app")
-//
-//        mkdir appFolder.dir("logs")
-//
-//        CopySpec binSpec = copySpec {
-//            from(layout.projectDirectory.dir("service").file("arser.sh"))
-//            into("bin")
-//        }
-//        CopySpec libSpec = copySpec {
-//            from(configurations.runtimeClasspath)
-//            into("libs")
-//        }
-//        CopySpec resSpec = copySpec {
-//            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
-//                include "log4j2.xml"
-//                include "arser-config.xml"
-//            }
-//            into("resources")
-//        }
-//        copy {
-//            into appFolder
-//            with(binSpec, libSpec, resSpec)
-//        }
-//
-////        copy {
-////            into(appFolder.dir("bin"))
-////            from(layout.projectDirectory.dir("service").file("arser.sh"))
-////        }
-////        copy {
-////            into(appFolder.dir("libs"))
-////            from(configurations.runtimeClasspath)
-////        }
-////        copy {
-////            into(appFolder.dir("resources"))
-////            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
-////                include "log4j2.xml"
-////                include "arser-config.xml"
-////            }
-////        }
-//
-//         copy {
-//             into appFolder.resolve("bin")
-//             rename("a-" + project.version + ". properties", "a. properties")
-//
-//             from(layout.projectDirectory.dir("..").dir("dir1") {
-//                 include "*. properties "
-//             }
-//             from(layout.projectDirectory.dir("..").dir("dir2") {
-//                 include "a.properties"
-//             }
-//         }
-//     }
-// }
-
 // No verbose-Mode
 tasks.register("deployApp", Sync) {
     group = "Arser"
+    description = "deploy the app"
+
+    dependsOn("buildApp")
 
     println("deploy " + project.name)
 
@@ -294,4 +214,90 @@ tasks.register("deployApp", Sync) {
 // Syntax for own File.
 // ext.myMethod = { Provider<Directory> dir ->
 //     println(dir.get())
+// }
+
+// dependsOn(":parent:build")
+// build.finalizedBy("copy")
+//
+//// Register ANT-Tasks as Gradle-Tasks with Prefix "ant-" in Group "other".
+//ant.importBuild("ant_build.xml") { antTargetName -> "ant-" + antTargetName }
+//
+//// Set group property for all Ant tasks.
+//tasks.matching { task -> task.name.startsWith("ant-") }.configureEach{ group = "Ant" }
+//
+// // Target "buildHelp" in ant-hilfe.xml
+// "ant-buildHelp" {
+//     // Use Build-Cache: Tasks in depends="..." will be executed before.
+//     inputs.dir layout.projectDirectory.dir("src").dir("main").dir("resources")
+//     outputs.dir layout.projectDirectory.dir("dist")
+//
+//     // doLast {
+//     //     println("copy help")
+//     //     copy {
+//     //         from layout.projectDirectory.dir("dist")
+//     //         into layout.projectDirectory.dir("..").dir("hilfe")
+//     //     }
+//     // }
+// }
+// build.finalizedBy("ant-buildHelp")
+// //buildHelp.dependsOn("ant-buildHelp")
+
+// tasks.register("buildApp") {
+//    group = "Arser"
+//
+//     doLast {
+//        println("build " + project.name)
+//
+//        Directory appFolder = layout.projectDirectory.dir("app")
+//
+//        mkdir appFolder.dir("logs")
+//
+//        CopySpec binSpec = copySpec {
+//            from(layout.projectDirectory.dir("service").file("arser.sh"))
+//            into("bin")
+//        }
+//        CopySpec libSpec = copySpec {
+//            from(configurations.runtimeClasspath)
+//            into("libs")
+//        }
+//        CopySpec resSpec = copySpec {
+//            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
+//                include "log4j2.xml"
+//                include "arser-config.xml"
+//            }
+//            into("resources")
+//        }
+//        copy {
+//            into appFolder
+//            with(binSpec, libSpec, resSpec)
+//        }
+//
+////        copy {
+////            into(appFolder.dir("bin"))
+////            from(layout.projectDirectory.dir("service").file("arser.sh"))
+////        }
+////        copy {
+////            into(appFolder.dir("libs"))
+////            from(configurations.runtimeClasspath)
+////        }
+////        copy {
+////            into(appFolder.dir("resources"))
+////            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
+////                include "log4j2.xml"
+////                include "arser-config.xml"
+////            }
+////        }
+//
+//         copy {
+//             into appFolder.resolve("bin")
+//             rename("a-" + project.version + ". properties", "a. properties")
+//
+//             from(layout.projectDirectory.dir("..").dir("dir1") {
+//                 include "*. properties "
+//             }
+//             from(layout.projectDirectory.dir("..").dir("dir2") {
+//                 include "a.properties"
+//             }
+//         }
+//     }
 // }

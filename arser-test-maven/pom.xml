@@ -25,13 +25,14 @@
 
         <maven.compiler.target>22</maven.compiler.target>
         <maven.compiler.source>22</maven.compiler.source>
+        <maven.minimum.version>3.9.7</maven.minimum.version>
 
-        <gradle-tooling-api.version>8.2.1</gradle-tooling-api.version>
+        <gradle-tooling-api.version>8.8</gradle-tooling-api.version>
         <primefaces-themes.version>1.0.10</primefaces-themes.version>
-        <slf4j.version>2.0.7</slf4j.version>
-        <junit-jupiter.version>5.9.3</junit-jupiter.version>
+        <slf4j.version>2.0.13</slf4j.version>
 
-        <maven-toolchains-plugin.version>3.1.0</maven-toolchains-plugin.version>
+        <version_maven-enforcer-plugin>3.5.0</version_maven-enforcer-plugin>
+        <version_versions-maven-plugin>2.16.2</version_versions-maven-plugin>
     </properties>
 
     <distributionManagement>
@@ -55,6 +56,39 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${version_maven-enforcer-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>[${maven.minimum.version},)</version>
+                            <message>You are running an older version of Maven, at least Maven ${maven.minimum.version}</message>
+                        </requireMavenVersion>
+                        <requireJavaVersion>
+                            <version>[${maven.compiler.source},)</version>
+                            <message>You are running an older version of Java, at least JDK ${java.version}</message>
+                        </requireJavaVersion>
+                    </rules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${version_versions-maven-plugin}</version>
+                <configuration>
+                    <ignoredVersions>.*-M.*,.*-alpha.*,.*-rc.*</ignoredVersions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
