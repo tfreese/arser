@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,9 @@ public final class ArserUtils {
      * io.netty.handler.codec.http.HttpResponseStatus
      */
     public static final int HTTP_SERVICE_UNAVAILABLE = HttpURLConnection.HTTP_UNAVAILABLE;
+    public static final Pattern PATTERN_SNAPSHOT_TIMESTAMP = Pattern.compile("\\d{8}\\.\\d{6}-\\d+");
     public static final String SERVER_NAME = "ARtifact-SERvice";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserUtils.class);
 
     //    private static final FileNameMap FILE_NAME_MAP = URLConnection.getFileNameMap();

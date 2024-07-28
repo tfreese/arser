@@ -5,11 +5,13 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.freese.arser.core.utils.ArserUtils;
+
 /**
  * @author Thomas Freese
  */
 public final class Misc {
-    public static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) {
         testUrl();
         removeSnapshotTimestamp();
     }
@@ -22,8 +24,8 @@ public final class Misc {
         System.out.println(text);
     }
 
-    private static void removeSnapshotTimestamp() throws Exception {
-        final Pattern pattern = Pattern.compile("\\d{8}\\.\\d{6}-\\d");
+    private static void removeSnapshotTimestamp() {
+        final Pattern pattern = ArserUtils.PATTERN_SNAPSHOT_TIMESTAMP;
         final Matcher matcher = pattern.matcher("/de/freese/arser/test-project/0.0.1-SNAPSHOT/test-project-0.0.1-20230806.084242-1.pom");
 
         if (matcher.find()) {
@@ -33,7 +35,7 @@ public final class Misc {
         printlnOut(matcher.replaceAll("SNAPSHOT"));
     }
 
-    private static void testUrl() throws Exception {
+    private static void testUrl() {
         final URI uri = URI.create("file:///tmp/arser/cache/");
 
         final String relative = "public-cached";

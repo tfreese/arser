@@ -13,12 +13,13 @@ import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceResponse;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  */
 public class BlobStoreRepository extends AbstractRepository {
-    private static final Pattern PATTERN_SNAPSHOT_TIMESTAMP = Pattern.compile("\\d{8}\\.\\d{6}-\\d{1,}");
+    private static final Pattern PATTERN_SNAPSHOT_TIMESTAMP = ArserUtils.PATTERN_SNAPSHOT_TIMESTAMP;
 
     private final BlobStore blobStore;
 
