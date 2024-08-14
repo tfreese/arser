@@ -25,14 +25,14 @@
 
         <maven.compiler.target>22</maven.compiler.target>
         <maven.compiler.source>22</maven.compiler.source>
-        <maven.minimum.version>3.9.7</maven.minimum.version>
+        <maven.minimum.version>3.9.8</maven.minimum.version>
 
-        <gradle-tooling-api.version>8.8</gradle-tooling-api.version>
-        <primefaces-themes.version>1.0.10</primefaces-themes.version>
-        <slf4j.version>2.0.13</slf4j.version>
+        <gradle-tooling-api.version>8.10</gradle-tooling-api.version>
+        <primefaces-themes.version>1.0.11</primefaces-themes.version>
+        <slf4j.version>2.0.16</slf4j.version>
 
         <version_maven-enforcer-plugin>3.5.0</version_maven-enforcer-plugin>
-        <version_versions-maven-plugin>2.16.2</version_versions-maven-plugin>
+        <version_versions-maven-plugin>2.17.1</version_versions-maven-plugin>
     </properties>
 
     <distributionManagement>
