@@ -66,7 +66,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
         }
         catch (final Exception ex) {
             getLogger().error(ex.getMessage(), ex);
-            //            throw new IOException(ex);
+            // throw new IOException(ex);
             sendError(exchange, ex.getMessage());
         }
         finally {
