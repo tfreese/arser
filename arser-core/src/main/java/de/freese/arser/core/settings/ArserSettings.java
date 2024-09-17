@@ -44,8 +44,8 @@ public final class ArserSettings {
         final Schema schema = schemaFactory.newSchema(schemaFile);
 
         // Validation either by Validator or Unmarshaller, otherwise the Stream is closed when parsing.
-        //        final Validator validator = schema.newValidator();
-        //        validator.validate(xmlFile);
+        // final Validator validator = schema.newValidator();
+        // validator.validate(xmlFile);
 
         final JAXBContext jaxbContext = JAXBContext.newInstance(de.freese.arser.config.ArserSettings.class.getPackageName());
         final Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
