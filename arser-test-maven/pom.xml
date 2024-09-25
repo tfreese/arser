@@ -27,7 +27,7 @@
         <maven.compiler.source>22</maven.compiler.source>
         <maven.minimum.version>3.9.9</maven.minimum.version>
 
-        <gradle-tooling-api.version>8.10</gradle-tooling-api.version>
+        <gradle-tooling-api.version>8.10.2</gradle-tooling-api.version>
         <primefaces-themes.version>1.0.11</primefaces-themes.version>
         <slf4j.version>2.0.16</slf4j.version>
 
