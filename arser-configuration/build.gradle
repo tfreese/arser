@@ -52,21 +52,21 @@ tasks.register("genJaxb") {
     def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
     outputs.dir destDir
 
-    doLast {
-        mkdir destDir
+    // doLast {
+    mkdir destDir
 
-        ant {
-            taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath
+    ant {
+        taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath
 
-            xjc(destdir: destDir,
-                    schema: schema,
-                    binding: binding,
-                    package: "de.freese.arser.config",
-                    encoding: compileJava.options.encoding,
-                    extension: true) {
-                arg(value: "-npa")
-                //schema(dir: destDir, includes: "*.xsd")
-            }
+        xjc(destdir: destDir,
+                schema: schema,
+                binding: binding,
+                package: "de.freese.arser.config",
+                encoding: compileJava.options.encoding,
+                extension: true) {
+            arg(value: "-npa")
+            //schema(dir: destDir, includes: "*.xsd")
+        }
 
 //            taskdef name: "jxc", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.jaxb.asPath
 //
@@ -76,7 +76,7 @@ tasks.register("genJaxb") {
 //                    verbose: false) {
 //                //schema(file: "CustomSchema.xsd", namespace: "")
 //            }
-        }
     }
+    // }
 }
 compileJava.dependsOn "genJaxb"
