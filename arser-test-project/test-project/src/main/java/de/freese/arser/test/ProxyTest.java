@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 public final class ProxyTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyTest.class);
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         LOGGER.info("Hello World");
     }
 

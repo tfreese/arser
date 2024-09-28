@@ -1,0 +1,30 @@
+// plugins {
+//     id "base"
+// }
+
+subprojects {
+    apply plugin: "base"
+
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("java")
+                || project.plugins.hasPlugin("java-library")
+                || project.plugins.hasPlugin("application")) {
+            java {
+                //sourceCompatibility = 22
+                //targetCompatibility = 22
+
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of(22)
+                }
+            }
+
+            test {
+                useJUnitPlatform()
+            }
+
+            javadoc {
+                enabled = false
+            }
+        }
+    }
+}

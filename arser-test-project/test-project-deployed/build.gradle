@@ -1,0 +1,10 @@
+plugins {
+    id "java"
+}
+
+description = "Arser Test Project (Deployed)"
+
+dependencies {
+    implementation(project(":test-project"))
+    // implementation("de.freese.arser:test-project:$version")
+}

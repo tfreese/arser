@@ -1,0 +1,41 @@
+pluginManagement {
+    repositories {
+        // mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://repo.gradle.org/gradle/libs-releases"
+            name "gradle-releases"
+        }
+        // maven {
+        //     url "https://localhost:7999/public"
+        //     name "local-arser"
+        //     mavenContent {
+        //         releasesOnly()
+        //     }
+        //     // content {
+        //     //     excludeGroup("de.freese")
+        //     // }
+        // }
+        // maven {
+        //     url "https://localhost:7999/deploy-snapshots"
+        //     name "local-arser-snapshots"
+        //     mavenContent {
+        //         snapshotsOnly()
+        //     }
+        //     // content {
+        //     //     includeGroup("de.freese")
+        //     // }
+        // }
+    }
+}
+
+include "test-project"
+include "test-project-deployed"
