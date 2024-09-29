@@ -62,13 +62,22 @@ public class JreHttpServer extends AbstractLifecycle {
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));
 
+        // this.httpServer = HttpsServer.create(new InetSocketAddress(port), 0);
+        // if (httpServer instanceof HttpsServer https) {
+        //     https.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()) {
+        //         @Override
+        //         public void configure(final HttpsParameters params) {
+        //             super.configure(params);
+        //         }
+        //     });
+        // }
+
         this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         this.httpServer.setExecutor(executorService);
-
         this.httpServer.createContext("/", new JreHttpServerHandler(arser));
 
         this.httpServer.start();
-        //        new Thread(this.httpServer::start, "arser").start();
+        // new Thread(this.httpServer::start, "arser").start();
     }
 
     @Override

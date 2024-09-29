@@ -1,39 +1,36 @@
 pluginManagement {
     repositories {
         // mavenLocal()
-        mavenCentral()
-        gradlePluginPortal()
+        // mavenCentral()
+        // gradlePluginPortal()
+        maven {
+            url "http://localhost:7999/public"
+            name "local-arser"
+            allowInsecureProtocol = true
+        }
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        mavenLocal()
-        mavenCentral()
+        // mavenLocal()
+        // mavenCentral()
         maven {
-            url "https://repo.gradle.org/gradle/libs-releases"
-            name "gradle-releases"
+            url "http://localhost:7999/public"
+            name "local-arser"
+            allowInsecureProtocol = true
+            mavenContent {
+                releasesOnly()
+            }
         }
-        // maven {
-        //     url "https://localhost:7999/public"
-        //     name "local-arser"
-        //     mavenContent {
-        //         releasesOnly()
-        //     }
-        //     // content {
-        //     //     excludeGroup("de.freese")
-        //     // }
-        // }
-        // maven {
-        //     url "https://localhost:7999/deploy-snapshots"
-        //     name "local-arser-snapshots"
-        //     mavenContent {
-        //         snapshotsOnly()
-        //     }
-        //     // content {
-        //     //     includeGroup("de.freese")
-        //     // }
-        // }
+        maven {
+            url "http://localhost:7999/deploy-snapshots"
+            name "local-arser-snapshots"
+            allowInsecureProtocol = true
+            mavenContent {
+                snapshotsOnly()
+            }
+        }
     }
 }
 

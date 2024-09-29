@@ -5,6 +5,8 @@ plugins {
 description = "Arser Test Project (Deployed)"
 
 dependencies {
-    implementation(project(":test-project"))
-    // implementation("de.freese.arser:test-project:$version")
+    // implementation(project(":test-project"))
+
+    // Force to load from Repository.
+    implementation("de.freese.arser:test-project:$version")
 }

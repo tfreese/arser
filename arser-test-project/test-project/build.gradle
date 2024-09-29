@@ -17,7 +17,8 @@ dependencies {
     runtimeOnly("org.slf4j:slf4j-simple:2.0.16")
 }
 
-build.finalizedBy("publishToMavenLocal")
+build.finalizedBy("publish")
+// build.finalizedBy("publishToMavenLocal")
 
 // https://docs.gradle.org/current/userguide/publishing_maven.html
 publishing {
@@ -33,7 +34,8 @@ publishing {
             // def snapshotsRepoUrl = layout.buildDirectory.dir('repos/snapshots')
             // url = project.hasProperty("release") ? releasesRepoUrl : snapshotsRepoUrl
 
-            url = "https://localhost:7999/deploy-snapshots"
+            url = "http://localhost:7999/deploy-snapshots"
+            allowInsecureProtocol = true
         }
     }
 }

@@ -25,17 +25,17 @@
             <name>maven-central</name>
             <uri>https://repo1.maven.org/maven2</uri>
         </remote>
-        <!--        <remote>-->
-        <!--            <name>spring-release</name>-->
-        <!--            <uri>https://repo.spring.io/release</uri>-->
-        <!--        </remote>-->
+        <remote>
+            <name>spring-release</name>
+            <uri>https://repo.spring.io/release</uri>
+        </remote>
         <remote>
             <name>primefaces</name>
             <uri>https://repository.primefaces.org</uri>
-            <!--            <storeConfig>-->
-            <!--                <type>file</type>-->
-            <!--                <uri>file:///tmp/arser/cache/primefaces</uri>-->
-            <!--            </storeConfig>-->
+            <storeConfig>
+                <type>file</type>
+                <uri>file:///tmp/arser/cache/primefaces</uri>
+            </storeConfig>
         </remote>
         <remote>
             <name>gradle-releases</name>
@@ -49,6 +49,10 @@
                 <pool-core-size>2</pool-core-size>
                 <pool-max-size>6</pool-max-size>
             </storeConfig>
+        </remote>
+        <remote>
+            <name>gradle-plugins</name>
+            <uri>https://plugins.gradle.org</uri>
         </remote>
         <local>
             <name>third-party</name>
@@ -69,19 +73,20 @@
         <virtual>
             <name>public</name>
             <repository-name>maven-central</repository-name>
-            <!--            <repository-mame>spring-release</repository-mame>-->
+            <repository-name>spring-releases</repository-name>
             <repository-name>primefaces</repository-name>
             <repository-name>gradle-releases</repository-name>
+            <repository-name>gradle-plugins</repository-name>
             <repository-name>third-party</repository-name>
             <repository-name>deploy-releases</repository-name>
             <repository-name>deploy-snapshots</repository-name>
         </virtual>
-        <!--        <virtual>-->
-        <!--            <name>public-local</name>-->
-        <!--            <repository-name>third-party</repository-name>-->
-        <!--            <repository-name>deploy-releases</repository-name>-->
-        <!--            <repository-name>deploy-snapshots</repository-name>-->
-        <!--        </virtual>-->
+        <virtual>
+            <name>public-local</name>
+            <repository-name>third-party</repository-name>
+            <repository-name>deploy-releases</repository-name>
+            <repository-name>deploy-snapshots</repository-name>
+        </virtual>
     </repositories>
 
 </arser-settings>
