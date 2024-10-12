@@ -1,11 +1,10 @@
 pluginManagement {
     repositories {
-        // mavenLocal()
+        mavenLocal()
         // mavenCentral()
         // gradlePluginPortal()
         maven {
             url "http://localhost:7999/public"
-            name "local-arser"
             allowInsecureProtocol = true
         }
     }
@@ -13,11 +12,10 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        // mavenLocal()
+        mavenLocal()
         // mavenCentral()
         maven {
             url "http://localhost:7999/public"
-            name "local-arser"
             allowInsecureProtocol = true
             mavenContent {
                 releasesOnly()
@@ -25,7 +23,6 @@ dependencyResolutionManagement {
         }
         maven {
             url "http://localhost:7999/deploy-snapshots"
-            name "local-arser-snapshots"
             allowInsecureProtocol = true
             mavenContent {
                 snapshotsOnly()

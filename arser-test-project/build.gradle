@@ -1,30 +1,34 @@
-// plugins {
-//     id "base"
-// }
+plugins {
+    // id "name.remal.sonarlint" version "$version_nameRemalSonarlintPlugin" apply false
+    // id "de.freese.gradle.sonarlint-conventions" version "$version_myConventionPlugin" apply false
+}
 
 subprojects {
     apply plugin: "base"
 
-    afterEvaluate { project ->
-        if (project.plugins.hasPlugin("java")
-                || project.plugins.hasPlugin("java-library")
-                || project.plugins.hasPlugin("application")) {
-            java {
-                //sourceCompatibility = 22
-                //targetCompatibility = 22
+    // name.endsWith('-doc')
+    // if (file("src/main/java").isDirectory()) {
+    //     apply plugin: "name.remal.sonarlint"
+    //     apply plugin: "de.freese.gradle.sonarlint-conventions"
+    // }
 
-                toolchain {
-                    languageVersion = JavaLanguageVersion.of(22)
-                }
-            }
+    // pluginManager.hasPlugin("java")
+    pluginManager.withPlugin("java") {
+        java {
+            // sourceCompatibility = JavaVersion.VERSION_22
+            // targetCompatibility = JavaVersion.VERSION_22
 
-            test {
-                useJUnitPlatform()
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(22)
             }
+        }
 
-            javadoc {
-                enabled = false
-            }
+        test {
+            useJUnitPlatform()
+        }
+
+        javadoc {
+            enabled = false
         }
     }
 }

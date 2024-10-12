@@ -25,6 +25,11 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
+
+            pom {
+                name = project.name
+                description = project.description
+            }
         }
     }
 
