@@ -6,8 +6,11 @@ plugins {
     id "de.freese.gradle.sonarlint-conventions" version "$version_myConventionPlugin" apply false
 }
 
-subprojects {
+allprojects {
     apply plugin: "base"
+}
+
+subprojects {
     apply plugin: "de.freese.gradle.conventions"
     apply plugin: "io.spring.dependency-management"
 
