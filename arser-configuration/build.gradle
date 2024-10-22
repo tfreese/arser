@@ -63,7 +63,8 @@ tasks.register("genJaxb") {
                 binding: binding,
                 package: "de.freese.arser.config",
                 encoding: compileJava.options.encoding,
-                extension: true) {
+                extension: true,
+                removeOldOutput: true) {
             arg(value: "-npa")
             //schema(dir: destDir, includes: "*.xsd")
         }

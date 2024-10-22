@@ -118,8 +118,6 @@ tasks.register("deployApp", Sync) {
 //    doLast {
 //        println("deploy " + project.name)
 //
-//        ant.lifecycleLogLevel = "INFO"
-//
 //        Directory appFolder = layout.projectDirectory.dir("app")
 //        String remoteFolder = "/opt/jvmapps/arser"
 //
@@ -174,8 +172,6 @@ tasks.register("deployApp", Sync) {
 //     group = "MyTasks"
 //
 //     doLast {
-//         ant.lifecycleLogLevel = "INFO"
-//
 //         ant.sync(todir: layout.projectDirectory.dir("root").dir("dst"), overwrite: true, verbose: true) {
 //             fileset(dir: "src") {
 //                 include(name: "**/*.gradle")
