@@ -67,6 +67,17 @@ tasks.register("genJaxb") {
                 removeOldOutput: true) {
             arg(value: "-npa")
             //schema(dir: destDir, includes: "*.xsd")
+
+            // XJC hat eingebauten Build-Cache.
+            // Files specified as the schema files and binding files are automatically added to the "depends" set as well,
+            // but if those schemas are including/importing other schemas, you have to use a nested <depends> elements.
+
+            // Verhindert Meldung: Consider using <depends>/<produces> so that XJC won't do unnecessary compilation
+
+            //depends(file: binding)
+            //depends(dir: schemaDir.dir("GolfCountryClub"), includes: "**/*.xsd")
+            // produces(dir: destdir, includes: "**/*.java")
+            produces(dir: destDir, includes: "**/*.java")
         }
 
 //            taskdef name: "jxc", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.jaxb.asPath
