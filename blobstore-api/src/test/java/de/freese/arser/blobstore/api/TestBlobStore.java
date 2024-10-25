@@ -164,9 +164,8 @@ class TestBlobStore {
             blobStore.create(blobId, inputStream);
         }
 
-        try (InputStream inputStream = InputStream.nullInputStream();
-             OutputStream outputStream = blobStore.create(blobId)) {
-            inputStream.transferTo(outputStream);
+        try (InputStream inputStream = InputStream.nullInputStream()) {
+            blobStore.create(blobId, inputStream::transferTo);
         }
     }
 
@@ -234,9 +233,8 @@ class TestBlobStore {
         assertFalse(blobStore.exists(blobId));
 
         // Insert
-        try (InputStream inputStream = Files.newInputStream(path);
-             OutputStream outputStream = blobStore.create(blobId)) {
-            inputStream.transferTo(outputStream);
+        try (InputStream inputStream = Files.newInputStream(path)) {
+            blobStore.create(blobId, inputStream::transferTo);
         }
 
         testAfterInsert(blobStore, blobId, uri, fileSize, bytes);

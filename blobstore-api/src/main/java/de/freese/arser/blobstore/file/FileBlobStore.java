@@ -1,6 +1,7 @@
 // Created: 18.09.2019
 package de.freese.arser.blobstore.file;
 
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import de.freese.arser.blobstore.api.AbstractBlobStore;
 import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
+import de.freese.arser.blobstore.api.ThrowingConsumer;
 
 /**
  * @author Thomas Freese
@@ -29,12 +31,16 @@ public class FileBlobStore extends AbstractBlobStore {
     }
 
     @Override
-    public OutputStream create(final BlobId id) throws Exception {
+    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
         final Path path = toContentPath(id);
 
         Files.createDirectories(path.getParent());
 
-        return Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
+            consumer.accept(outputStream);
+
+            outputStream.flush();
+        }
     }
 
     @Override

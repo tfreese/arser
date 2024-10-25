@@ -8,6 +8,7 @@ import java.net.URI;
 import de.freese.arser.blobstore.api.AbstractBlobStore;
 import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
+import de.freese.arser.blobstore.api.ThrowingConsumer;
 
 /**
  * @author Thomas Freese
@@ -17,8 +18,8 @@ public class EmptyBlobStore extends AbstractBlobStore {
     private static final URI NOOP_URI = URI.create("empty");
 
     @Override
-    public OutputStream create(final BlobId id) throws Exception {
-        return OutputStream.nullOutputStream();
+    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
+        consumer.accept(OutputStream.nullOutputStream());
     }
 
     @Override

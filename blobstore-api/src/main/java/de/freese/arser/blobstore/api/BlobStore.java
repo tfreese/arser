@@ -17,7 +17,9 @@ public interface BlobStore {
     /**
      * <b>This Stream MUST be closed to avoid resource exhausting !</b>
      */
-    OutputStream create(BlobId id) throws Exception;
+    // OutputStream create(BlobId id) throws Exception;
+
+    void create(BlobId id, ThrowingConsumer<OutputStream, Exception> consumer) throws Exception;
 
     void create(BlobId id, InputStream inputStream) throws Exception;
 

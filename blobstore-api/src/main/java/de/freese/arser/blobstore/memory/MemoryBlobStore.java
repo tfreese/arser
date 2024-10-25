@@ -1,7 +1,6 @@
 package de.freese.arser.blobstore.memory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -11,6 +10,7 @@ import java.util.Map;
 import de.freese.arser.blobstore.api.AbstractBlobStore;
 import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
+import de.freese.arser.blobstore.api.ThrowingConsumer;
 
 /**
  * @author Thomas Freese
@@ -21,15 +21,14 @@ public class MemoryBlobStore extends AbstractBlobStore {
     private final Map<BlobId, byte[]> cache = new HashMap<>();
 
     @Override
-    public OutputStream create(final BlobId id) throws Exception {
-        return new ByteArrayOutputStream() {
-            @Override
-            public void close() throws IOException {
-                super.close();
+    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            consumer.accept(outputStream);
 
-                cache.put(id, toByteArray());
-            }
-        };
+            outputStream.flush();
+
+            cache.put(id, outputStream.toByteArray());
+        }
     }
 
     @Override

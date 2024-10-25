@@ -1,8 +1,8 @@
 package de.freese.arser.blobstore.jdbc;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FilterInputStream;
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import de.freese.arser.blobstore.api.AbstractBlobStore;
 import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
+import de.freese.arser.blobstore.api.ThrowingConsumer;
 
 /**
  * @author Thomas Freese
@@ -55,62 +56,56 @@ public class JdbcBlobStore extends AbstractBlobStore {
     }
 
     @Override
-    public OutputStream create(final BlobId id) throws Exception {
+    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
         final String sql = "insert into BLOB_STORE (URI, BLOB) values (?, ?)";
 
-        final Connection connection = getDataSource().getConnection();
-        connection.setAutoCommit(false);
+        Exception exception = null;
 
-        final java.sql.Blob blob = connection.createBlob();
+        try (Connection connection = getDataSource().getConnection()) {
+            connection.setAutoCommit(false);
 
-        return new FilterOutputStream(blob.setBinaryStream(1)) {
-            @Override
-            public void close() throws IOException {
-                super.close();
+            final java.sql.Blob blob = connection.createBlob();
 
-                SQLException exception = null;
+            try (OutputStream outputStream = new BufferedOutputStream(blob.setBinaryStream(1))) {
+                consumer.accept(outputStream);
 
-                try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
-                    prepareStatement.setString(1, id.getUri().toString());
-                    prepareStatement.setBlob(2, blob);
-                    prepareStatement.executeUpdate();
+                outputStream.flush();
+            }
 
-                    connection.commit();
-                }
-                catch (SQLException ex) {
-                    getLogger().error("Connection.commit: " + ex.getMessage(), ex);
-                    exception = ex;
+            try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
+                prepareStatement.setString(1, id.getUri().toString());
+                prepareStatement.setBlob(2, blob);
+                prepareStatement.executeUpdate();
 
-                    try {
-                        connection.rollback();
-                    }
-                    catch (SQLException ex1) {
-                        getLogger().error("Connection.rollback: " + ex1.getMessage(), ex1);
-                        exception = ex1;
-                    }
-                }
+                connection.commit();
+            }
+            catch (SQLException ex) {
+
+                exception = ex;
 
                 try {
-                    blob.free();
+                    connection.rollback();
                 }
-                catch (SQLException ex) {
-                    getLogger().error("Blob.free: " + ex.getMessage(), ex);
-                    exception = ex;
-                }
-
-                try {
-                    connection.close();
-                }
-                catch (SQLException ex) {
-                    getLogger().error("Connection.close: " + ex.getMessage(), ex);
-                    exception = ex;
-                }
-
-                if (exception != null) {
-                    throw new IOException(exception);
+                catch (SQLException ex1) {
+                    exception = ex1;
                 }
             }
-        };
+
+            try {
+                blob.free();
+            }
+            catch (SQLException ex) {
+                exception = ex;
+            }
+        }
+        catch (Exception ex) {
+            exception = ex;
+        }
+
+        if (exception != null) {
+            getLogger().error(exception.getMessage(), exception);
+            throw exception;
+        }
     }
 
     @Override

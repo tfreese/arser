@@ -1,22 +1,21 @@
 // Created: 03.05.2021
 package de.freese.arser.core.response;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
+import de.freese.arser.core.utils.MultiplexOutputStream;
 
 /**
  * @author Thomas Freese
  */
 public class CachedResourceResponse extends AbstractResourceResponse {
-    private static final int DEFAULT_BUFFER_SIZE = 8192;
-
     private final BlobId blobId;
     private final BlobStore blobStore;
 
@@ -29,29 +28,24 @@ public class CachedResourceResponse extends AbstractResourceResponse {
 
     @Override
     public long transferTo(final OutputStream outputStream) throws IOException {
-        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        int read;
-        long transferred = 0L;
+        final AtomicLong transferred = new AtomicLong(0L);
 
-        try (InputStream inputStream = new BufferedInputStream(getInputStream());
-             OutputStream blobOutputStream = new BufferedOutputStream(blobStore.create(blobId))) {
-            while ((read = inputStream.read(buffer, 0, DEFAULT_BUFFER_SIZE)) >= 0) {
-                blobOutputStream.write(buffer, 0, read);
-                outputStream.write(buffer, 0, read);
+        try {
+            blobStore.create(blobId, blobOutputStream -> {
+                final MultiplexOutputStream multiplexOutputStream = new MultiplexOutputStream(List.of(outputStream, blobOutputStream));
 
-                transferred += read;
-            }
-
-            blobOutputStream.flush();
+                try (InputStream inputStream = getInputStream()) {
+                    transferred.addAndGet(inputStream.transferTo(multiplexOutputStream));
+                }
+            });
+        }
+        catch (IOException ex) {
+            throw ex;
         }
         catch (Exception ex) {
-            if (ex instanceof IOException ioex) {
-                throw ioex;
-            }
-
             throw new IOException(ex);
         }
 
-        return transferred;
+        return transferred.get();
     }
 }
