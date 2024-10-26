@@ -110,6 +110,10 @@ public class SpringWebClientRemoteRepository extends AbstractRemoteRepository {
         final String contentLengthString = responseEntity.getHeaders().getFirst(ArserUtils.HTTP_HEADER_CONTENT_LENGTH);
         final long contentLength = contentLengthString == null ? 0 : Long.parseLong(contentLengthString);
 
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
+        }
+
         return new DefaultResourceResponse(request, contentLength, inputStream);
     }
 }

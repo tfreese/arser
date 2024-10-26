@@ -1,6 +1,6 @@
 pluginManagement {
     repositories {
-        mavenLocal()
+        // mavenLocal()
         // mavenCentral()
         // gradlePluginPortal()
         maven {
@@ -12,7 +12,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        mavenLocal()
+        // mavenLocal()
         // mavenCentral()
         maven {
             url "http://localhost:7999/public"
@@ -22,7 +22,7 @@ dependencyResolutionManagement {
             }
         }
         maven {
-            url "http://localhost:7999/deploy-snapshots"
+            url "http://localhost:7999/public-snapshots"
             allowInsecureProtocol = true
             mavenContent {
                 snapshotsOnly()
@@ -31,5 +31,5 @@ dependencyResolutionManagement {
     }
 }
 
-include "test-project"
-include "test-project-deployed"
+include "api"
+include "impl"

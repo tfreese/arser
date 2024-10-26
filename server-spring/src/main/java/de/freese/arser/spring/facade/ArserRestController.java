@@ -32,7 +32,7 @@ public class ArserRestController {
 
     @GetMapping
     public ResponseEntity<InputStreamResource> doGet(final HttpServletRequest httpServletRequest) throws Exception {
-        //        LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
+        // LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
 
@@ -47,7 +47,7 @@ public class ArserRestController {
 
     @RequestMapping(method = RequestMethod.HEAD)
     public ResponseEntity<Boolean> doHead(final HttpServletRequest httpServletRequest) throws Exception {
-        //        LOGGER.info("doHead: {}", httpServletRequest.getRequestURI());
+        // LOGGER.info("doHead: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
 
@@ -58,7 +58,7 @@ public class ArserRestController {
 
     @PutMapping
     public ResponseEntity<Void> doPut(final HttpServletRequest httpServletRequest) throws Exception {
-        //        LOGGER.info("doPut: {}", httpServletRequest.getRequestURI());
+        // LOGGER.info("doPut: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
 

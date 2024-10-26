@@ -77,9 +77,6 @@
             <repository-name>primefaces</repository-name>
             <repository-name>gradle-releases</repository-name>
             <repository-name>gradle-plugins</repository-name>
-            <repository-name>third-party</repository-name>
-            <repository-name>deploy-releases</repository-name>
-            <repository-name>deploy-snapshots</repository-name>
         </virtual>
         <virtual>
             <name>public-local</name>

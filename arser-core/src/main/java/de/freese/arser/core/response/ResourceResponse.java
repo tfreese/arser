@@ -25,5 +25,5 @@ public interface ResourceResponse {
 
     ResourceRequest getResourceRequest();
 
-    long transferTo(OutputStream outputStream) throws IOException;
+    void transferTo(OutputStream outputStream) throws IOException;
 }

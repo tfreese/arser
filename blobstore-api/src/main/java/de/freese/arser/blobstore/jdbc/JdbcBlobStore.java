@@ -80,7 +80,6 @@ public class JdbcBlobStore extends AbstractBlobStore {
                 connection.commit();
             }
             catch (SQLException ex) {
-
                 exception = ex;
 
                 try {
@@ -117,7 +116,8 @@ public class JdbcBlobStore extends AbstractBlobStore {
 
             try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
                 prepareStatement.setString(1, id.getUri().toString());
-                prepareStatement.setBlob(2, inputStream);
+                // prepareStatement.setBlob(2, inputStream);
+                prepareStatement.setBinaryStream(2, inputStream);
                 prepareStatement.executeUpdate();
 
                 connection.commit();
@@ -254,24 +254,23 @@ public class JdbcBlobStore extends AbstractBlobStore {
             return InputStream.nullInputStream();
         }
 
-        final java.sql.Blob blob = resultSet.getBlob("BLOB");
+        // final java.sql.Blob blob = resultSet.getBlob("BLOB");
 
-        return new FilterInputStream(blob.getBinaryStream()) {
+        // return new FilterInputStream(blob.getBinaryStream()) {
+        return new FilterInputStream(resultSet.getBinaryStream("BLOB")) {
             @Override
             public void close() throws IOException {
                 super.close();
 
                 SQLException exception = null;
 
-                try {
-                    super.close();
-
-                    blob.free();
-                }
-                catch (SQLException ex) {
-                    getLogger().error("Blob.free: " + ex.getMessage(), ex);
-                    exception = ex;
-                }
+                // try {
+                //     blob.free();
+                // }
+                // catch (SQLException ex) {
+                //     getLogger().error("Blob.free: " + ex.getMessage(), ex);
+                //     exception = ex;
+                // }
 
                 try {
                     resultSet.close();

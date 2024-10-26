@@ -26,25 +26,12 @@
             <uri>https://repo1.maven.org/maven2</uri>
         </remote>
         <remote>
-            <name>primefaces</name>
-            <uri>https://repository.primefaces.org</uri>
-            <storeConfig>
-                <type>file</type>
-                <uri>file:///tmp/arser/cache/primefaces</uri>
-            </storeConfig>
-        </remote>
-        <remote>
             <name>gradle-releases</name>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
-            <!-- <storeConfig> -->
-            <!--     <type>jdbc</type> -->
-            <!--     <uri>jdbc:hsqldb:file:/tmp/arser/database/gradle-releases/gradle-releases;shutdown=true</uri> -->
-            <!--     <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName> -->
-            <!--     <user>sa</user> -->
-            <!--     <password></password> -->
-            <!--     <pool-core-size>2</pool-core-size> -->
-            <!--     <pool-max-size>6</pool-max-size> -->
-            <!-- </storeConfig> -->
+            <storeConfig>
+                <type>file</type>
+                <uri>file:///tmp/arser/cache/gradle/libs-releases</uri>
+            </storeConfig>
         </remote>
         <remote>
             <name>gradle-plugins</name>
@@ -57,7 +44,6 @@
         <virtual>
             <name>public</name>
             <repository-name>maven-central</repository-name>
-            <repository-name>primefaces</repository-name>
             <repository-name>gradle-releases</repository-name>
             <repository-name>gradle-plugins</repository-name>
         </virtual>

@@ -1,11 +1,16 @@
 plugins {
-    // id "name.remal.sonarlint" version "$version_nameRemalSonarlintPlugin" apply false
-    // id "de.freese.gradle.sonarlint-conventions" version "$version_myConventionPlugin" apply false
+}
+
+allprojects {
+    apply plugin: "base"
+
+    ext["version_slf4j"] = "2.0.16"
+    ext["version_gradleToolingApi"] = "8.10.2"
+    ext["version_junitJupiter"] = "5.11.3"
+    ext["version_junitPlatform"] = "1.11.3"
 }
 
 subprojects {
-    apply plugin: "base"
-
     // name.endsWith('-doc')
     // if (file("src/main/java").isDirectory()) {
     //     apply plugin: "name.remal.sonarlint"

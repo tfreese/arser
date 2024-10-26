@@ -1,0 +1,18 @@
+plugins {
+    id "java"
+}
+
+description = "Arser Test Project - IMPL"
+
+dependencies {
+    // implementation(project(":api"))
+
+    // Force to load from Repository.
+    implementation("de.freese.arser:api:$version")
+
+    runtimeOnly("org.slf4j:slf4j-simple:$version_slf4j")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:$version_junitJupiter")
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:$version_junitPlatform")
+}

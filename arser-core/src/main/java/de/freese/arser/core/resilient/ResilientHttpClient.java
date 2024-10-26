@@ -56,13 +56,13 @@ public class ResilientHttpClient extends HttpClient {
                             final Throwable lastException = event.getLastException();
 
                             if (lastException instanceof HttpRetryException httpRetryException) {
-                                LOGGER.error("Retry: {} - HTTP {} - {}", event.getExecutionCount(), httpRetryException.responseCode(), httpRetryException.getMessage());
+                                LOGGER.warn("Retry: {} - HTTP {} - {}", event.getExecutionCount(), httpRetryException.responseCode(), httpRetryException.getMessage());
                             }
                             else if (lastException != null) {
-                                LOGGER.error("Retry: {} - - {}", event.getExecutionCount(), lastException.getMessage());
+                                LOGGER.warn("Retry: {} - - {}", event.getExecutionCount(), lastException.getMessage());
                             }
                             else {
-                                LOGGER.error("Retry: {}", event.getExecutionCount());
+                                LOGGER.warn("Retry: {}", event.getExecutionCount());
                             }
                         }).build();
 

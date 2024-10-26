@@ -79,6 +79,10 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
 
         final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
 
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
+        }
+
         return new DefaultResourceResponse(request, contentLength, httpResponse.body());
     }
 

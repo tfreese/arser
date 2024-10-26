@@ -2,8 +2,10 @@
 package de.freese.arser.core.utils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.PasswordAuthentication;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Freese
  */
 public final class ArserUtils {
+    public static final int DEFAULT_BUFFER_SIZE = 8_192;
     /**
      * io.netty.handler.codec.http.HttpHeaderNames
      */
@@ -57,11 +60,10 @@ public final class ArserUtils {
     public static final Pattern PATTERN_SNAPSHOT_TIMESTAMP = Pattern.compile("\\d{8}\\.\\d{6}-\\d+");
     public static final String SERVER_NAME = "ARtifact-SERvice";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArserUtils.class);
-
     //    private static final FileNameMap FILE_NAME_MAP = URLConnection.getFileNameMap();
     //
     //    private static final MimetypesFileTypeMap MIMETYPES_FILE_TYPE_MAP = new MimetypesFileTypeMap();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArserUtils.class);
 
     public static String getContentType(final String fileName) {
         return "application/octet-stream";
@@ -158,7 +160,7 @@ public final class ArserUtils {
 
                 // SocketAddress proxyAddress = new InetSocketAddress("194.114.63.23", 8080);
                 // final Proxy proxy = new Proxy(Proxy.Type.HTTP, proxyAddress);
-                final Proxy proxy = proxies.get(0);
+                final Proxy proxy = proxies.getFirst();
 
                 final URLConnection connection = uri.toURL().openConnection(proxy);
                 // final URLConnection connection = url.openConnection();
@@ -235,37 +237,67 @@ public final class ArserUtils {
      * @return String, z.B. '___,_ MB'
      */
     public static String toHumanReadable(final long size) {
-        double value = Math.abs(size);
+        final double value = Math.abs(size);
+        final String result;
 
+        // result = switch (value) {
+        //     case double v when v < 1024D -> size + " B";
+        //     case double v when v < 1_048_576D -> String.format("%.1f %s", value / 1024D, "KB");
+        //     case double v when v < 1_073_741_824D -> String.format("%.1f %s", value / 1024D / 1024D, "MB");
+        //     default -> String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
+        // };
         if (value < 1024D) {
-            return size + " B";
+            result = size + " B";
         }
-
-        value /= 1024D;
-
-        if (value < 1024D) {
-            return String.format("%.1f %s", value, "KB");
+        else if (value < 1_048_576D) {
+            result = String.format("%.1f %s", value / 1024D, "KB");
         }
-
-        value /= 1024D;
-
-        if (value < 1024D) {
-            return String.format("%.1f %s", value, "MB");
+        else if (value < 1_073_741_824D) {
+            result = String.format("%.1f %s", value / 1024D / 1024D, "MB");
         }
-
-        value /= 1024D;
-
-        return String.format("%.1f %s", value, "GB");
+        else {
+            result = String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
+        }
 
         // final CharacterIterator ci = new StringCharacterIterator("KMGTPE");
         //
-        // while (value > 1024D)
-        // {
+        // while (value > 1024D) {
         // value /= 1024D;
         // ci.next();
         // }
         //
-        // return String.format("%.1f %cB", value, ci.previous());
+        // result = String.format("%.1f %cB", value, ci.previous());
+
+        return result;
+    }
+
+    /**
+     * @see InputStream#transferTo(OutputStream)
+     */
+    public static void transferTo(final InputStream inputStream, final Iterable<OutputStream> outputStreams) throws IOException {
+        // Objects.requireNonNull(inputStream, "inputStream required");
+        // Objects.requireNonNull(outputStreams, "outputStreams required");
+
+        final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        // long transferred = 0L;
+        int read;
+
+        while ((read = inputStream.read(buffer, 0, DEFAULT_BUFFER_SIZE)) >= 0) {
+            for (OutputStream outputStream : outputStreams) {
+                outputStream.write(buffer, 0, read);
+            }
+
+            // if (transferred < Long.MAX_VALUE) {
+            //     try {
+            //         transferred = Math.addExact(transferred, read);
+            //     }
+            //     catch (ArithmeticException ignore) {
+            //         transferred = Long.MAX_VALUE;
+            //     }
+            // }
+        }
+
+        // return transferred;
     }
 
     private ArserUtils() {

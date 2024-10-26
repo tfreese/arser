@@ -18,15 +18,15 @@ public class DefaultResourceResponse extends AbstractResourceResponse {
     }
 
     @Override
-    public long transferTo(final OutputStream outputStream) throws IOException {
+    public void transferTo(final OutputStream outputStream) throws IOException {
         if (getInputStream() instanceof BufferedInputStream) {
             try (InputStream is = getInputStream()) {
-                return is.transferTo(outputStream);
+                is.transferTo(outputStream);
             }
         }
         else {
             try (InputStream is = new BufferedInputStream(getInputStream())) {
-                return is.transferTo(outputStream);
+                is.transferTo(outputStream);
             }
         }
     }

@@ -71,6 +71,10 @@ public final class Arser extends AbstractLifecycle {
         return repository;
     }
 
+    public int getRepositoryCount() {
+        return repositoryMap.size();
+    }
+
     public ResourceResponse getResource(final ResourceRequest request) throws Exception {
         final Repository repository = getRepository(request.getContextRoot());
 

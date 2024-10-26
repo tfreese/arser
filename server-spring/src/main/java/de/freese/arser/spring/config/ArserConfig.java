@@ -3,13 +3,19 @@ package de.freese.arser.spring.config;
 
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import de.freese.arser.blobstore.file.FileBlobStore;
 import de.freese.arser.core.Arser;
+import de.freese.arser.core.component.BlobStoreComponent;
 import de.freese.arser.core.repository.Repository;
+import de.freese.arser.core.repository.cached.CachedRepository;
 import de.freese.arser.core.repository.local.FileRepository;
 import de.freese.arser.core.repository.virtual.VirtualRepository;
 import de.freese.arser.core.utils.ArserUtils;
@@ -20,13 +26,24 @@ import de.freese.arser.spring.repository.remote.SpringWebClientRemoteRepository;
  */
 @Configuration
 public class ArserConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfig.class);
+
     @Bean
+    @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
     Arser arser(final ApplicationContext applicationContext) {
+        LOGGER.info("arser");
+
         final Arser arser = new Arser();
 
         for (String beanName : applicationContext.getBeanNamesForType(Repository.class)) {
             final Repository repository = applicationContext.getBean(beanName, Repository.class);
             arser.addRepository(repository);
+        }
+
+        LOGGER.info("arser repository count: {}", arser.getRepositoryCount());
+
+        if (arser.getRepositoryCount() == 0) {
+            throw new IllegalStateException("arser doesn't have any registered repositories");
         }
 
         return arser;
@@ -43,13 +60,25 @@ public class ArserConfig {
     //    }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
+    BlobStoreComponent blobStoreComponentGradleReleases() {
+        return new BlobStoreComponent(new FileBlobStore(URI.create("file:///tmp/arser/cache/gradle/libs-releases")));
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
     Repository localDeploySnapshots() {
         return new FileRepository("deploy-snapshots", URI.create("file:///tmp/arser/deploy-snapshots"), true);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradleReleases(final WebClient webclient) {
-        return new SpringWebClientRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+    Repository remoteGradlePlugins(final WebClient webclient) {
+        return new SpringWebClientRemoteRepository("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    Repository remoteGradleReleases(final WebClient webclient, final BlobStoreComponent blobStoreComponentGradleReleases) {
+        final Repository repository = new SpringWebClientRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+
+        return new CachedRepository(repository, blobStoreComponentGradleReleases.getBlobStore());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -58,26 +87,19 @@ public class ArserConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remotePrimefaces(final WebClient webclient) {
-        return new SpringWebClientRemoteRepository("primefaces", URI.create("https://repository.primefaces.org"), webclient);
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublic(final ApplicationContext applicationContext) {
+    Repository virtualPublic(final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
         final VirtualRepository virtualRepository = new VirtualRepository("public");
-
-        virtualRepository.add(applicationContext.getBean("remoteMavenCentral", Repository.class));
-        virtualRepository.add(applicationContext.getBean("remotePrimefaces", Repository.class));
-        virtualRepository.add(applicationContext.getBean("remoteGradleReleases", Repository.class));
+        virtualRepository.add(remoteMavenCentral);
+        virtualRepository.add(remoteGradleReleases);
+        virtualRepository.add(remoteGradlePlugins);
 
         return virtualRepository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublicLocal(final ApplicationContext applicationContext) {
-        final VirtualRepository virtualRepository = new VirtualRepository("public-local");
-
-        virtualRepository.add(applicationContext.getBean("localDeploySnapshots", Repository.class));
+    Repository virtualPublicSnapshots(final Repository localDeploySnapshots) {
+        final VirtualRepository virtualRepository = new VirtualRepository("public-snapshots");
+        virtualRepository.add(localDeploySnapshots);
 
         return virtualRepository;
     }
