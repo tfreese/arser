@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
+import de.freese.arser.core.response.ResourceInfo;
 import de.freese.arser.core.response.ResourceResponse;
 
 /**
@@ -29,6 +30,29 @@ public class FileRepository extends AbstractRepository {
     @Override
     public boolean isWriteable() {
         return writeable;
+    }
+
+    @Override
+    protected ResourceInfo doConsume(final ResourceRequest request, final OutputStream outputStream) throws Exception {
+        final Path path = toPath(request.getResource());
+
+        if (!Files.exists(path)) {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("getInputStream - not found: {}", path);
+            }
+
+            return null;
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("getInputStream - found: {}", path);
+        }
+
+        try (InputStream inputStream = Files.newInputStream(path)) {
+            inputStream.transferTo(outputStream);
+        }
+
+        return new ResourceInfo(request, Files.size(path));
     }
 
     @Override

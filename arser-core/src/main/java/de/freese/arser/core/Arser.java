@@ -2,6 +2,7 @@
 package de.freese.arser.core;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.response.ResourceInfo;
 import de.freese.arser.core.response.ResourceResponse;
 
 /**
@@ -53,6 +55,12 @@ public final class Arser extends AbstractLifecycle {
         }
 
         repositoryMap.put(name, repository);
+    }
+
+    public ResourceInfo consume(final ResourceRequest request, final OutputStream outputStream) throws Exception {
+        final Repository repository = getRepository(request.getContextRoot());
+
+        return repository.consume(request, outputStream);
     }
 
     public boolean exist(final ResourceRequest request) throws Exception {

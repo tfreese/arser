@@ -26,7 +26,6 @@ public class RemoteRepositoryBuilder extends AbstractRepositoryBuilder<RemoteRep
         validateUri();
 
         Repository repository = new JreHttpClientRemoteRepository(getName(), getUri(), httpClientComponent::getHttpClient);
-        lifecycleManager.add(repository);
 
         if (storeConfig != null) {
             if ("file".equalsIgnoreCase(storeConfig.getType())) {
@@ -48,6 +47,9 @@ public class RemoteRepositoryBuilder extends AbstractRepositoryBuilder<RemoteRep
                 repository = new CachedRepository(repository, blobStoreComponent.getBlobStore());
                 lifecycleManager.add(repository);
             }
+        }
+        else {
+            lifecycleManager.add(repository);
         }
 
         return repository;

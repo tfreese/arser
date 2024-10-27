@@ -26,6 +26,10 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
 
     @Override
     public final void start() throws Exception {
+        if (isStarted()) {
+            return;
+        }
+
         ensure(State.NEW, State.STOPPED); // check state before taking lock
         Locks.lock(lock);
 
@@ -51,6 +55,10 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
 
     @Override
     public final void stop() throws Exception {
+        if (isStopped()) {
+            return;
+        }
+
         ensure(State.STARTED); // check state before taking lock
         Locks.lock(lock);
 

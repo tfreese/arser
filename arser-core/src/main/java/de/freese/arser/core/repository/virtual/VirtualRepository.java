@@ -1,12 +1,14 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository.virtual;
 
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.response.ResourceInfo;
 import de.freese.arser.core.response.ResourceResponse;
 
 /**
@@ -33,6 +35,26 @@ public class VirtualRepository extends AbstractRepository {
     @Override
     public boolean isVirtual() {
         return true;
+    }
+
+    @Override
+    protected ResourceInfo doConsume(final ResourceRequest request, final OutputStream outputStream) throws Exception {
+        ResourceInfo responseInfo = null;
+
+        for (final Repository repository : repositories) {
+            try {
+                responseInfo = repository.consume(request, outputStream);
+            }
+            catch (final Exception ex) {
+                getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
+            }
+
+            if (responseInfo != null) {
+                break;
+            }
+        }
+
+        return responseInfo;
     }
 
     @Override

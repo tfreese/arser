@@ -85,6 +85,31 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     }
 
     protected void handleGet(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
+        // final ResourceInfo info;
+        //
+        // try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
+        //     info = arser.consume(request, outputStream);
+        //
+        //     exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+        //     exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(info.fileName()));
+        //     exchange.sendResponseHeaders(ArserUtils.HTTP_OK, info.contentLength());
+        //
+        //     outputStream.flush();
+        // }
+        //
+        // if (info == null) {
+        //     final String message = "File not found: " + request.getResource();
+        //     final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+        //
+        //     exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
+        //
+        //     try (OutputStream outputStream = exchange.getResponseBody()) {
+        //         exchange.getResponseBody().write(bytes);
+        //
+        //         outputStream.flush();
+        //     }
+        // }
+
         final ResourceResponse response = arser.getResource(request);
 
         if (response == null) {

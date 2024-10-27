@@ -2,10 +2,12 @@
 package de.freese.arser.core.repository;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.response.ResourceInfo;
 import de.freese.arser.core.response.ResourceResponse;
 
 /**
@@ -25,6 +27,20 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
         this.name = name;
         this.uri = assertNotNull(uri, () -> "URI");
+    }
+
+    @Override
+    public ResourceInfo consume(final ResourceRequest request, final OutputStream outputStream) throws Exception {
+        if (!isStarted()) {
+            getLogger().warn("Component not started: {}", getName());
+            return null;
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("exist: {}", request.getResource());
+        }
+
+        return doConsume(request, outputStream);
     }
 
     @Override
@@ -83,6 +99,8 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
         doWrite(request, inputStream);
     }
+
+    protected abstract ResourceInfo doConsume(ResourceRequest request, OutputStream outputStream) throws Exception;
 
     protected abstract boolean doExist(ResourceRequest request) throws Exception;
 

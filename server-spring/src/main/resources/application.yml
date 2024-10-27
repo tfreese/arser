@@ -15,6 +15,11 @@ info:
         description: ${project.description}
         version: ${project.version}
 
+logging:
+    level:
+        root: "INFO"
+        de.freese.arser.spring.repository.remote: "DEBUG"
+        
 # =================================================================================================
 # Spring Properties
 spring:

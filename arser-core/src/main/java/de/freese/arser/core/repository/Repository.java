@@ -2,16 +2,20 @@
 package de.freese.arser.core.repository;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 
 import de.freese.arser.core.lifecycle.Lifecycle;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.response.ResourceInfo;
 import de.freese.arser.core.response.ResourceResponse;
 
 /**
  * @author Thomas Freese
  */
 public interface Repository extends Lifecycle {
+
+    ResourceInfo consume(ResourceRequest request, OutputStream outputStream) throws Exception;
 
     boolean exist(ResourceRequest request) throws Exception;
 

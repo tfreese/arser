@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import de.freese.arser.blobstore.file.FileBlobStore;
@@ -19,14 +20,15 @@ import de.freese.arser.core.repository.cached.CachedRepository;
 import de.freese.arser.core.repository.local.FileRepository;
 import de.freese.arser.core.repository.virtual.VirtualRepository;
 import de.freese.arser.core.utils.ArserUtils;
-import de.freese.arser.spring.repository.remote.SpringWebClientRemoteRepository;
+import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryWebClient;
 
 /**
  * @author Thomas Freese
  */
 @Configuration
-public class ArserConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfig.class);
+@Profile("web-reactive")
+public class ArserConfigWebReactive {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWebReactive.class);
 
     @Bean
     @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
@@ -71,19 +73,19 @@ public class ArserConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradlePlugins(final WebClient webclient) {
-        return new SpringWebClientRemoteRepository("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
+        return new SpringRemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradleReleases(final WebClient webclient, final BlobStoreComponent blobStoreComponentGradleReleases) {
-        final Repository repository = new SpringWebClientRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+        final Repository repository = new SpringRemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
 
         return new CachedRepository(repository, blobStoreComponentGradleReleases.getBlobStore());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteMavenCentral(final WebClient webclient) {
-        return new SpringWebClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
+        return new SpringRemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
