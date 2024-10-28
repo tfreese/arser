@@ -10,7 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.web.client.RestClient;
 
 import de.freese.arser.blobstore.file.FileBlobStore;
 import de.freese.arser.core.Arser;
@@ -20,15 +22,15 @@ import de.freese.arser.core.repository.cached.CachedRepository;
 import de.freese.arser.core.repository.local.FileRepository;
 import de.freese.arser.core.repository.virtual.VirtualRepository;
 import de.freese.arser.core.utils.ArserUtils;
-import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryWebClient;
+import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryRestClient;
 
 /**
  * @author Thomas Freese
  */
 @Configuration
-@Profile("web-reactive")
-public class ArserConfigWebReactive {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWebReactive.class);
+@Profile("rest-client")
+public class ArserConfigRestClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigRestClient.class);
 
     @Bean
     @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
@@ -51,19 +53,14 @@ public class ArserConfigWebReactive {
         return arser;
     }
 
-    //    @Bean(initMethod = "start", destroyMethod = "stop")
-    //    JreHttpClientComponent jreHttpClientComponent() {
-    //        final HttpClientConfig httpClientConfig = new HttpClientConfig();
-    //        httpClientConfig.setThreadNamePattern("http-client-%d");
-    //        httpClientConfig.setThreadPoolCoreSize(2);
-    //        httpClientConfig.setThreadPoolMaxSize(6);
-    //
-    //        return new JreHttpClientComponent(httpClientConfig);
-    //    }
-
     @Bean(initMethod = "start", destroyMethod = "stop")
     BlobStoreComponent blobStoreComponentGradleReleases() {
         return new BlobStoreComponent(new FileBlobStore(URI.create("file:///tmp/arser/cache/gradle/libs-releases")));
+    }
+
+    @Bean
+    ClientHttpRequestFactory clientHttpRequestFactory() {
+        return new JdkClientHttpRequestFactory();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -72,21 +69,47 @@ public class ArserConfigWebReactive {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradlePlugins(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
+    Repository remoteGradlePlugins(final RestClient restClient) {
+        return new SpringRemoteRepositoryRestClient("gradle-plugins", URI.create("https://plugins.gradle.org"), restClient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradleReleases(final WebClient webclient, final BlobStoreComponent blobStoreComponentGradleReleases) {
-        final Repository repository = new SpringRemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+    Repository remoteGradleReleases(final RestClient restClient, final BlobStoreComponent blobStoreComponentGradleReleases) {
+        final Repository repository = new SpringRemoteRepositoryRestClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), restClient);
 
         return new CachedRepository(repository, blobStoreComponentGradleReleases.getBlobStore());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteMavenCentral(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
+    Repository remoteMavenCentral(final RestClient restClient) {
+        return new SpringRemoteRepositoryRestClient("maven-central", URI.create("https://repo1.maven.org/maven2"), restClient);
     }
+
+    @Bean
+    RestClient restClient(final ClientHttpRequestFactory clientHttpRequestFactory) {
+        return RestClient.builder()
+                .requestFactory(clientHttpRequestFactory)
+                .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+                .build();
+    }
+
+    // @Bean
+    // RestClient restClient(final RestClient.Builder builder) {
+    //     return builder
+    //             .build();
+    // }
+    //
+    // @Bean
+    // RestClient.Builder restClientBuilder() {
+    //     return RestClient.builder()
+    //             .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+    //             ;
+    // }
+    //
+    // @Bean
+    // RestClientCustomizer restClientCustomizer(final ClientHttpRequestFactory clientHttpRequestFactory) {
+    //     return restClientBuilder -> restClientBuilder.requestFactory(clientHttpRequestFactory);
+    // }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository virtualPublic(final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
@@ -104,17 +127,5 @@ public class ArserConfigWebReactive {
         virtualRepository.add(localDeploySnapshots);
 
         return virtualRepository;
-    }
-
-    @Bean
-    WebClient webClient(final WebClient.Builder builder) {
-        return builder.build();
-    }
-
-    @Bean
-    WebClient.Builder webClientBuilder() {
-        return WebClient.builder()
-                .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024));
     }
 }

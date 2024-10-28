@@ -2,7 +2,6 @@
 package de.freese.arser.jre.repository.remote;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -12,7 +11,6 @@ import java.util.function.Supplier;
 import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
-import de.freese.arser.core.response.ResourceInfo;
 import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 
@@ -31,50 +29,13 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
     }
 
     @Override
-    protected ResourceInfo doConsume(final ResourceRequest request, final OutputStream outputStream) throws Exception {
-        final URI uri = createResourceUri(getUri(), request.getResource());
-
-        final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(uri)
-                .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .GET()
-                .build();
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - Request: {}", httpRequest);
-        }
-
-        final HttpResponse<InputStream> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - Response: {}", httpResponse);
-        }
-
-        if (httpResponse.statusCode() != ArserUtils.HTTP_OK) {
-            return null;
-        }
-
-        final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(0);
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Downloaded {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
-        }
-
-        try (InputStream inputStream = httpResponse.body()) {
-            inputStream.transferTo(outputStream);
-        }
-
-        return new ResourceInfo(request, contentLength);
-    }
-
-    @Override
     protected boolean doExist(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .method("HEAD", HttpRequest.BodyPublishers.noBody())
+                .method("HEAD", HttpRequest.BodyPublishers.noBody()) // Liefert Header, Status und ResponseBody.
                 .build();
 
         if (getLogger().isDebugEnabled()) {

@@ -10,16 +10,26 @@ import java.util.Objects;
  * @author Thomas Freese
  */
 public final class MultiplexOutputStream extends OutputStream {
+    private final boolean doClose;
     private final List<OutputStream> outputStreams;
 
     public MultiplexOutputStream(final List<OutputStream> outputStreams) {
+        this(outputStreams, true);
+    }
+
+    public MultiplexOutputStream(final List<OutputStream> outputStreams, final boolean doClose) {
         super();
 
         this.outputStreams = Objects.requireNonNull(outputStreams, "outputStreams required");
+        this.doClose = doClose;
     }
 
     @Override
     public void close() throws IOException {
+        if (!doClose) {
+            return;
+        }
+
         for (OutputStream outputStream : outputStreams) {
             outputStream.close();
         }

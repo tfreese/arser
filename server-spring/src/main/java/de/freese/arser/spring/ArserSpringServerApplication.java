@@ -18,7 +18,8 @@ public class ArserSpringServerApplication {
                 .headless(true) // Default true
                 .registerShutdownHook(true) // Default true
                 .profiles("web")
-                // .profiles("web-reactive")
+                // .profiles("rest-client")
+                // .profiles("web-client")
                 //.banner(new MyBanner())
                 //.listeners(new ApplicationPidFileWriter("pim-server.pid"))
                 //.run(args)
