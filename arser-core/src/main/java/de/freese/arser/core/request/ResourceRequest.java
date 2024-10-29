@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.freese.arser.core.utils.ArserUtils;
+
 /**
  * @author Thomas Freese
  */
@@ -74,6 +76,10 @@ public final class ResourceRequest {
 
     public String getContextRoot() {
         return contextRoot;
+    }
+
+    public String getFileName() {
+        return ArserUtils.toFileName(getResource());
     }
 
     public String getGroupId() {

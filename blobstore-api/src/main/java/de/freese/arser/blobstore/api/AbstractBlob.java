@@ -16,7 +16,7 @@ public abstract class AbstractBlob implements Blob {
 
     protected AbstractBlob(final BlobId id) {
         super();
-
+        
         this.id = Objects.requireNonNull(id, "id required");
     }
 

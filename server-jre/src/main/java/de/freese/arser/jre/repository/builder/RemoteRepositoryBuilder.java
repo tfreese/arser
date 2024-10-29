@@ -2,6 +2,7 @@
 package de.freese.arser.jre.repository.builder;
 
 import java.net.URI;
+import java.nio.file.Path;
 
 import de.freese.arser.blobstore.file.FileBlobStore;
 import de.freese.arser.blobstore.jdbc.JdbcBlobStore;
@@ -20,12 +21,13 @@ import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
  */
 public class RemoteRepositoryBuilder extends AbstractRepositoryBuilder<RemoteRepositoryBuilder> {
     private StoreConfig storeConfig;
+    private Path tempDir;
 
     public Repository build(final LifecycleManager lifecycleManager, final JreHttpClientComponent httpClientComponent) {
         validateName();
         validateUri();
 
-        Repository repository = new JreHttpClientRemoteRepository(getName(), getUri(), httpClientComponent::getHttpClient);
+        Repository repository = new JreHttpClientRemoteRepository(getName(), getUri(), httpClientComponent::getHttpClient, tempDir);
 
         if (storeConfig != null) {
             if ("file".equalsIgnoreCase(storeConfig.getType())) {
@@ -57,6 +59,12 @@ public class RemoteRepositoryBuilder extends AbstractRepositoryBuilder<RemoteRep
 
     public RemoteRepositoryBuilder storeConfig(final StoreConfig storeConfig) {
         this.storeConfig = storeConfig;
+
+        return this;
+    }
+
+    public RemoteRepositoryBuilder tempDir(final Path tempDir) {
+        this.tempDir = tempDir;
 
         return this;
     }

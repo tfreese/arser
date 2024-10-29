@@ -2,7 +2,9 @@
 package de.freese.arser.core.settings;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,10 +63,12 @@ public final class ArserSettings {
     private final List<RemoteRepoConfig> remoteRepoConfigs = new ArrayList<>();
     private final ServerConfig serverConfig;
     private final List<VirtualRepoConfig> virtualRepoConfigs = new ArrayList<>();
+    private final Path workingDir;
 
     private ArserSettings() {
         super();
 
+        workingDir = Path.of(System.getProperty("java.io.tmpdir"), "arser");
         httpClientConfig = new HttpClientConfig();
         serverConfig = new ServerConfig();
     }
@@ -74,6 +78,7 @@ public final class ArserSettings {
 
         Objects.requireNonNull(settings, "settings required");
 
+        workingDir = Path.of(URI.create(settings.getWorkingDir()));
         httpClientConfig = settings.getHttpClientConfig();
         serverConfig = settings.getServerConfig();
 
@@ -112,5 +117,9 @@ public final class ArserSettings {
 
     public List<VirtualRepoConfig> getVirtualRepositories() {
         return List.copyOf(virtualRepoConfigs);
+    }
+
+    public Path getWorkingDir() {
+        return workingDir;
     }
 }

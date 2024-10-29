@@ -78,7 +78,7 @@ public final class Arser extends AbstractLifecycle {
     public ResourceResponse getResource(final ResourceRequest request) throws Exception {
         final Repository repository = getRepository(request.getContextRoot());
 
-        return repository.getInputStream(request);
+        return repository.getResource(request);
     }
 
     public void write(final ResourceRequest request, final InputStream inputStream) throws Exception {

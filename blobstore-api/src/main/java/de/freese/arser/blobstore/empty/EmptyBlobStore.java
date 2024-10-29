@@ -18,13 +18,15 @@ public class EmptyBlobStore extends AbstractBlobStore {
     private static final URI NOOP_URI = URI.create("empty");
 
     @Override
-    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
+    public Blob create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
         consumer.accept(OutputStream.nullOutputStream());
+
+        return get(id);
     }
 
     @Override
-    public void create(final BlobId id, final InputStream inputStream) throws Exception {
-        // Empty
+    public Blob create(final BlobId id, final InputStream inputStream) throws Exception {
+        return get(id);
     }
 
     @Override
@@ -38,12 +40,12 @@ public class EmptyBlobStore extends AbstractBlobStore {
     }
 
     @Override
-    public URI getUri() {
-        return NOOP_URI;
+    public Blob get(final BlobId id) throws Exception {
+        return NOOP_BLOB;
     }
 
     @Override
-    protected Blob doGet(final BlobId id) throws Exception {
-        return NOOP_BLOB;
+    public URI getUri() {
+        return NOOP_URI;
     }
 }

@@ -15,23 +15,40 @@ import de.freese.arser.core.utils.ArserUtils;
 /**
  * @author Thomas Freese
  */
-public class CachedResourceResponse extends AbstractResourceResponse {
+public class CachingResourceResponse implements ResourceResponse {
 
     private final BlobId blobId;
     private final BlobStore blobStore;
+    private final ResourceResponse delegate;
 
-    public CachedResourceResponse(final ResourceResponse resourceResponse, final BlobId blobId, final BlobStore blobStore) {
-        super(resourceResponse.getResourceRequest(), resourceResponse.getContentLength(), resourceResponse.getInputStream());
+    public CachingResourceResponse(final ResourceResponse delegate, final BlobId blobId, final BlobStore blobStore) {
+        super();
 
+        this.delegate = Objects.requireNonNull(delegate, "delegate required");
         this.blobId = Objects.requireNonNull(blobId, "BlobId required");
         this.blobStore = Objects.requireNonNull(blobStore, "BlobStore required");
+    }
+
+    @Override
+    public void close() {
+        delegate.close();
+    }
+
+    @Override
+    public InputStream createInputStream() throws Exception {
+        return delegate.createInputStream();
+    }
+
+    @Override
+    public long getContentLength() {
+        return delegate.getContentLength();
     }
 
     @Override
     public void transferTo(final OutputStream outputStream) throws IOException {
         try {
             blobStore.create(blobId, blobOutputStream -> {
-                try (InputStream inputStream = new BufferedInputStream(getInputStream(), ArserUtils.DEFAULT_BUFFER_SIZE)) {
+                try (InputStream inputStream = new BufferedInputStream(createInputStream(), ArserUtils.DEFAULT_BUFFER_SIZE)) {
                     ArserUtils.transferTo(inputStream, List.of(outputStream, blobOutputStream));
                 }
             });

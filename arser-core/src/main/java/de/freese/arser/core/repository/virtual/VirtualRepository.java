@@ -56,12 +56,12 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest request) {
+    protected ResourceResponse doGetResource(final ResourceRequest request) {
         ResourceResponse response = null;
 
         for (final Repository repository : repositories) {
             try {
-                response = repository.getInputStream(request);
+                response = repository.getResource(request);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());

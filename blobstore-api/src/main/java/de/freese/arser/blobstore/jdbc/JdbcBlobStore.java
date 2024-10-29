@@ -56,7 +56,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
     }
 
     @Override
-    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
+    public Blob create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
         final String sql = "insert into BLOB_STORE (URI, BLOB) values (?, ?)";
 
         Exception exception = null;
@@ -105,10 +105,12 @@ public class JdbcBlobStore extends AbstractBlobStore {
             getLogger().error(exception.getMessage(), exception);
             throw exception;
         }
+
+        return get(id);
     }
 
     @Override
-    public void create(final BlobId id, final InputStream inputStream) throws Exception {
+    public Blob create(final BlobId id, final InputStream inputStream) throws Exception {
         final String sql = "insert into BLOB_STORE (URI, BLOB) values (?, ?)";
 
         try (Connection connection = getDataSource().getConnection()) {
@@ -128,6 +130,8 @@ public class JdbcBlobStore extends AbstractBlobStore {
                 throw ex;
             }
         }
+
+        return get(id);
     }
 
     public void createDatabaseIfNotExist() throws Exception {
@@ -226,6 +230,11 @@ public class JdbcBlobStore extends AbstractBlobStore {
     }
 
     @Override
+    public Blob get(final BlobId id) throws Exception {
+        return new JdbcBlob(id, this);
+    }
+
+    @Override
     public URI getUri() {
         if (this.uri == null) {
             final DataSource dataSource = getDataSource();
@@ -320,11 +329,6 @@ public class JdbcBlobStore extends AbstractBlobStore {
         }
 
         return -1;
-    }
-
-    @Override
-    protected Blob doGet(final BlobId id) throws Exception {
-        return new JdbcBlob(id, this);
     }
 
     protected DataSource getDataSource() {

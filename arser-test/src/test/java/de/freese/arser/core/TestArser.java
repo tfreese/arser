@@ -77,11 +77,12 @@ class TestArser {
         final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(arserSettings.getHttpClientConfig());
         lifecycleManager.add(httpClientComponent);
 
-        repositoryMavenCentral = new JreHttpClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"), httpClientComponent::getHttpClient);
+        repositoryMavenCentral = new JreHttpClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"),
+                httpClientComponent::getHttpClient, arserSettings.getWorkingDir());
         lifecycleManager.add(repositoryMavenCentral);
 
         repositoryGradleReleases = new JreHttpClientRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"),
-                httpClientComponent::getHttpClient);
+                httpClientComponent::getHttpClient, arserSettings.getWorkingDir());
         lifecycleManager.add(repositoryGradleReleases);
 
         repositoryLocalWriteable = new FileRepository("deploy-snapshots", PATH_TEST.resolve("deploy-snapshots").toUri(), true);

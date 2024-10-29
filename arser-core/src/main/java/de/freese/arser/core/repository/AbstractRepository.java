@@ -42,22 +42,22 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
-    public ResourceResponse getInputStream(final ResourceRequest request) throws Exception {
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public ResourceResponse getResource(final ResourceRequest request) throws Exception {
         if (!isStarted()) {
             getLogger().warn("Component not started: {}", getName());
             return null;
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream: {}", request.getResource());
+            getLogger().debug("createInputStream: {}", request.getResource());
         }
 
-        return doGetInputStream(request);
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        return doGetResource(request);
     }
 
     @Override
@@ -86,7 +86,7 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     protected abstract boolean doExist(ResourceRequest request) throws Exception;
 
-    protected abstract ResourceResponse doGetInputStream(ResourceRequest request) throws Exception;
+    protected abstract ResourceResponse doGetResource(ResourceRequest request) throws Exception;
 
     protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());

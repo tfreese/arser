@@ -2,6 +2,8 @@
 package de.freese.arser.spring.facade;
 
 import java.io.BufferedInputStream;
+import java.io.FilterInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import jakarta.annotation.Resource;
@@ -42,7 +44,14 @@ public class ArserRestController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(new InputStreamResource(resourceResponse.getInputStream()));
+        return ResponseEntity.ok(new InputStreamResource(new FilterInputStream(resourceResponse.createInputStream()) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+
+                resourceResponse.close();
+            }
+        }));
     }
 
     @RequestMapping(method = RequestMethod.HEAD)

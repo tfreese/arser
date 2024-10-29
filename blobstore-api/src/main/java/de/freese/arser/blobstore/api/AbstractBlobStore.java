@@ -12,11 +12,6 @@ public abstract class AbstractBlobStore implements BlobStore {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public final Blob get(final BlobId id) throws Exception {
-        return doGet(id);
-    }
-
-    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         sb.append(" [");
@@ -25,8 +20,6 @@ public abstract class AbstractBlobStore implements BlobStore {
 
         return sb.toString();
     }
-
-    protected abstract Blob doGet(BlobId id) throws Exception;
 
     protected Logger getLogger() {
         return this.logger;

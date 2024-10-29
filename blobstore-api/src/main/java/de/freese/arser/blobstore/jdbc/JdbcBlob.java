@@ -21,7 +21,7 @@ class JdbcBlob extends AbstractBlob {
     }
 
     @Override
-    public InputStream getInputStream() throws Exception {
+    public InputStream createInputStream() throws Exception {
         return blobStore.inputStream(getId());
     }
 

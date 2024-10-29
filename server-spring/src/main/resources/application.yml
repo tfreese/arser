@@ -19,7 +19,10 @@ logging:
     level:
         root: "INFO"
         de.freese.arser.spring.repository.remote: "DEBUG"
-        
+
+arser:
+    workingDir: file:///tmp/arser
+
 # =================================================================================================
 # Spring Properties
 spring:

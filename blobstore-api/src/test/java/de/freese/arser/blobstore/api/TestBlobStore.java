@@ -156,7 +156,7 @@ class TestBlobStore {
         assertEquals("empty", blob.getId().getUri().toString());
         assertEquals(-1, blob.getLength());
 
-        try (InputStream inputStream = blob.getInputStream()) {
+        try (InputStream inputStream = blob.createInputStream()) {
             inputStream.transferTo(OutputStream.nullOutputStream());
         }
 

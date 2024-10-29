@@ -51,7 +51,7 @@ public class JreHttpClientComponent extends AbstractLifecycle {
                 .version(HttpClient.Version.HTTP_2)
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .proxy(ProxySelector.getDefault())
-                .connectTimeout(Duration.ofSeconds(3))
+                .connectTimeout(Duration.ofSeconds(30))
                 .executor(this.executorService);
 
         // .authenticator(Authenticator.getDefault())

@@ -2,9 +2,11 @@
 package de.freese.arser.spring.config;
 
 import java.net.URI;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -77,21 +79,29 @@ public class ArserConfigWeb {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradlePlugins(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new SpringRemoteRepositoryClientHttpRequestFactory("gradle-plugins", URI.create("https://plugins.gradle.org"), clientHttpRequestFactory);
+    Repository remoteGradlePlugins(final ClientHttpRequestFactory clientHttpRequestFactory, @Value("${arser.workingDir}") final URI workingDir) {
+        final Path tempDir = Path.of(workingDir).resolve("temp");
+
+        return new SpringRemoteRepositoryClientHttpRequestFactory("gradle-plugins", URI.create("https://plugins.gradle.org"), clientHttpRequestFactory, tempDir);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradleReleases(final ClientHttpRequestFactory clientHttpRequestFactory, final BlobStoreComponent blobStoreComponentGradleReleases) {
+    Repository remoteGradleReleases(final ClientHttpRequestFactory clientHttpRequestFactory, final BlobStoreComponent blobStoreComponentGradleReleases,
+                                    @Value("${arser.workingDir}") final URI workingDir) {
+        final Path tempDir = Path.of(workingDir).resolve("temp");
+
         final Repository repository =
-                new SpringRemoteRepositoryClientHttpRequestFactory("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), clientHttpRequestFactory);
+                new SpringRemoteRepositoryClientHttpRequestFactory("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), clientHttpRequestFactory,
+                        tempDir);
 
         return new CachedRepository(repository, blobStoreComponentGradleReleases.getBlobStore());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteMavenCentral(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new SpringRemoteRepositoryClientHttpRequestFactory("maven-central", URI.create("https://repo1.maven.org/maven2"), clientHttpRequestFactory);
+    Repository remoteMavenCentral(final ClientHttpRequestFactory clientHttpRequestFactory, @Value("${arser.workingDir}") final URI workingDir) {
+        final Path tempDir = Path.of(workingDir).resolve("temp");
+
+        return new SpringRemoteRepositoryClientHttpRequestFactory("maven-central", URI.create("https://repo1.maven.org/maven2"), clientHttpRequestFactory, tempDir);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

@@ -16,7 +16,7 @@ class EmptyBlob extends AbstractBlob {
     }
 
     @Override
-    public InputStream getInputStream() throws Exception {
+    public InputStream createInputStream() throws Exception {
         return InputStream.nullInputStream();
     }
 

@@ -1,7 +1,12 @@
 // Created: 21.01.24
 package de.freese.arser.spring.repository.remote;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.springframework.http.HttpMethod;
@@ -12,6 +17,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
+import de.freese.arser.core.response.ResourceHandle;
 import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 
@@ -21,8 +27,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemoteRepository {
     private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public SpringRemoteRepositoryClientHttpRequestFactory(final String name, final URI uri, final ClientHttpRequestFactory clientHttpRequestFactory) {
-        super(name, uri);
+    public SpringRemoteRepositoryClientHttpRequestFactory(final String name, final URI uri, final ClientHttpRequestFactory clientHttpRequestFactory, final Path tempDir) {
+        super(name, uri, tempDir);
 
         this.clientHttpRequestFactory = assertNotNull(clientHttpRequestFactory, () -> "clientHttpRequestFactory");
     }
@@ -48,31 +54,66 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+    protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
 
         final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(uri, HttpMethod.GET);
         clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
 
-        // try (ClientHttpResponse clientHttpResponse = clientHttpRequest.execute()) {
-        final ClientHttpResponse clientHttpResponse = clientHttpRequest.execute();
-        final int responseCode = clientHttpResponse.getStatusCode().value();
-
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - Response: {} / {}", responseCode, uri);
+            getLogger().debug("Resource - Request: {}", uri);
         }
 
-        if (responseCode != ArserUtils.HTTP_OK) {
-            return null;
+        try (ClientHttpResponse clientHttpResponse = clientHttpRequest.execute()) {
+            final int responseCode = clientHttpResponse.getStatusCode().value();
+
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Resource - Response: {} / {}", responseCode, uri);
+            }
+
+            if (responseCode != ArserUtils.HTTP_OK) {
+                return null;
+            }
+
+            final long contentLength = clientHttpResponse.getHeaders().getContentLength();
+
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
+            }
+
+            final ResourceHandle resourceHandle;
+
+            try (InputStream inputStream = clientHttpResponse.getBody()) {
+                if (contentLength > 0 && contentLength < KEEP_IN_MEMORY_LIMIT) {
+                    // Keep small files in Memory.
+                    final byte[] bytes = inputStream.readAllBytes();
+
+                    resourceHandle = () -> new ByteArrayInputStream(bytes);
+                }
+                else {
+                    // Use Temp-Files.
+                    final Path tempFile = saveTemp(inputStream);
+
+                    resourceHandle = new ResourceHandle() {
+                        @Override
+                        public void close() {
+                            try {
+                                Files.delete(tempFile);
+                            }
+                            catch (IOException ex) {
+                                getLogger().error(ex.getMessage(), ex);
+                            }
+                        }
+
+                        @Override
+                        public InputStream createInputStream() throws IOException {
+                            return Files.newInputStream(tempFile);
+                        }
+                    };
+                }
+
+                return new DefaultResourceResponse(contentLength, resourceHandle);
+            }
         }
-
-        final long contentLength = clientHttpResponse.getHeaders().getContentLength();
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Downloaded {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
-        }
-
-        return new DefaultResourceResponse(request, contentLength, clientHttpResponse.getBody());
-        // }
     }
 }

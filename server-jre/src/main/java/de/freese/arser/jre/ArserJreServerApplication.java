@@ -38,7 +38,7 @@ public final class ArserJreServerApplication {
         SLF4JBridgeHandler.install();
 
         if (LoggerFactory.getLogger("jdk.httpclient.HttpClient").isDebugEnabled()) {
-            //            System.setProperty("jdk.httpclient.HttpClient.log", "all");
+            // System.setProperty("jdk.httpclient.HttpClient.log", "all");
             System.setProperty("jdk.httpclient.HttpClient.log", "requests");
         }
 
@@ -56,8 +56,8 @@ public final class ArserJreServerApplication {
 
             // ArserUtils.setupProxy();
 
-            //        Logger root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-            //        root.setLevel(Level.INFO);
+            // Logger root = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+            // root.setLevel(Level.INFO);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
@@ -100,6 +100,7 @@ public final class ArserJreServerApplication {
             final RemoteRepositoryBuilder builder = new RemoteRepositoryBuilder()
                     .name(remoteRepoConfig.getName())
                     .uri(URI.create(remoteRepoConfig.getUri()))
+                    .tempDir(arserSettings.getWorkingDir().resolve("temp"))
                     .storeConfig(remoteRepoConfig.getStoreConfig());
 
             arser.addRepository(builder.build(lifecycleManager, httpClientComponent));

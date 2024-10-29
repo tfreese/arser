@@ -9,10 +9,9 @@ import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.CachedResourceResponse;
+import de.freese.arser.core.response.CachingResourceResponse;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceResponse;
-import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
@@ -51,39 +50,34 @@ public class CachedRepository extends AbstractRepository {
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+    protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
         final URI resource = request.getResource();
 
         if (resource.getPath().endsWith("maven-metadata.xml")) {
             // Never save these files, versions:display-dependency-updates won't work !
-            return this.delegate.getInputStream(request);
+            return this.delegate.getResource(request);
         }
 
         final BlobId blobId = new BlobId(resource);
 
         if (getBlobStore().exists(blobId)) {
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("getInputStream - found: {}", resource);
+                getLogger().debug("Resource - found: {}", resource);
             }
 
             final Blob blob = getBlobStore().get(blobId);
 
-            return new DefaultResourceResponse(request, blob.getLength(), blob.getInputStream());
+            return new DefaultResourceResponse(blob.getLength(), blob::createInputStream);
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - not found: {}", resource);
+            getLogger().debug("Resource - not found: {}", resource);
         }
 
-        final ResourceResponse response = this.delegate.getInputStream(request);
+        final ResourceResponse response = this.delegate.getResource(request);
 
         if (response != null) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Download {} Bytes [{}]: {} ", response.getContentLength(), ArserUtils.toHumanReadable(response.getContentLength()),
-                        response.getResourceRequest().getResource());
-            }
-
-            return new CachedResourceResponse(response, blobId, getBlobStore());
+            return new CachingResourceResponse(response, blobId, getBlobStore());
         }
 
         return null;

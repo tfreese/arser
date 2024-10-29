@@ -23,7 +23,7 @@ final class FileBlob extends AbstractBlob {
     }
 
     @Override
-    public InputStream getInputStream() throws Exception {
+    public InputStream createInputStream() throws Exception {
         if (!exist) {
             return InputStream.nullInputStream();
         }

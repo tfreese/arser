@@ -19,6 +19,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="workingDir" type="FileUri" />
                 <xs:element name="server-config" type="ServerConfig" />
                 <xs:element name="http-client-config" type="HttpClientConfig" />
                 <xs:element name="repositories" type="Repositories" />

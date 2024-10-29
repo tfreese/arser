@@ -21,7 +21,7 @@ public class MemoryBlobStore extends AbstractBlobStore {
     private final Map<BlobId, byte[]> cache = new HashMap<>();
 
     @Override
-    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
+    public Blob create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             consumer.accept(outputStream);
 
@@ -29,10 +29,12 @@ public class MemoryBlobStore extends AbstractBlobStore {
 
             cache.put(id, outputStream.toByteArray());
         }
+
+        return get(id);
     }
 
     @Override
-    public void create(final BlobId id, final InputStream inputStream) throws Exception {
+    public Blob create(final BlobId id, final InputStream inputStream) throws Exception {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             inputStream.transferTo(baos);
 
@@ -40,6 +42,8 @@ public class MemoryBlobStore extends AbstractBlobStore {
 
             cache.put(id, baos.toByteArray());
         }
+
+        return get(id);
     }
 
     @Override
@@ -53,12 +57,12 @@ public class MemoryBlobStore extends AbstractBlobStore {
     }
 
     @Override
-    public URI getUri() {
-        return MEMORY_URI;
+    public Blob get(final BlobId id) throws Exception {
+        return new MemoryBlob(id, cache.get(id));
     }
 
     @Override
-    protected Blob doGet(final BlobId id) throws Exception {
-        return new MemoryBlob(id, cache.get(id));
+    public URI getUri() {
+        return MEMORY_URI;
     }
 }

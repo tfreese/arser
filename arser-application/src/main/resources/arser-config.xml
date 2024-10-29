@@ -7,6 +7,8 @@
 <arser-settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://github.com/tfreese/arser/config"
                 xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd">
 
+    <workingDir>file:///opt/jvmapps/arser</workingDir>
+
     <server-config>
         <port>7999</port>
         <thread-pool-core-size>2</thread-pool-core-size>
@@ -34,7 +36,7 @@
             <uri>https://repository.primefaces.org</uri>
             <storeConfig>
                 <type>file</type>
-                <uri>file:///tmp/arser/cache/primefaces</uri>
+                <uri>file:///opt/jvmapps/arser/cache/primefaces</uri>
             </storeConfig>
         </remote>
         <remote>

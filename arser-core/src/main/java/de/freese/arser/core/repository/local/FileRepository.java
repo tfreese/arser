@@ -50,19 +50,19 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+    protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
         final Path path = toPath(request.getResource());
 
         if (Files.exists(path)) {
             if (getLogger().isDebugEnabled()) {
-                getLogger().debug("getInputStream - found: {}", path);
+                getLogger().debug("Resource - found: {}", path);
             }
 
-            return new DefaultResourceResponse(request, Files.size(path), Files.newInputStream(path));
+            return new DefaultResourceResponse(Files.size(path), () -> Files.newInputStream(path));
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - not found: {}", path);
+            getLogger().debug("Resource - not found: {}", path);
         }
 
         return null;

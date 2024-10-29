@@ -1,6 +1,7 @@
 // Created: 18.09.2019
 package de.freese.arser.blobstore.api;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 
 /**
@@ -11,32 +12,25 @@ import java.io.InputStream;
  * @author Thomas Freese
  */
 public interface Blob {
+    /**
+     * <b>This Stream MUST be closed to avoid resource exhausting!</b>
+     */
+    default InputStream createBufferedInputStream() throws Exception {
+        return new BufferedInputStream(createInputStream());
+    }
+
+    /**
+     * <b>This Stream MUST be closed to avoid resource exhausting!</b>
+     */
+    InputStream createInputStream() throws Exception;
+
     default byte[] getAllBytes() throws Exception {
-        try (InputStream inputStream = getInputStream()) {
+        try (InputStream inputStream = createBufferedInputStream()) {
             return inputStream.readAllBytes();
         }
-
-        //        byte[] bytes = null;
-        //
-        //        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        //             InputStream inputStream = getInputStream())
-        //        {
-        //            inputStream.transferTo(baos);
-        //
-        //            baos.flush();
-        //
-        //            bytes = baos.toBytes();
-        //        }
-        //
-        //        return bytes;
     }
 
     BlobId getId() throws Exception;
-
-    /**
-     * <b>This Stream MUST be closed to avoid resource exhausting !</b>
-     */
-    InputStream getInputStream() throws Exception;
 
     /**
      * Blob length in Byte.

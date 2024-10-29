@@ -28,7 +28,7 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
     private final WebClient webClient;
 
     public SpringRemoteRepositoryWebClient(final String name, final URI uri, final WebClient webClient) {
-        super(name, uri);
+        super(name, uri, null);
 
         this.webClient = assertNotNull(webClient, () -> "webClient");
     }
@@ -36,6 +36,10 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
     @Override
     protected boolean doExist(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("exist - Request: {}", uri);
+        }
 
         final Mono<ResponseEntity<String>> response = webClient.head()
                 .uri(uri)
@@ -56,8 +60,12 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected ResourceResponse doGetInputStream(final ResourceRequest request) throws Exception {
+    protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
         final URI uri = createResourceUri(getUri(), request.getResource());
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Resource - Request: {}", uri);
+        }
 
         // Variant 1: All in Memory!
         // final Mono<ResponseEntity<InputStreamResource>> response = webClient.get()
@@ -81,14 +89,14 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
         assert responseEntity != null;
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("getInputStream - Response: {}", responseEntity);
+            getLogger().debug("Resource - Response: {}", responseEntity);
         }
 
         if (responseEntity.getStatusCode().value() != ArserUtils.HTTP_OK) {
             return null;
         }
 
-        // final InputStream inputStream = responseEntity.getBody().getInputStream();
+        // final InputStream inputStream = responseEntity.getBody().createInputStream();
 
         final Flux<DataBuffer> dataBufferFlux = responseEntity.getBody();
 
@@ -131,9 +139,9 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
         final long contentLength = responseEntity.getHeaders().getContentLength();
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Downloaded {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
+            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
         }
 
-        return new DefaultResourceResponse(request, contentLength, inputStream);
+        return new DefaultResourceResponse(contentLength, () -> inputStream);
     }
 }

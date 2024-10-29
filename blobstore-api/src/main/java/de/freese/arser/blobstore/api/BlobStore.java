@@ -14,14 +14,9 @@ import java.net.URI;
  */
 public interface BlobStore {
 
-    /**
-     * <b>This Stream MUST be closed to avoid resource exhausting !</b>
-     */
-    // OutputStream create(BlobId id) throws Exception;
+    Blob create(BlobId id, ThrowingConsumer<OutputStream, Exception> consumer) throws Exception;
 
-    void create(BlobId id, ThrowingConsumer<OutputStream, Exception> consumer) throws Exception;
-
-    void create(BlobId id, InputStream inputStream) throws Exception;
+    Blob create(BlobId id, InputStream inputStream) throws Exception;
 
     void delete(BlobId id) throws Exception;
 

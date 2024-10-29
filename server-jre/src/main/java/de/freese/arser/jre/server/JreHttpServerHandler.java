@@ -85,33 +85,33 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     }
 
     protected void handleGet(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
-        final ResourceResponse response = arser.getResource(request);
+        try (ResourceResponse response = arser.getResource(request)) {
+            if (response == null) {
+                final String message = "File not found: " + request.getResource();
+                final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
 
-        if (response == null) {
-            final String message = "File not found: " + request.getResource();
-            final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
 
-            exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
+                try (OutputStream outputStream = exchange.getResponseBody()) {
+                    exchange.getResponseBody().write(bytes);
 
-            try (OutputStream outputStream = exchange.getResponseBody()) {
-                exchange.getResponseBody().write(bytes);
+                    outputStream.flush();
+                }
+
+                return;
+            }
+
+            final long contentLength = response.getContentLength();
+
+            exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+            exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(request.getFileName()));
+            exchange.sendResponseHeaders(ArserUtils.HTTP_OK, contentLength);
+
+            try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
+                response.transferTo(outputStream);
 
                 outputStream.flush();
             }
-
-            return;
-        }
-
-        final long fileLength = response.getContentLength();
-
-        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-        exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(response.getFileName()));
-        exchange.sendResponseHeaders(ArserUtils.HTTP_OK, fileLength);
-
-        try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
-            response.transferTo(outputStream);
-
-            outputStream.flush();
         }
     }
 

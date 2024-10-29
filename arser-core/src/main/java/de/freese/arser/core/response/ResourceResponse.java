@@ -1,29 +1,26 @@
 // Created: 17.01.24
 package de.freese.arser.core.response;
 
-import java.io.IOException;
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  */
-public interface ResourceResponse {
+public interface ResourceResponse extends AutoCloseable {
+    @Override
+    void close();
+
+    InputStream createInputStream() throws Exception;
 
     long getContentLength();
 
-    default String getFileName() {
-        final String path = getResourceRequest().getResource().getPath();
-        final int lastSlashIndex = path.lastIndexOf('/');
-
-        return path.substring(lastSlashIndex + 1);
+    default void transferTo(final OutputStream outputStream) throws Exception {
+        try (InputStream is = new BufferedInputStream(createInputStream(), ArserUtils.DEFAULT_BUFFER_SIZE)) {
+            is.transferTo(outputStream);
+        }
     }
-
-    InputStream getInputStream();
-
-    ResourceRequest getResourceRequest();
-
-    void transferTo(OutputStream outputStream) throws IOException;
 }

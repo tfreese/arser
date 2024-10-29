@@ -31,7 +31,7 @@ public class FileBlobStore extends AbstractBlobStore {
     }
 
     @Override
-    public void create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
+    public Blob create(final BlobId id, final ThrowingConsumer<OutputStream, Exception> consumer) throws Exception {
         final Path path = toContentPath(id);
 
         Files.createDirectories(path.getParent());
@@ -41,15 +41,19 @@ public class FileBlobStore extends AbstractBlobStore {
 
             outputStream.flush();
         }
+
+        return get(id);
     }
 
     @Override
-    public void create(final BlobId id, final InputStream inputStream) throws Exception {
+    public Blob create(final BlobId id, final InputStream inputStream) throws Exception {
         final Path path = toContentPath(id);
 
         Files.createDirectories(path.getParent());
 
         Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+
+        return get(id);
     }
 
     @Override
@@ -66,6 +70,11 @@ public class FileBlobStore extends AbstractBlobStore {
         final Path path = toContentPath(id);
 
         return Files.exists(path);
+    }
+
+    @Override
+    public Blob get(final BlobId id) throws Exception {
+        return new FileBlob(id, toContentPath(id));
     }
 
     @Override
@@ -105,10 +114,5 @@ public class FileBlobStore extends AbstractBlobStore {
         //        }
         //
         //        return this.basePath.resolve(hex);
-    }
-
-    @Override
-    protected Blob doGet(final BlobId id) throws Exception {
-        return new FileBlob(id, toContentPath(id));
     }
 }

@@ -15,12 +15,12 @@ public interface Repository extends Lifecycle {
 
     boolean exist(ResourceRequest request) throws Exception;
 
-    ResourceResponse getInputStream(ResourceRequest request) throws Exception;
-
     /**
      * The name is the context-root.
      */
     String getName();
+
+    ResourceResponse getResource(ResourceRequest request) throws Exception;
 
     URI getUri();
 

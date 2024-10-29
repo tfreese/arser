@@ -233,6 +233,13 @@ public final class ArserUtils {
         }
     }
 
+    public static String toFileName(final URI uri) {
+        final String path = uri.getPath();
+        final int lastSlashIndex = path.lastIndexOf('/');
+
+        return path.substring(lastSlashIndex + 1);
+    }
+
     /**
      * @return String, z.B. '___,_ MB'
      */
