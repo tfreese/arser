@@ -18,8 +18,8 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
     /**
      * 1024L * 1024L = 1 MB
      */
-    // protected static final long KEEP_IN_MEMORY_LIMIT = 1_048_576L;
-    protected static final long KEEP_IN_MEMORY_LIMIT = 1024L;
+    protected static final long KEEP_IN_MEMORY_LIMIT = 1_048_576L;
+    // protected static final long KEEP_IN_MEMORY_LIMIT = 1024L;
 
     private final Path tempDir;
 
@@ -46,6 +46,12 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
         return uri.resolve(path);
     }
 
+    protected Path createTempFile() {
+        final String fileName = UUID.randomUUID().toString();
+
+        return tempDir.resolve(fileName);
+    }
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();
@@ -64,8 +70,7 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
     }
 
     protected Path saveTemp(final InputStream inputStream) throws IOException {
-        final String fileName = UUID.randomUUID().toString();
-        final Path tempFile = tempDir.resolve(fileName);
+        final Path tempFile = createTempFile();
 
         Files.copy(inputStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
 

@@ -2,9 +2,11 @@
 package de.freese.arser.spring.config;
 
 import java.net.URI;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,9 @@ import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryWebClient;
 @Profile("web-client")
 public class ArserConfigWebClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWebClient.class);
+
+    @Value("${arser.workingDir}")
+    private URI workingDir;
 
     @Bean
     @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
@@ -70,19 +75,25 @@ public class ArserConfigWebClient {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradlePlugins(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
+        final Path tempDir = Path.of(workingDir).resolve("temp");
+
+        return new SpringRemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient, tempDir);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradleReleases(final WebClient webclient, final BlobStoreComponent blobStoreComponentGradleReleases) {
-        final Repository repository = new SpringRemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+        final Path tempDir = Path.of(workingDir).resolve("temp");
+
+        final Repository repository = new SpringRemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient, tempDir);
 
         return new CachedRepository(repository, blobStoreComponentGradleReleases.getBlobStore());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteMavenCentral(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
+        final Path tempDir = Path.of(workingDir).resolve("temp");
+
+        return new SpringRemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient, tempDir);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

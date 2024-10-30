@@ -54,7 +54,7 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("createInputStream: {}", request.getResource());
+            getLogger().debug("Resource: {}", request.getResource());
         }
 
         return doGetResource(request);

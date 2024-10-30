@@ -17,8 +17,8 @@ public class ArserSpringServerApplication {
                 // .properties("spring.config.name:application-Server")
                 .headless(true) // Default true
                 .registerShutdownHook(true) // Default true
-                .profiles("web")
-                // .profiles("rest-client")
+                // .profiles("web")
+                .profiles("rest-client")
                 // .profiles("web-client")
                 //.banner(new MyBanner())
                 //.listeners(new ApplicationPidFileWriter("pim-server.pid"))

@@ -63,6 +63,7 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+                .header("Accept", "application/octet-stream")
                 .GET()
                 .build();
 

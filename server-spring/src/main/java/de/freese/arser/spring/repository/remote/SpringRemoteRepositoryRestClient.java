@@ -59,7 +59,7 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
         }
 
         // Note: The response is closed after the exchange function has been invoked
-        return restClient.head()
+        return restClient.get()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .accept(MediaType.APPLICATION_OCTET_STREAM)

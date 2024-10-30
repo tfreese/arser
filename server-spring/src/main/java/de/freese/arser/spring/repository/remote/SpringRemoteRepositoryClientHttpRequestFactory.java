@@ -59,6 +59,7 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
 
         final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(uri, HttpMethod.GET);
         clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
+        clientHttpRequest.getHeaders().put("Accept", List.of("application/octet-stream"));
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Resource - Request: {}", uri);
