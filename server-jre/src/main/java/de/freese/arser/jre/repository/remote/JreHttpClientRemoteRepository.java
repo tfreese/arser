@@ -10,9 +10,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
+import de.freese.arser.core.config.RemoteRepositoryConfig;
+import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceHandle;
@@ -27,10 +29,10 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
 
     private HttpClient httpClient;
 
-    public JreHttpClientRemoteRepository(final String name, final URI uri, final Supplier<HttpClient> httpClientSupplier, final Path tempDir) {
-        super(name, uri, tempDir);
+    public JreHttpClientRemoteRepository(final RemoteRepositoryConfig config, final Supplier<HttpClient> httpClientSupplier, final Path tempDir) {
+        super(config.getName(), config.getUri(), tempDir);
 
-        this.httpClientSupplier = assertNotNull(httpClientSupplier, () -> "Supplier<HttpClient>");
+        this.httpClientSupplier = Objects.requireNonNull(httpClientSupplier, "httpClientSupplier required");
     }
 
     @Override
@@ -125,8 +127,6 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-
-        assertNotNull(httpClientSupplier, () -> "HttpClientSupplier");
 
         httpClient = httpClientSupplier.get();
 

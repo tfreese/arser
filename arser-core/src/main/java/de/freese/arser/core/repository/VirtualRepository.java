@@ -1,11 +1,12 @@
 // Created: 22.07.23
-package de.freese.arser.core.repository.virtual;
+package de.freese.arser.core.repository;
 
-import java.net.URI;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
-import de.freese.arser.core.repository.AbstractRepository;
-import de.freese.arser.core.repository.Repository;
+import de.freese.arser.core.config.ConfigValidator;
+import de.freese.arser.core.config.VirtualRepositoryConfig;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.ResourceResponse;
 
@@ -16,23 +17,24 @@ public class VirtualRepository extends AbstractRepository {
 
     private final CopyOnWriteArrayList<Repository> repositories = new CopyOnWriteArrayList<>();
 
-    public VirtualRepository(final String name) {
-        super(name, URI.create("virtual"));
+    public VirtualRepository(final VirtualRepositoryConfig config) {
+        super(config.getName(), config.getUri());
+
+        ConfigValidator.value(config.getRepositories(), value -> value != null && !value.isEmpty(), () -> "repositories are empty");
+
+        repositories.addAll(config.getRepositories());
     }
 
-    public void add(final Repository repository) {
-        assertNotNull(repository, () -> "Repository");
+    public VirtualRepository(final VirtualRepositoryConfig config, final Function<String, Repository> repositoryResolver) {
+        super(config.getName(), config.getUri());
 
-        final boolean added = repositories.addIfAbsent(repository);
+        for (String repositoryRef : config.getRepositoryRefs()) {
+            final Repository repository = repositoryResolver.apply(repositoryRef);
 
-        if (added) {
-            getLogger().trace("Added: {}", repository);
+            repositories.add(Objects.requireNonNull(repository, "repository required"));
         }
-    }
 
-    @Override
-    public boolean isVirtual() {
-        return true;
+        ConfigValidator.value(repositories, value -> value != null && !value.isEmpty(), () -> "repositories are empty");
     }
 
     @Override

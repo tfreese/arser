@@ -84,10 +84,6 @@ public final class Arser extends AbstractLifecycle {
     public void write(final ResourceRequest request, final InputStream inputStream) throws Exception {
         final Repository repository = getRepository(request.getContextRoot());
 
-        if (!repository.isWriteable()) {
-            throw new IllegalStateException("Repository is not writeable: " + repository.getName());
-        }
-
         repository.write(request, inputStream);
     }
 

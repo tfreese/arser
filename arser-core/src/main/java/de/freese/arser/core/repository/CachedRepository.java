@@ -1,13 +1,12 @@
 // Created: 03.05.2021
-package de.freese.arser.core.repository.cached;
+package de.freese.arser.core.repository;
 
 import java.net.URI;
+import java.util.Objects;
 
 import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
-import de.freese.arser.core.repository.AbstractRepository;
-import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.CachingResourceResponse;
 import de.freese.arser.core.response.DefaultResourceResponse;
@@ -21,10 +20,10 @@ public class CachedRepository extends AbstractRepository {
     private final Repository delegate;
 
     public CachedRepository(final Repository delegate, final BlobStore blobStore) {
-        super(delegate.getName(), URI.create("cached"));
+        super(delegate.getName(), URI.create(delegate.getName() + "cached"));
 
-        this.delegate = assertNotNull(delegate, () -> "Repository");
-        this.blobStore = assertNotNull(blobStore, () -> "BlobStore");
+        this.delegate = Objects.requireNonNull(delegate, "delegate required");
+        this.blobStore = Objects.requireNonNull(blobStore, "blobStore required");
     }
 
     @Override
@@ -53,34 +52,38 @@ public class CachedRepository extends AbstractRepository {
     protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
         final URI resource = request.getResource();
 
+        ResourceResponse resourceResponse = null;
+
         if (resource.getPath().endsWith("maven-metadata.xml")) {
-            // Never save these files, versions:display-dependency-updates won't work !
-            return this.delegate.getResource(request);
+            // Never save these files, versions:display-dependency-updates won't work!
+            resourceResponse = this.delegate.getResource(request);
         }
+        else {
+            final BlobId blobId = new BlobId(resource);
 
-        final BlobId blobId = new BlobId(resource);
+            if (getBlobStore().exists(blobId)) {
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Resource - found: {}", resource);
+                }
 
-        if (getBlobStore().exists(blobId)) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Resource - found: {}", resource);
+                final Blob blob = getBlobStore().get(blobId);
+
+                resourceResponse = new DefaultResourceResponse(blob.getLength(), blob::createInputStream);
             }
+            else {
+                if (getLogger().isDebugEnabled()) {
+                    getLogger().debug("Resource - not found: {}", resource);
+                }
 
-            final Blob blob = getBlobStore().get(blobId);
+                final ResourceResponse response = this.delegate.getResource(request);
 
-            return new DefaultResourceResponse(blob.getLength(), blob::createInputStream);
+                if (response != null) {
+                    resourceResponse = new CachingResourceResponse(response, blobId, getBlobStore());
+                }
+            }
         }
 
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Resource - not found: {}", resource);
-        }
-
-        final ResourceResponse response = this.delegate.getResource(request);
-
-        if (response != null) {
-            return new CachingResourceResponse(response, blobId, getBlobStore());
-        }
-
-        return null;
+        return resourceResponse;
     }
 
     @Override

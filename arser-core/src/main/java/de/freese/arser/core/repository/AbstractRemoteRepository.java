@@ -1,5 +1,5 @@
 // Created: 22.07.23
-package de.freese.arser.core.repository.remote;
+package de.freese.arser.core.repository;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,9 +7,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.UUID;
-
-import de.freese.arser.core.repository.AbstractRepository;
 
 /**
  * @author Thomas Freese
@@ -26,7 +25,7 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
     protected AbstractRemoteRepository(final String name, final URI uri, final Path tempDir) {
         super(name, uri);
 
-        this.tempDir = assertNotNull(tempDir, () -> "tempDir");
+        this.tempDir = Objects.requireNonNull(tempDir, "tempDir required");
     }
 
     protected URI createResourceUri(final URI uri, final URI resource) {

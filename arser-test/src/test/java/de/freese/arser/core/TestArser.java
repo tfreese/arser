@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,12 +23,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import de.freese.arser.core.component.JreHttpClientComponent;
+import de.freese.arser.core.config.ArserConfig;
+import de.freese.arser.core.config.HttpClientConfig;
+import de.freese.arser.core.config.LocalRepositoryConfig;
+import de.freese.arser.core.config.RemoteRepositoryConfig;
+import de.freese.arser.core.config.VirtualRepositoryConfig;
 import de.freese.arser.core.lifecycle.LifecycleManager;
+import de.freese.arser.core.repository.FileRepository;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.local.FileRepository;
-import de.freese.arser.core.repository.virtual.VirtualRepository;
+import de.freese.arser.core.repository.VirtualRepository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.settings.ArserSettings;
 import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
 
 /**
@@ -35,11 +40,11 @@ import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class TestArser {
-    private static final Path PATH_TEST = Paths.get(System.getProperty("java.io.tmpdir"), "arser-test", "requestHandler");
+    private static final Path PATH_TEST = Paths.get(System.getProperty("java.io.tmpdir"), "arser-test");
 
     private static LifecycleManager lifecycleManager;
     private static Repository repositoryGradleReleases;
-    private static Repository repositoryLocalWriteable;
+    private static Repository repositoryLocal;
     private static Repository repositoryMavenCentral;
     private static Repository repositoryVirtual;
 
@@ -68,30 +73,46 @@ class TestArser {
     static void beforeAll() throws Exception {
         lifecycleManager = new LifecycleManager();
 
-        final ArserSettings arserSettings = ArserSettings.fromEmpty();
+        final ArserConfig arserConfig = ArserConfig.builder()
+                .httpClientConfig(HttpClientConfig.builder()
+                        .threadNamePattern("test-http-%d")
+                        .threadPoolCoreSize(2)
+                        .threadPoolMaxSize(4)
+                        .build()
+                )
+                .workingDir(PATH_TEST)
+                .build();
 
-        arserSettings.getHttpClientConfig().setThreadNamePattern("test-http-%d");
-        arserSettings.getHttpClientConfig().setThreadPoolCoreSize(2);
-        arserSettings.getHttpClientConfig().setThreadPoolMaxSize(4);
-
-        final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(arserSettings.getHttpClientConfig());
+        final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(arserConfig.getHttpClientConfig());
         lifecycleManager.add(httpClientComponent);
 
-        repositoryMavenCentral = new JreHttpClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"),
-                httpClientComponent::getHttpClient, arserSettings.getWorkingDir());
+        repositoryMavenCentral = new JreHttpClientRemoteRepository(RemoteRepositoryConfig.builder()
+                .name("maven-central")
+                .uri(URI.create("https://repo1.maven.org/maven2"))
+                .build(),
+                httpClientComponent::getHttpClient, arserConfig.getWorkingDir());
         lifecycleManager.add(repositoryMavenCentral);
 
-        repositoryGradleReleases = new JreHttpClientRemoteRepository("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"),
-                httpClientComponent::getHttpClient, arserSettings.getWorkingDir());
+        repositoryGradleReleases = new JreHttpClientRemoteRepository(RemoteRepositoryConfig.builder()
+                .name("gradle-releases")
+                .uri(URI.create("https://repo.gradle.org/gradle/libs-releases"))
+                .build(),
+                httpClientComponent::getHttpClient, arserConfig.getWorkingDir());
         lifecycleManager.add(repositoryGradleReleases);
 
-        repositoryLocalWriteable = new FileRepository("deploy-snapshots", PATH_TEST.resolve("deploy-snapshots").toUri(), true);
-        lifecycleManager.add(repositoryLocalWriteable);
+        repositoryLocal = new FileRepository(LocalRepositoryConfig.builder()
+                .name("deploy-snapshots")
+                .uri(PATH_TEST.resolve("deploy-snapshots").toUri())
+                .writeable(true)
+                .build()
+        );
+        lifecycleManager.add(repositoryLocal);
 
-        repositoryVirtual = new VirtualRepository("public");
-        ((VirtualRepository) repositoryVirtual).add(repositoryMavenCentral);
-        ((VirtualRepository) repositoryVirtual).add(repositoryGradleReleases);
-        ((VirtualRepository) repositoryVirtual).add(repositoryLocalWriteable);
+        repositoryVirtual = new VirtualRepository(VirtualRepositoryConfig.builder()
+                .name("public")
+                .repositories(List.of(repositoryMavenCentral, repositoryGradleReleases, repositoryLocal))
+                .build()
+        );
         lifecycleManager.add(repositoryVirtual);
 
         lifecycleManager.start();
@@ -100,9 +121,9 @@ class TestArser {
     @Test
     void testLocalWriteable() throws Exception {
         final Arser arser = new Arser();
-        arser.addRepository(repositoryLocalWriteable);
+        arser.addRepository(repositoryLocal);
 
-        final URI resource = URI.create("/" + repositoryLocalWriteable.getName() + "/org/test/0.0.1/test-0.0.1.pom");
+        final URI resource = URI.create("/" + repositoryLocal.getName() + "/org/test/0.0.1/test-0.0.1.pom");
         final ResourceRequest resourceRequest = ResourceRequest.of(resource);
 
         final byte[] buf = "Test-Pom".getBytes(StandardCharsets.UTF_8);
@@ -112,7 +133,7 @@ class TestArser {
         }
 
         final URI fileRelativeResourceUri = URI.create(resource.getPath().substring(1));
-        final URI fileAbsoluteUri = repositoryLocalWriteable.getUri().resolve(fileRelativeResourceUri);
+        final URI fileAbsoluteUri = repositoryLocal.getUri().resolve(fileRelativeResourceUri);
         final Path path = Paths.get(fileAbsoluteUri);
 
         assertTrue(Files.exists(path));

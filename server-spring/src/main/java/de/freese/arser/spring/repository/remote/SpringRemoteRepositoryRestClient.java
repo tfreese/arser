@@ -7,11 +7,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
 
-import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
+import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceHandle;
@@ -27,7 +28,7 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
     public SpringRemoteRepositoryRestClient(final String name, final URI uri, final RestClient restClient, final Path tempDir) {
         super(name, uri, tempDir);
 
-        this.restClient = assertNotNull(restClient, () -> "restClient");
+        this.restClient = Objects.requireNonNull(restClient, "restClient required");
     }
 
     @Override

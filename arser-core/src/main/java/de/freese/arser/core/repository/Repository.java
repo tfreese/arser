@@ -24,13 +24,7 @@ public interface Repository extends Lifecycle {
 
     URI getUri();
 
-    default boolean isVirtual() {
-        return false;
+    default void write(final ResourceRequest request, final InputStream inputStream) throws Exception {
+        throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
     }
-
-    default boolean isWriteable() {
-        return false;
-    }
-
-    void write(ResourceRequest request, InputStream inputStream) throws Exception;
 }

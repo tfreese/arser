@@ -9,18 +9,18 @@
 
     <workingDir>file:///tmp/arser</workingDir>
 
-    <server-config>
+    <server-setting>
         <port>7999</port>
         <thread-pool-core-size>2</thread-pool-core-size>
         <thread-pool-max-size>6</thread-pool-max-size>
         <thread-name-pattern>http-server-%d</thread-name-pattern>
-    </server-config>
+    </server-setting>
 
-    <http-client-config>
+    <http-client-setting>
         <thread-pool-core-size>2</thread-pool-core-size>
         <thread-pool-max-size>6</thread-pool-max-size>
         <thread-name-pattern>http-client-%d</thread-name-pattern>
-    </http-client-config>
+    </http-client-setting>
 
     <repositories>
         <remote>
@@ -30,10 +30,10 @@
         <remote>
             <name>gradle-releases</name>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
-            <storeConfig>
+            <storeSetting>
                 <type>file</type>
                 <uri>file:///tmp/arser/cache/gradle/libs-releases</uri>
-            </storeConfig>
+            </storeSetting>
         </remote>
         <remote>
             <name>gradle-plugins</name>
@@ -45,13 +45,13 @@
         </local>
         <virtual>
             <name>public</name>
-            <repository-name>maven-central</repository-name>
-            <repository-name>gradle-releases</repository-name>
-            <repository-name>gradle-plugins</repository-name>
+            <repository-ref>maven-central</repository-ref>
+            <repository-ref>gradle-releases</repository-ref>
+            <repository-ref>gradle-plugins</repository-ref>
         </virtual>
         <virtual>
             <name>public-snapshots</name>
-            <repository-name>deploy-snapshots</repository-name>
+            <repository-ref>deploy-snapshots</repository-ref>
         </virtual>
     </repositories>
 

@@ -3,6 +3,7 @@ package de.freese.arser.core.lifecycle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.freese.arser.core.utils.ArserUtils;
@@ -15,7 +16,7 @@ public class LifecycleManager extends AbstractLifecycle {
     private final CopyOnWriteArrayList<Lifecycle> components = new CopyOnWriteArrayList<>();
 
     public void add(final Lifecycle component) {
-        assertNotNull(component, () -> "Lifecycle");
+        Objects.requireNonNull(component, "component required");
 
         final boolean added = components.addIfAbsent(component);
 
@@ -25,7 +26,7 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void add(final LifecycleAware component) {
-        assertNotNull(component, () -> "LifecycleAware");
+        Objects.requireNonNull(component, "component required");
 
         add(component.getLifecycle());
     }
@@ -37,7 +38,7 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void remove(final Lifecycle component) {
-        assertNotNull(component, () -> "Lifecycle");
+        Objects.requireNonNull(component, "component required");
 
         final boolean removed = components.remove(component);
 
@@ -47,7 +48,7 @@ public class LifecycleManager extends AbstractLifecycle {
     }
 
     public void remove(final LifecycleAware component) {
-        assertNotNull(component, () -> "LifecycleAware");
+        Objects.requireNonNull(component, "component required");
 
         remove(component.getLifecycle());
     }

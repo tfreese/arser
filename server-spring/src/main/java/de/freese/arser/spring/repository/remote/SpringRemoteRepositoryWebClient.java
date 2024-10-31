@@ -12,6 +12,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -21,7 +22,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
+import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceHandle;
@@ -37,7 +38,7 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
     public SpringRemoteRepositoryWebClient(final String name, final URI uri, final WebClient webClient, final Path tempDir) {
         super(name, uri, tempDir);
 
-        this.webClient = assertNotNull(webClient, () -> "webClient");
+        this.webClient = Objects.requireNonNull(webClient, "webClient required");
     }
 
     @Override
@@ -117,8 +118,8 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                         // Use Temp-Files.
                         final Path tempFile = createTempFile();
 
-                        try (OutputStream outputStream = new BufferedOutputStream(
-                                Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING))) {
+                        try (OutputStream fileOS = Files.newOutputStream(tempFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                             OutputStream outputStream = new BufferedOutputStream(fileOS)) {
                             DataBufferUtils.write(dataBufferFlux, outputStream).blockLast();
                             outputStream.flush();
                         }

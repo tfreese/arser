@@ -3,6 +3,7 @@ package de.freese.arser.spring.config;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +19,12 @@ import org.springframework.http.client.JdkClientHttpRequestFactory;
 import de.freese.arser.blobstore.file.FileBlobStore;
 import de.freese.arser.core.Arser;
 import de.freese.arser.core.component.BlobStoreComponent;
+import de.freese.arser.core.config.LocalRepositoryConfig;
+import de.freese.arser.core.config.VirtualRepositoryConfig;
+import de.freese.arser.core.repository.CachedRepository;
+import de.freese.arser.core.repository.FileRepository;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.cached.CachedRepository;
-import de.freese.arser.core.repository.local.FileRepository;
-import de.freese.arser.core.repository.virtual.VirtualRepository;
+import de.freese.arser.core.repository.VirtualRepository;
 import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryClientHttpRequestFactory;
 
 /**
@@ -75,7 +78,12 @@ public class ArserConfigWeb {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository localDeploySnapshots() {
-        return new FileRepository("deploy-snapshots", URI.create("file:///tmp/arser/deploy-snapshots"), true);
+        return new FileRepository(LocalRepositoryConfig.builder()
+                .name("deploy-snapshots")
+                .uri(URI.create("file:///tmp/arser/deploy-snapshots"))
+                .writeable(true)
+                .build()
+        );
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -106,19 +114,19 @@ public class ArserConfigWeb {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository virtualPublic(final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
-        final VirtualRepository virtualRepository = new VirtualRepository("public");
-        virtualRepository.add(remoteMavenCentral);
-        virtualRepository.add(remoteGradleReleases);
-        virtualRepository.add(remoteGradlePlugins);
-
-        return virtualRepository;
+        return new VirtualRepository(VirtualRepositoryConfig.builder()
+                .name("public")
+                .repositories(List.of(remoteMavenCentral, remoteGradleReleases, remoteGradlePlugins))
+                .build()
+        );
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository virtualPublicSnapshots(final Repository localDeploySnapshots) {
-        final VirtualRepository virtualRepository = new VirtualRepository("public-snapshots");
-        virtualRepository.add(localDeploySnapshots);
-
-        return virtualRepository;
+        return new VirtualRepository(VirtualRepositoryConfig.builder()
+                .name("public-snapshots")
+                .repositories(List.of(localDeploySnapshots))
+                .build()
+        );
     }
 }

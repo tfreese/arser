@@ -4,12 +4,13 @@ package de.freese.arser.core.component;
 import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import de.freese.arser.config.HttpClientConfig;
+import de.freese.arser.core.config.HttpClientConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ArserUtils;
@@ -27,7 +28,7 @@ public class JreHttpClientComponent extends AbstractLifecycle {
     public JreHttpClientComponent(final HttpClientConfig httpClientConfig) {
         super();
 
-        this.httpClientConfig = assertNotNull(httpClientConfig, () -> "HttpClientConfig");
+        this.httpClientConfig = Objects.requireNonNull(httpClientConfig, "httpClientConfig required");
     }
 
     public HttpClient getHttpClient() {
@@ -38,11 +39,9 @@ public class JreHttpClientComponent extends AbstractLifecycle {
     protected void doStart() throws Exception {
         super.doStart();
 
-        assertNotNull(httpClientConfig, () -> "ClientConfig");
-
-        final int threadPoolCoreSize = assertValue(httpClientConfig.getThreadPoolCoreSize(), value -> value <= 0, () -> "ThreadPoolCoreSize has invalid range");
-        final int threadPoolMaxSize = assertValue(httpClientConfig.getThreadPoolMaxSize(), value -> value <= 0, () -> "ThreadPoolMaxSize has invalid range");
-        final String threadNamePattern = assertNotNull(httpClientConfig.getThreadNamePattern(), () -> "ThreadNamePattern");
+        final String threadNamePattern = httpClientConfig.getThreadNamePattern();
+        final int threadPoolCoreSize = httpClientConfig.getThreadPoolCoreSize();
+        final int threadPoolMaxSize = httpClientConfig.getThreadPoolMaxSize();
 
         this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));

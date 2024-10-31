@@ -4,6 +4,7 @@ package de.freese.arser.core.component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.blobstore.file.FileBlobStore;
@@ -20,7 +21,7 @@ public class BlobStoreComponent extends AbstractLifecycle {
     public BlobStoreComponent(final BlobStore blobStore) {
         super();
 
-        this.blobStore = assertNotNull(blobStore, () -> "BlobStore");
+        this.blobStore = Objects.requireNonNull(blobStore, "blobStore required");
     }
 
     public BlobStore getBlobStore() {

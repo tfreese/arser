@@ -8,13 +8,14 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 
-import de.freese.arser.core.repository.remote.AbstractRemoteRepository;
+import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceHandle;
@@ -30,7 +31,7 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
     public SpringRemoteRepositoryClientHttpRequestFactory(final String name, final URI uri, final ClientHttpRequestFactory clientHttpRequestFactory, final Path tempDir) {
         super(name, uri, tempDir);
 
-        this.clientHttpRequestFactory = assertNotNull(clientHttpRequestFactory, () -> "clientHttpRequestFactory");
+        this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
 
     @Override

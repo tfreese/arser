@@ -4,13 +4,14 @@ package de.freese.arser.core.component;
 import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import de.freese.arser.config.StoreConfig;
+import de.freese.arser.core.config.DatabaseStoreConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 
 /**
@@ -18,16 +19,14 @@ import de.freese.arser.core.lifecycle.AbstractLifecycle;
  */
 public class DatasourceComponent extends AbstractLifecycle {
 
-    private final String poolName;
-    private final StoreConfig storeConfig;
+    private final DatabaseStoreConfig storeConfig;
 
     private DataSource dataSource;
 
-    public DatasourceComponent(final StoreConfig storeConfig, final String poolName) {
+    public DatasourceComponent(final DatabaseStoreConfig storeConfig) {
         super();
 
-        this.storeConfig = assertNotNull(storeConfig, () -> "StoreConfig");
-        this.poolName = assertNotNull(poolName, () -> "PoolName");
+        this.storeConfig = Objects.requireNonNull(storeConfig, "storeConfig required");
     }
 
     public DataSource getDataSource() {
@@ -48,16 +47,14 @@ public class DatasourceComponent extends AbstractLifecycle {
     protected void doStart() throws Exception {
         super.doStart();
 
-        assertNotNull(storeConfig, () -> "StoreConfig");
-
         final HikariConfig config = new HikariConfig();
-        config.setDriverClassName(assertNotNull(storeConfig.getDriverClassName(), () -> "DriverClassName"));
-        config.setJdbcUrl(assertNotNull(storeConfig.getUri(), () -> "Uri"));
-        config.setUsername(assertNotNull(storeConfig.getUser(), () -> "User"));
-        config.setPassword(assertNotNull(storeConfig.getPassword(), () -> "Password"));
-        config.setMinimumIdle(assertValue(storeConfig.getPoolCoreSize(), value -> value <= 0, () -> "PoolCoreSize has invalid range"));
-        config.setMaximumPoolSize(assertValue(storeConfig.getPoolMaxSize(), value -> value <= 0, () -> "PoolMaxSize has invalid range"));
-        config.setPoolName(assertNotNull(poolName, () -> "PoolName"));
+        config.setDriverClassName(storeConfig.getDriverClassName());
+        config.setJdbcUrl(storeConfig.getUri().toString());
+        config.setUsername(storeConfig.getUser());
+        config.setPassword(storeConfig.getPassword());
+        config.setMinimumIdle(storeConfig.getPoolCoreSize());
+        config.setMaximumPoolSize(storeConfig.getPoolMaxSize());
+        config.setPoolName(storeConfig.getPoolName());
         config.setAutoCommit(false);
 
         this.dataSource = new HikariDataSource(config);

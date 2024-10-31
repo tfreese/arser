@@ -19,12 +19,8 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     protected AbstractRepository(final String name, final URI uri) {
         super();
 
-        if (assertNotNull(name, () -> "Name").isBlank()) {
-            throw new IllegalArgumentException("name is empty");
-        }
-
         this.name = name;
-        this.uri = assertNotNull(uri, () -> "URI");
+        this.uri = uri;
     }
 
     @Override

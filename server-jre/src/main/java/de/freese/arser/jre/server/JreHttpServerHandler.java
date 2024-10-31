@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -27,7 +28,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     JreHttpServerHandler(final Arser arser) {
         super();
 
-        this.arser = assertNotNull(arser, () -> "arser");
+        this.arser = Objects.requireNonNull(arser, "arser required");
     }
 
     @Override
@@ -65,8 +66,6 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
             throw ex;
         }
         catch (final Exception ex) {
-            getLogger().error(ex.getMessage(), ex);
-            // throw new IOException(ex);
             sendError(exchange, ex.getMessage());
         }
         finally {
@@ -90,6 +89,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
                 final String message = "File not found: " + request.getResource();
                 final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
 
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
                 exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
 
                 try (OutputStream outputStream = exchange.getResponseBody()) {
@@ -131,6 +131,11 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
             arser.write(request, inputStream);
         }
+        catch (Exception ex) {
+            sendError(exchange, ex.getMessage());
+
+            return;
+        }
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
         exchange.sendResponseHeaders(ArserUtils.HTTP_OK, -1);
@@ -142,7 +147,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
         consumeAndCloseRequestStream(exchange);
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-        exchange.sendResponseHeaders(ArserUtils.HTTP_SERVICE_UNAVAILABLE, 0);
+        exchange.sendResponseHeaders(ArserUtils.HTTP_INTERNAL_ERROR, 0);
         exchange.getResponseBody().close();
         exchange.close();
     }

@@ -20,15 +20,15 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="workingDir" type="FileUri" />
-                <xs:element name="server-config" type="ServerConfig" />
-                <xs:element name="http-client-config" type="HttpClientConfig" />
+                <xs:element name="server-setting" type="ServerSetting" />
+                <xs:element name="http-client-setting" type="HttpClientSetting" />
                 <xs:element name="repositories" type="Repositories" />
                 <!--                <xs:element name="db-monitoring" type="DbMonitoringConfig" minOccurs="0" />-->
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="ServerConfig">
+    <xs:complexType name="ServerSetting">
         <xs:sequence>
             <xs:element name="port">
                 <xs:annotation>
@@ -47,7 +47,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="HttpClientConfig">
+    <xs:complexType name="HttpClientSetting">
         <xs:sequence>
             <xs:element name="thread-pool-core-size" type="xs:positiveInteger" />
             <xs:element name="thread-pool-max-size" type="xs:positiveInteger" />
@@ -55,7 +55,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="StoreConfig">
+    <xs:complexType name="StoreSetting">
         <xs:annotation>
             <xs:documentation source="description">Configuration for caching a remote Repository</xs:documentation>
         </xs:annotation>
@@ -114,7 +114,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:complexType name="LocalRepoConfig">
+    <xs:complexType name="LocalRepoSetting">
         <xs:annotation>
             <xs:documentation source="description">Local file Repository [file://*].</xs:documentation>
         </xs:annotation>
@@ -122,25 +122,26 @@
             <xs:element name="name" type="RepoName" />
             <xs:element name="path" type="FileUri" />
         </xs:sequence>
-        <xs:attribute name="writeable" type="xs:boolean" default="false">
+        <!-- <xs:attribute name="writeable" type="xs:boolean" default="false"> -->
+        <xs:attribute name="writeable" type="xs:boolean" use="required">
             <xs:annotation>
                 <xs:documentation source="description">Use the Repository für deployments.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="RemoteRepoConfig">
+    <xs:complexType name="RemoteRepoSetting">
         <xs:annotation>
             <xs:documentation source="description">Remote Repository [http://*,https://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
             <xs:element name="name" type="RepoName" />
             <xs:element name="uri" type="WebUri" />
-            <xs:element name="storeConfig" type="StoreConfig" minOccurs="0" />
+            <xs:element name="storeSetting" type="StoreSetting" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="VirtualRepoConfig">
+    <xs:complexType name="VirtualRepoSetting">
         <xs:annotation>
             <xs:documentation source="description">
                 Virtual Repository as mirror [http://HOST:PORT/NAME]
@@ -149,7 +150,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:element name="name" type="RepoName" />
-            <xs:element name="repository-name" type="xs:normalizedString" maxOccurs="unbounded" />
+            <xs:element name="repository-ref" type="xs:normalizedString" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
@@ -158,9 +159,9 @@
             <xs:documentation source="description">Repository Declaration.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="remote" type="RemoteRepoConfig" maxOccurs="unbounded" />
-            <xs:element name="local" type="LocalRepoConfig" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element name="virtual" type="VirtualRepoConfig" maxOccurs="unbounded" />
+            <xs:element name="remote" type="RemoteRepoSetting" maxOccurs="unbounded" />
+            <xs:element name="local" type="LocalRepoSetting" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="virtual" type="VirtualRepoSetting" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 

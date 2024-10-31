@@ -61,7 +61,7 @@ tasks.register("genJaxb") {
         xjc(destdir: destDir,
                 schema: schema,
                 binding: binding,
-                package: "de.freese.arser.config",
+                package: "de.freese.arser.config.xml",
                 encoding: compileJava.options.encoding,
                 extension: true,
                 removeOldOutput: true) {

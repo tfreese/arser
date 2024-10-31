@@ -1,5 +1,5 @@
 // Created: 22.07.23
-package de.freese.arser.core.repository.local;
+package de.freese.arser.core.repository;
 
 import java.io.BufferedOutputStream;
 import java.io.InputStream;
@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import de.freese.arser.core.repository.AbstractRepository;
+import de.freese.arser.core.config.LocalRepositoryConfig;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceResponse;
@@ -20,15 +20,10 @@ import de.freese.arser.core.response.ResourceResponse;
 public class FileRepository extends AbstractRepository {
     private final boolean writeable;
 
-    public FileRepository(final String name, final URI uri, final boolean writeable) {
-        super(name, uri);
+    public FileRepository(final LocalRepositoryConfig config) {
+        super(config.getName(), config.getUri());
 
-        this.writeable = writeable;
-    }
-
-    @Override
-    public boolean isWriteable() {
-        return writeable;
+        this.writeable = config.isWriteable();
     }
 
     @Override
@@ -85,6 +80,10 @@ public class FileRepository extends AbstractRepository {
 
     @Override
     protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
+        if (!writeable) {
+            throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
+        }
+
         final Path path = toPath(request.getResource());
 
         if (!Files.exists(path.getParent())) {

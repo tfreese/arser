@@ -14,6 +14,7 @@ import java.net.http.WebSocket;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -40,6 +41,7 @@ public class ResilientHttpClient extends HttpClient {
     public static class ResilientHttpClientBuilder {
         private HttpClient httpClient;
         private Supplier<String> loadBalancer = () -> null;
+        private Set<Integer> noRetryOnStatus = Set.of(HttpURLConnection.HTTP_OK);
         private int retries;
         private Duration retryDuration = Duration.ofSeconds(1);
 
@@ -69,7 +71,7 @@ public class ResilientHttpClient extends HttpClient {
                 failsafeExecutor = Failsafe.with(retryPolicy);
             }
 
-            return new ResilientHttpClient(httpClient, loadBalancer, failsafeExecutor);
+            return new ResilientHttpClient(httpClient, loadBalancer, failsafeExecutor, noRetryOnStatus);
         }
 
         public ResilientHttpClientBuilder httpClient(final HttpClient httpClient) {
@@ -96,6 +98,12 @@ public class ResilientHttpClient extends HttpClient {
             return this;
         }
 
+        public ResilientHttpClientBuilder noRetryOnStatus(final Set<Integer> noRetryOnStatus) {
+            this.noRetryOnStatus = Objects.requireNonNull(noRetryOnStatus, "noRetryOnStatus required");
+
+            return this;
+        }
+
         public ResilientHttpClientBuilder retries(final int retries) {
             this.retries = retries;
 
@@ -116,13 +124,16 @@ public class ResilientHttpClient extends HttpClient {
     private final FailsafeExecutor<HttpResponse<?>> failsafeExecutor;
     private final HttpClient httpClient;
     private final Supplier<String> loadBalancer;
+    private final Set<Integer> noRetryOnStatus;
 
-    ResilientHttpClient(final HttpClient httpClient, final Supplier<String> loadBalancer, final FailsafeExecutor<HttpResponse<?>> failsafeExecutor) {
+    ResilientHttpClient(final HttpClient httpClient, final Supplier<String> loadBalancer, final FailsafeExecutor<HttpResponse<?>> failsafeExecutor,
+                        final Set<Integer> noRetryOnStatus) {
         super();
 
         this.httpClient = Objects.requireNonNull(httpClient, "httpClient required");
         this.loadBalancer = Objects.requireNonNull(loadBalancer, "loadBalancer required");
         this.failsafeExecutor = failsafeExecutor;
+        this.noRetryOnStatus = Objects.requireNonNull(noRetryOnStatus, "noRetryOnStatus required");
     }
 
     @Override
@@ -184,7 +195,7 @@ public class ResilientHttpClient extends HttpClient {
         final CheckedSupplier<HttpResponse<T>> checkedSupplier = () -> {
             final HttpResponse<T> response = httpClient.send(new ResilientHttpRequest(request, loadBalancer), responseBodyHandler);
 
-            if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+            if (!noRetryOnStatus.contains(response.statusCode())) {
                 throw new HttpRetryException(response.uri().toString(), response.statusCode());
             }
 

@@ -12,13 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import de.freese.arser.blobstore.file.FileBlobStore;
+import de.freese.arser.blobstore.jdbc.JdbcBlobStore;
 import de.freese.arser.core.Arser;
+import de.freese.arser.core.component.BlobStoreComponent;
+import de.freese.arser.core.component.DatasourceComponent;
 import de.freese.arser.core.component.JreHttpClientComponent;
+import de.freese.arser.core.config.ArserConfig;
+import de.freese.arser.core.config.DatabaseStoreConfig;
+import de.freese.arser.core.config.FileStoreConfig;
 import de.freese.arser.core.lifecycle.LifecycleManager;
-import de.freese.arser.core.repository.builder.LocalRepositoryBuilder;
-import de.freese.arser.core.repository.builder.VirtualRepositoryBuilder;
-import de.freese.arser.core.settings.ArserSettings;
-import de.freese.arser.jre.repository.builder.RemoteRepositoryBuilder;
+import de.freese.arser.core.repository.CachedRepository;
+import de.freese.arser.core.repository.FileRepository;
+import de.freese.arser.core.repository.Repository;
+import de.freese.arser.core.repository.VirtualRepository;
+import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
 import de.freese.arser.jre.server.JreHttpServer;
 
 /**
@@ -46,13 +54,13 @@ public final class ArserJreServerApplication {
             final URI configUri = findConfigFile(args);
             LOGGER.info("load settings from {}", configUri);
 
-            final ArserSettings arserSettings;
+            final ArserConfig arserConfig;
 
             try (InputStream inputStream = configUri.toURL().openStream()) {
-                arserSettings = ArserSettings.fromXml(inputStream);
+                arserConfig = ArserConfig.fromXml(inputStream);
             }
 
-            final Arser arser = createArser(arserSettings);
+            final Arser arser = createArser(arserConfig);
 
             // ArserUtils.setupProxy();
 
@@ -77,46 +85,60 @@ public final class ArserJreServerApplication {
         }
     }
 
-    private static Arser createArser(final ArserSettings arserSettings) {
+    private static Arser createArser(final ArserConfig arserConfig) {
         final LifecycleManager lifecycleManager = new LifecycleManager();
 
-        final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(arserSettings.getHttpClientConfig());
+        final JreHttpClientComponent httpClientComponent = new JreHttpClientComponent(arserConfig.getHttpClientConfig());
         lifecycleManager.add(httpClientComponent);
 
         final Arser arser = new Arser(lifecycleManager);
 
         // LocalRepository
-        arserSettings.getLocalRepositories().forEach(localRepoConfig -> {
-            final LocalRepositoryBuilder builder = new LocalRepositoryBuilder()
-                    .name(localRepoConfig.getName())
-                    .uri(URI.create(localRepoConfig.getPath()))
-                    .writeable(localRepoConfig.isWriteable());
+        arserConfig.getRepositoryConfigsLocal().forEach(config -> {
+            final Repository repository = new FileRepository(config);
+            lifecycleManager.add(repository);
 
-            arser.addRepository(builder.build(lifecycleManager));
+            arser.addRepository(repository);
         });
 
         // RemoteRepository
-        arserSettings.getRemoteRepositories().forEach(remoteRepoConfig -> {
-            final RemoteRepositoryBuilder builder = new RemoteRepositoryBuilder()
-                    .name(remoteRepoConfig.getName())
-                    .uri(URI.create(remoteRepoConfig.getUri()))
-                    .tempDir(arserSettings.getWorkingDir().resolve("temp"))
-                    .storeConfig(remoteRepoConfig.getStoreConfig());
+        arserConfig.getRepositoryConfigsRemote().forEach(config -> {
+            Repository repository = new JreHttpClientRemoteRepository(config, httpClientComponent::getHttpClient, arserConfig.getTempDir());
 
-            arser.addRepository(builder.build(lifecycleManager, httpClientComponent));
+            if (config.getStoreConfig() instanceof FileStoreConfig fsc) {
+                final BlobStoreComponent blobStoreComponent = new BlobStoreComponent(new FileBlobStore(fsc.getUri()));
+                lifecycleManager.add(blobStoreComponent);
+
+                repository = new CachedRepository(repository, blobStoreComponent.getBlobStore());
+                lifecycleManager.add(repository);
+            }
+            else if (config.getStoreConfig() instanceof DatabaseStoreConfig dbsc) {
+                final DatasourceComponent datasourceComponent = new DatasourceComponent(dbsc);
+                lifecycleManager.add(datasourceComponent);
+
+                final BlobStoreComponent blobStoreComponent = new BlobStoreComponent(new JdbcBlobStore(datasourceComponent::getDataSource));
+                lifecycleManager.add(blobStoreComponent);
+
+                repository = new CachedRepository(repository, blobStoreComponent.getBlobStore());
+                lifecycleManager.add(repository);
+            }
+            else {
+                lifecycleManager.add(repository);
+            }
+
+            arser.addRepository(repository);
         });
 
         // VirtualRepository
-        arserSettings.getVirtualRepositories().forEach(virtualRepoConfig -> {
-            final VirtualRepositoryBuilder builder = new VirtualRepositoryBuilder()
-                    .name(virtualRepoConfig.getName())
-                    .repositoryNames(virtualRepoConfig.getRepositoryNames());
+        arserConfig.getRepositoryConfigsVirtual().forEach(config -> {
+            final Repository repository = new VirtualRepository(config, arser::getRepository);
+            lifecycleManager.add(repository);
 
-            arser.addRepository(builder.build(lifecycleManager, arser::getRepository));
+            arser.addRepository(repository);
         });
 
         // Server at last
-        final JreHttpServer proxyServer = new JreHttpServer().serverConfig(arserSettings.getServerConfig()).arser(arser);
+        final JreHttpServer proxyServer = new JreHttpServer(arser, arserConfig.getServerConfig());
         lifecycleManager.add(proxyServer);
 
         return arser;

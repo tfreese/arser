@@ -48,6 +48,10 @@ public final class ArserUtils {
     /**
      * io.netty.handler.codec.http.HttpResponseStatus
      */
+    public static final int HTTP_INTERNAL_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
+    /**
+     * io.netty.handler.codec.http.HttpResponseStatus
+     */
     public static final int HTTP_NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
     /**
      * io.netty.handler.codec.http.HttpResponseStatus
