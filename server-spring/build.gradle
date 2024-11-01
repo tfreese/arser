@@ -1,6 +1,5 @@
 plugins {
     id "java"
-    id "io.spring.dependency-management" version "$version_springDependencyManagement"
 }
 
 dependencies {
@@ -8,4 +7,22 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+}
+
+// For Placeholder in Resources.
+ext.artifactId = project.name
+
+processResources {
+    // def map = [
+    //         "project.artifactId" : project.name,
+    //         "project.description": project.description,
+    //         "project.version"    : project.version
+    // ]
+
+    filesMatching(["application*.yml", "application*.yaml", "application*.properties"]) {
+        filteringCharset = "UTF-8"
+
+        expand(project.properties)
+        // expand(map)
+    }
 }

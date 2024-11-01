@@ -24,7 +24,7 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
             ConfigValidator.name(name);
 
             if (!repositories.isEmpty() && !repositoryRefs.isEmpty()) {
-                throw new IllegalStateException("either repositories OR repositoryRefs can be set");
+                throw new IllegalStateException("either repositories OR repositoryRefs can be used");
             }
 
             if (repositories.isEmpty()) {
@@ -80,7 +80,7 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
     public static Builder builder() {
         return new Builder();
     }
-    
+
     private final List<Repository> repositories;
     private final List<String> repositoryRefs;
 

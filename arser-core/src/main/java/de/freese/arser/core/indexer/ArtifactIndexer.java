@@ -1,13 +1,13 @@
 // Created: 16.01.24
 package de.freese.arser.core.indexer;
 
-import java.net.URI;
+import de.freese.arser.core.request.ResourceRequest;
 
 /**
  * @author Thomas Freese
  */
 public interface ArtifactIndexer {
-    String findRepository(URI resource);
+    String findRepository(ResourceRequest request);
 
-    void storeRepository(URI resource, String repository);
+    void storeRepository(ResourceRequest request, String repository);
 }

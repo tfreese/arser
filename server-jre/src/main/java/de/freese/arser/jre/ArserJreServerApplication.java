@@ -24,9 +24,9 @@ import de.freese.arser.core.config.FileStoreConfig;
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.CachedRepository;
 import de.freese.arser.core.repository.FileRepository;
+import de.freese.arser.core.repository.JreHttpClientRemoteRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.VirtualRepository;
-import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
 import de.freese.arser.jre.server.JreHttpServer;
 
 /**

@@ -1,5 +1,5 @@
 // Created: 22.07.23
-package de.freese.arser.jre.repository.remote;
+package de.freese.arser.core.repository;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import de.freese.arser.core.config.RemoteRepositoryConfig;
-import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.DefaultResourceResponse;
 import de.freese.arser.core.response.ResourceHandle;

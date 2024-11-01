@@ -5,9 +5,8 @@
 
 # =================================================================================================
 # Application Properties
-app:
-    message:
-        welcome: Hello Tommy
+arser:
+    workingDir: file:///tmp/arser
 
 info:
     app:
@@ -16,12 +15,13 @@ info:
         version: ${project.version}
 
 logging:
+    #config: classpath:my-logging.xml
+    pattern:
+        # console: "%date{yyyy-MM-dd HH:mm:ss.SSS} - %5level - [%20.-20thread] - %replace(%-40.-40logger{0}){' ', '.'} - %message%n"
+        console: "%date{HH:mm:ss.SSS} - [%thread] - %level - %logger{0} - %message%n" # Like SimpleLogger
     level:
         root: "INFO"
         de.freese.arser.spring.repository.remote: "DEBUG"
-
-arser:
-    workingDir: file:///tmp/arser
 
 # =================================================================================================
 # Spring Properties

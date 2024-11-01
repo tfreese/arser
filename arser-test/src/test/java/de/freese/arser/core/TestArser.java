@@ -1,6 +1,7 @@
 // Created: 18.01.24
 package de.freese.arser.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -30,10 +31,10 @@ import de.freese.arser.core.config.RemoteRepositoryConfig;
 import de.freese.arser.core.config.VirtualRepositoryConfig;
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.FileRepository;
+import de.freese.arser.core.repository.JreHttpClientRemoteRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.VirtualRepository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.jre.repository.remote.JreHttpClientRemoteRepository;
 
 /**
  * @author Thomas Freese
@@ -123,12 +124,12 @@ class TestArser {
         final Arser arser = new Arser();
         arser.addRepository(repositoryLocal);
 
-        final URI resource = URI.create("/" + repositoryLocal.getName() + "/org/test/0.0.1/test-0.0.1.pom");
+        final URI resource = URI.create("/deploy-snapshots/org/test/0.0.1/test-0.0.1.pom");
         final ResourceRequest resourceRequest = ResourceRequest.of(resource);
 
-        final byte[] buf = "Test-Pom".getBytes(StandardCharsets.UTF_8);
+        final byte[] buffer = "Test-Pom".getBytes(StandardCharsets.UTF_8);
 
-        try (InputStream inputStream = new ByteArrayInputStream(buf)) {
+        try (InputStream inputStream = new ByteArrayInputStream(buffer)) {
             arser.write(resourceRequest, inputStream);
         }
 
@@ -170,14 +171,24 @@ class TestArser {
 
         // Only in https://repo.gradle.org/gradle/libs-releases
         ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/public/org/gradle/gradle-tooling-api/8.2.1/gradle-tooling-api-8.2.1.pom"));
-        boolean exist = arser.exist(resourceRequest);
+        boolean exist1 = arser.exist(resourceRequest);
+        assertTrue(exist1);
 
-        assertTrue(exist);
+        resourceRequest = ResourceRequest.of(URI.create("/public/org/gradle/gradle-tooling-api/8.2.1/gradle-tooling-api-8.2.1.pom"));
+        boolean exist2 = arser.exist(resourceRequest);
+        assertTrue(exist2);
+
+        assertEquals(exist1, exist2);
 
         // Only in https://repo1.maven.org/maven2
         resourceRequest = ResourceRequest.of(URI.create("/public/org/apache/maven/maven/3.8.4/maven-3.8.4.pom"));
-        exist = arser.exist(resourceRequest);
+        exist1 = arser.exist(resourceRequest);
+        assertTrue(exist1);
 
-        assertTrue(exist);
+        resourceRequest = ResourceRequest.of(URI.create("/public/org/apache/maven/maven/3.8.4/maven-3.8.4.pom"));
+        exist2 = arser.exist(resourceRequest);
+        assertTrue(exist2);
+
+        assertEquals(exist1, exist2);
     }
 }

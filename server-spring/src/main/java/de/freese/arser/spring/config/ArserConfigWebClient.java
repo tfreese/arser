@@ -43,7 +43,7 @@ public class ArserConfigWebClient {
     @Bean
     @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
     Arser arser(final ApplicationContext applicationContext) {
-        LOGGER.info("arser");
+        LOGGER.info("configure arser");
 
         final Arser arser = new Arser();
 
