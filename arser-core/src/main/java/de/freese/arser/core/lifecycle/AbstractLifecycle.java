@@ -84,7 +84,7 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
     }
 
     protected void doFailed(final String operation, final Throwable cause) throws Exception {
-        getLogger().error("Lifecycle operation " + operation + " failed", cause);
+        getLogger().error("Lifecycle operation '%s' failed".formatted(operation), cause);
 
         currentState = State.FAILED;
 

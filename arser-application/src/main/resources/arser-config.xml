@@ -47,7 +47,7 @@
                 <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/gradle-releases/gradle-releases;shutdown=true</uri>
                 <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName>
                 <user>sa</user>
-                <password></password>
+                <password />
                 <pool-core-size>2</pool-core-size>
                 <pool-max-size>6</pool-max-size>
             </storeSetting>

@@ -75,7 +75,7 @@ public class LifecycleManager extends AbstractLifecycle {
                 component.start();
             }
             catch (Throwable failure) {
-                getLogger().error("Failed to start component: " + component, failure);
+                getLogger().error("Failed to start component: %s".formatted(component), failure);
                 throwables.add(failure);
             }
         }
@@ -96,7 +96,7 @@ public class LifecycleManager extends AbstractLifecycle {
                 component.stop();
             }
             catch (Throwable failure) {
-                getLogger().error("Failed to stop component: " + component, failure);
+                getLogger().error("Failed to stop component: %s".formatted(component), failure);
                 throwables.add(failure);
             }
         }

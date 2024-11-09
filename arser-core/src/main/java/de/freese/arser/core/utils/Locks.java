@@ -10,8 +10,7 @@ import java.util.concurrent.locks.ReadWriteLock;
  */
 public final class Locks {
     /**
-     * Returns locked lock.
-     *
+     * Returns locked lock.<br>
      * Uses {@link Lock#tryLock} with timeout of 60 seconds to avoid potential deadlocks.
      */
     public static Lock lock(final Lock lock) {
@@ -23,7 +22,7 @@ public final class Locks {
         catch (InterruptedException ex) {
             // Restore interrupted state.
             Thread.currentThread().interrupt();
-            
+
             throw new RuntimeException(ex);
         }
 

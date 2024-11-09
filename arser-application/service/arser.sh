@@ -2,7 +2,7 @@
 #
 
 #BASEDIR=$PWD #Verzeichnis des Callers, aktuelles Verzeichnis
-BASEDIR=$(dirname $0) #Verzeichnis des Skripts
+BASEDIR="$(dirname $0)" #Verzeichnis des Skripts
 
 PID_FILE="arser.pid"
 LOG_DIR="$BASEDIR/../logs"

@@ -285,7 +285,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
                     resultSet.close();
                 }
                 catch (SQLException ex) {
-                    getLogger().error("ResultSet.close: " + ex.getMessage(), ex);
+                    getLogger().error("ResultSet.close: %s".formatted(ex.getMessage()), ex);
                     exception = ex;
                 }
 
@@ -293,7 +293,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
                     preparedStatement.close();
                 }
                 catch (SQLException ex) {
-                    getLogger().error("PreparedStatement.close: " + ex.getMessage(), ex);
+                    getLogger().error("PreparedStatement.close: %s".formatted(ex.getMessage()), ex);
                     exception = ex;
                 }
 
@@ -301,7 +301,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
                     connection.close();
                 }
                 catch (SQLException ex) {
-                    getLogger().error("Connection.close: " + ex.getMessage(), ex);
+                    getLogger().error("Connection.close: %s".formatted(ex.getMessage()), ex);
                     exception = ex;
                 }
 

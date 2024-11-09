@@ -215,7 +215,7 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
         // //         .block();
         // //
         // // return ResponseEntity.ok()
-        // //         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename="+"yourfilename.pdf")
+        // //         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename="+"yourFileName.pdf")
         // //         .body(stream);
         //
         // final long contentLength = responseEntity.getHeaders().getContentLength();

@@ -5,23 +5,20 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  */
 public final class Misc {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Misc.class);
+
     public static void main(final String[] args) {
         testUrl();
         removeSnapshotTimestamp();
-    }
-
-    private static void printlnOut(final Object value) {
-        printlnOut(String.valueOf(value));
-    }
-
-    private static void printlnOut(final String text) {
-        System.out.println(text);
     }
 
     private static void removeSnapshotTimestamp() {
@@ -29,10 +26,10 @@ public final class Misc {
         final Matcher matcher = pattern.matcher("/de/freese/arser/test-project/0.0.1-SNAPSHOT/test-project-0.0.1-20230806.084242-1.pom");
 
         if (matcher.find()) {
-            printlnOut(matcher.group());
+            LOGGER.info(matcher.group());
         }
 
-        printlnOut(matcher.replaceAll("SNAPSHOT"));
+        LOGGER.info(matcher.replaceAll("SNAPSHOT"));
     }
 
     private static void testUrl() {
@@ -40,11 +37,9 @@ public final class Misc {
 
         final String relative = "public-cached";
 
-        printlnOut(uri.relativize(URI.create(relative)));
-        printlnOut(uri.resolve(URI.create(relative)));
-        printlnOut(uri.resolve(relative));
-
-        printlnOut(uri.resolve(relative));
+        LOGGER.info("{}", uri.relativize(URI.create(relative)));
+        LOGGER.info("{}", uri.resolve(URI.create(relative)));
+        LOGGER.info("{}", uri.resolve(relative));
     }
 
     private Misc() {

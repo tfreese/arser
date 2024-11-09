@@ -251,24 +251,24 @@ public final class ArserUtils {
         final double value = Math.abs(size);
         final String result;
 
-        // result = switch (value) {
-        //     case double v when v < 1024D -> size + " B";
-        //     case double v when v < 1_048_576D -> String.format("%.1f %s", value / 1024D, "KB");
-        //     case double v when v < 1_073_741_824D -> String.format("%.1f %s", value / 1024D / 1024D, "MB");
-        //     default -> String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
-        // };
-        if (value < 1024D) {
-            result = size + " B";
-        }
-        else if (value < 1_048_576D) {
-            result = String.format("%.1f %s", value / 1024D, "KB");
-        }
-        else if (value < 1_073_741_824D) {
-            result = String.format("%.1f %s", value / 1024D / 1024D, "MB");
-        }
-        else {
-            result = String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
-        }
+        result = switch (value) {
+            case double v when v < 1024D -> size + " B";
+            case double v when v < 1_048_576D -> String.format("%.1f %s", value / 1024D, "KB");
+            case double v when v < 1_073_741_824D -> String.format("%.1f %s", value / 1024D / 1024D, "MB");
+            default -> String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
+        };
+        // if (value < 1024D) {
+        //     result = size + " B";
+        // }
+        // else if (value < 1_048_576D) {
+        //     result = String.format("%.1f %s", value / 1024D, "KB");
+        // }
+        // else if (value < 1_073_741_824D) {
+        //     result = String.format("%.1f %s", value / 1024D / 1024D, "MB");
+        // }
+        // else {
+        //     result = String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
+        // }
 
         // final CharacterIterator ci = new StringCharacterIterator("KMGTPE");
         //
