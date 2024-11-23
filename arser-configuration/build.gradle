@@ -20,10 +20,12 @@ dependencies {
     api("jakarta.xml.bind:jakarta.xml.bind-api")
 }
 
+def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
+
 sourceSets {
     main {
         java {
-            srcDir(layout.buildDirectory.get().dir("generated").dir("jaxb"))
+            srcDir(destDir)
         }
     }
 
@@ -49,7 +51,6 @@ tasks.register("genJaxb") {
     def binding = resourcesDir.file("schema.xjb")
     inputs.file binding
 
-    def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
     outputs.dir destDir
 
     // doLast {
