@@ -39,7 +39,7 @@ tasks.register("buildApp", Copy) {
     }
 
     // Create Root-Dir
-    into "app"
+    into layout.projectDirectory.dir("app")
 
     into("bin") {
         from(layout.projectDirectory.dir("service").file("arser.sh"))
