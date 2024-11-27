@@ -49,7 +49,7 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
             getLogger().debug("exist - Request: {}", uri);
         }
 
-        final Mono<Boolean> response = webClient.head()
+        return webClient.head()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 // .onStatus(status -> status != HttpStatus.OK, clientResponse -> Mono.error(Exception::new))
@@ -62,9 +62,7 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                     return Mono.just(clientResponse.statusCode().is2xxSuccessful());
                 })
                 // .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
-                ;
-
-        return response.block();
+                .block();
     }
 
     @Override

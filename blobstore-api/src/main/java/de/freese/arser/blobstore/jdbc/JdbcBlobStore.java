@@ -30,6 +30,7 @@ import de.freese.arser.blobstore.api.ThrowingConsumer;
 /**
  * @author Thomas Freese
  */
+@SuppressWarnings({"java:S2095", "java:S1141"})
 public class JdbcBlobStore extends AbstractBlobStore {
 
     private static URI getUri(final DataSource dataSource) {
