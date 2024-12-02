@@ -30,7 +30,7 @@ import de.freese.arser.blobstore.api.ThrowingConsumer;
 /**
  * @author Thomas Freese
  */
-@SuppressWarnings({"java:S2095", "java:S1141"})
+@SuppressWarnings({"java:S2095", "java:S1141", "java:S4174"})
 public class JdbcBlobStore extends AbstractBlobStore {
 
     private static URI getUri(final DataSource dataSource) {
@@ -154,7 +154,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
         final URL url = Thread.currentThread().getContextClassLoader().getResource("jdbc/blobstore.sql");
 
         if (url == null) {
-            throw new SQLException("no sql script found");
+            throw new IllegalArgumentException("no sql script found");
         }
 
         getLogger().info("SQL found: {}", url);

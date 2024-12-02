@@ -32,6 +32,20 @@ public class ArserRestController {
     @Resource
     private Arser arser;
 
+    /**
+     * Jakarta:<br>
+     * <pre>{@code
+     * public Response test(@PathVariable("id") final UUID id) throws IOException {
+     *     return Response.ok((StreamingOutput) outputStream -> {
+     *              try (InputStream inputStream = new … {
+     *                 inputStream.transferTo(outputStream);
+     *                 outputStream.flush();
+     *             }
+     *         }).build();
+     * }     * }</pre>
+     *
+     * StreamingResponseBody, InputStreamResource working booth alone and with ResponseEntity.
+     */
     @GetMapping
     public ResponseEntity<InputStreamResource> doGet(final HttpServletRequest httpServletRequest) throws Exception {
         // LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
