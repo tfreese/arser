@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import de.freese.arser.blobstore.api.AbstractBlob;
 import de.freese.arser.blobstore.api.BlobId;
+import de.freese.arser.blobstore.api.ThrowingConsumer;
 
 /**
  * @author Thomas Freese
@@ -18,6 +19,11 @@ class JdbcBlob extends AbstractBlob {
         super(id);
 
         this.blobStore = Objects.requireNonNull(blobStore, "blobStore required");
+    }
+
+    @Override
+    public void consume(final ThrowingConsumer<InputStream, Exception> consumer) throws Exception {
+        blobStore.consume(getId(), consumer);
     }
 
     @Override

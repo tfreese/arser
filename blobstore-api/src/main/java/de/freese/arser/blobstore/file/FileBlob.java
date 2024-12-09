@@ -28,7 +28,7 @@ final class FileBlob extends AbstractBlob {
             return InputStream.nullInputStream();
         }
 
-        return Files.newInputStream(this.absolutePath);
+        return Files.newInputStream(absolutePath);
     }
 
     @Override
@@ -37,11 +37,11 @@ final class FileBlob extends AbstractBlob {
             return -1L;
         }
 
-        return Files.size(this.absolutePath);
+        return Files.size(absolutePath);
     }
 
     @Override
     public String toString() {
-        return this.absolutePath.toString();
+        return absolutePath.toString();
     }
 }

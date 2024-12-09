@@ -250,6 +250,13 @@ class TestBlobStore {
         assertEquals(uri, blob.getId().getUri());
         assertArrayEquals(bytes, blob.getAllBytes());
 
+        blob.consume(inputStream -> {
+            // Doesn't work with H2.
+            // assertEquals(fileSize, inputStream.available());
+
+            assertArrayEquals(bytes, blob.getAllBytes());
+        });
+
         // Delete
         blobStore.delete(blobId);
         assertFalse(blobStore.exists(blobId));

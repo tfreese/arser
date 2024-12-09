@@ -13,6 +13,15 @@ import java.io.InputStream;
  */
 public interface Blob {
     /**
+     * The {@link InputStream} is not buffered and can be an instance of {@link InputStream#nullInputStream()}.
+     */
+    default void consume(final ThrowingConsumer<InputStream, Exception> consumer) throws Exception {
+        try (InputStream inputStream = createInputStream()) {
+            consumer.accept(inputStream);
+        }
+    }
+
+    /**
      * <b>This Stream MUST be closed to avoid resource exhausting!</b>
      */
     default InputStream createBufferedInputStream() throws Exception {

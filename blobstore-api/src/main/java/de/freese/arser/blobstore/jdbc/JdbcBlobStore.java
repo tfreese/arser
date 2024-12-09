@@ -250,6 +250,28 @@ public class JdbcBlobStore extends AbstractBlobStore {
         return this.uri;
     }
 
+    void consume(final BlobId id, final ThrowingConsumer<InputStream, Exception> consumer) throws Exception {
+        final String sql = "select BLOB from BLOB_STORE where URI = ?";
+
+        try (Connection connection = getDataSource().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, id.getUri().toString());
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (!resultSet.next()) {
+                    try (InputStream inputStream = InputStream.nullInputStream()) {
+                        consumer.accept(inputStream);
+                    }
+                }
+                else {
+                    try (InputStream inputStream = resultSet.getBinaryStream("BLOB")) {
+                        consumer.accept(inputStream);
+                    }
+                }
+            }
+        }
+    }
+
     InputStream inputStream(final BlobId id) throws Exception {
         final String sql = "select BLOB from BLOB_STORE where URI = ?";
 
