@@ -39,7 +39,7 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
             getLogger().debug("exist - Request: {}", uri);
         }
 
-        return restClient.head()
+        return Boolean.TRUE.equals(restClient.head()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .exchange((clientRequest, clientResponse) -> {
@@ -48,7 +48,8 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
                     }
 
                     return clientResponse.getStatusCode().is2xxSuccessful();
-                });
+                })
+        );
     }
 
     @Override

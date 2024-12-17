@@ -49,6 +49,9 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
             getLogger().debug("exist - Request: {}", uri);
         }
 
+        // .onStatus(status -> status != HttpStatus.OK, clientResponse -> Mono.error(Exception::new))
+        // .exchangeToMono(clientResponse -> clientResponse.toEntity(String.class)) // Liefert Header, Status und ResponseBody.
+        // .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
         return webClient.head()
                 .uri(uri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
@@ -62,7 +65,8 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                     return Mono.just(clientResponse.statusCode().is2xxSuccessful());
                 })
                 // .retryWhen(Retry.fixedDelay(2, Duration.ofMillis(750)))
-                .block();
+                .blockOptional()
+                .orElse(false);
     }
 
     @Override
