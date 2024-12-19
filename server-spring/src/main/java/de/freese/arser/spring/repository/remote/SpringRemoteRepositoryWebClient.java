@@ -86,7 +86,16 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                         getLogger().debug("Resource - Response: {} / {}", clientResponse.statusCode(), uri);
                     }
 
+                    final Flux<DataBuffer> dataBufferFlux = clientResponse.body(BodyExtractors.toDataBuffers());
+
                     if (!clientResponse.statusCode().is2xxSuccessful()) {
+                        try (OutputStream outputStream = OutputStream.nullOutputStream()) {
+                            DataBufferUtils.write(dataBufferFlux, outputStream).blockLast();
+                        }
+                        catch (IOException ex) {
+                            getLogger().error("Resource - Response: " + ex.getMessage(), ex);
+                        }
+
                         return Mono.empty();
                     }
 
@@ -95,8 +104,6 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                     if (getLogger().isDebugEnabled()) {
                         getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
                     }
-
-                    final Flux<DataBuffer> dataBufferFlux = clientResponse.body(BodyExtractors.toDataBuffers());
 
                     final ResourceHandle resourceHandle;
 

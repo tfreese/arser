@@ -25,13 +25,13 @@ public final class ResourceRequest {
     public static ResourceRequest of(final String requestPath) {
         String path = requestPath;
 
-        // Strip Leading /
+        // Strip Leading '/'.
         path = path.substring(1);
 
-        // Get first Element
+        // Get first Element.
         final String contextRoot = path.substring(0, path.indexOf('/'));
 
-        // Rest of Path
+        // Rest of Path.
         final String resourcePath = path.substring(contextRoot.length());
         final URI resource = URI.create(resourcePath);
 
@@ -42,7 +42,7 @@ public final class ResourceRequest {
             splits.removeFirst();
         }
 
-        // Remove File
+        // Remove File.
         if (splits.getLast().contains(".")) {
             splits.removeLast();
         }

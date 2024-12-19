@@ -4,6 +4,7 @@ package de.freese.arser.core.repository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -79,6 +80,10 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
         }
 
         if (httpResponse.statusCode() != ArserUtils.HTTP_OK) {
+            try (InputStream inputStream = httpResponse.body()) {
+                inputStream.transferTo(OutputStream.nullOutputStream());
+            }
+
             return null;
         }
 

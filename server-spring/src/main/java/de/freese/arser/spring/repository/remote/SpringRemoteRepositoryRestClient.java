@@ -4,6 +4,7 @@ package de.freese.arser.spring.repository.remote;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -71,6 +72,10 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
                     }
 
                     if (!clientResponse.getStatusCode().is2xxSuccessful()) {
+                        try (InputStream inputStream = clientResponse.getBody()) {
+                            inputStream.transferTo(OutputStream.nullOutputStream());
+                        }
+                        
                         return null;
                     }
 
