@@ -1,18 +1,18 @@
 // Created: 22.07.23
 package de.freese.arser.core.lifecycle;
 
-import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
-import de.freese.arser.core.component.AbstractComponent;
-import de.freese.arser.core.utils.Locks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
  */
-public abstract class AbstractLifecycle extends AbstractComponent implements Lifecycle {
-
+public abstract class AbstractLifecycle implements Lifecycle {
     enum State {
         NEW,
         STARTED,
@@ -21,7 +21,7 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
     }
 
     private final Lock lock = new ReentrantLock();
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     private volatile State currentState = State.NEW;
 
     @Override
@@ -30,11 +30,12 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
             return;
         }
 
-        ensure(State.NEW, State.STOPPED); // check state before taking lock
-        Locks.lock(lock);
+        ensure(Set.of(State.NEW, State.STOPPED)); // check state before taking lock
+
+        lock.lock();
 
         try {
-            ensure(State.NEW, State.STOPPED); // check again now we have lock
+            ensure(Set.of(State.NEW, State.STOPPED)); // check again now we have lock
 
             try {
                 getLogger().info("Starting: {}", this);
@@ -44,8 +45,8 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
                 currentState = State.STARTED;
                 getLogger().info("Started: {}", this);
             }
-            catch (Throwable failure) {
-                doFailed("start", failure);
+            catch (Exception ex) {
+                doFailed("start", ex);
             }
         }
         finally {
@@ -59,11 +60,12 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
             return;
         }
 
-        ensure(State.STARTED); // check state before taking lock
-        Locks.lock(lock);
+        ensure(Set.of(State.STARTED)); // check state before taking lock
+
+        lock.lock();
 
         try {
-            ensure(State.STARTED); // check again now we have lock
+            ensure(Set.of(State.STARTED)); // check again now we have lock
 
             try {
                 getLogger().info("Stopping: {}", this);
@@ -74,8 +76,8 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
 
                 getLogger().info("Stopped {}", this);
             }
-            catch (Throwable failure) {
-                doFailed("stop", failure);
+            catch (Exception ex) {
+                doFailed("stop", ex);
             }
         }
         finally {
@@ -83,24 +85,25 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
         }
     }
 
-    protected void doFailed(final String operation, final Throwable cause) throws Exception {
-        getLogger().error("Lifecycle operation '%s' failed".formatted(operation), cause);
+    protected void doFailed(final String operation, final Exception ex) {
+        getLogger().error("Lifecycle operation '%s' failed".formatted(operation), ex);
 
         currentState = State.FAILED;
 
-        if (cause instanceof Exception exception) {
-            throw exception;
+        if (ex instanceof RuntimeException rex) {
+            throw rex;
         }
-
-        throw new Exception(cause);
+        else {
+            throw new RuntimeException(ex);
+        }
     }
 
-    protected void doStart() throws Exception {
-        // Empty
-    }
+    protected abstract void doStart() throws Exception;
 
-    protected void doStop() throws Exception {
-        // Empty
+    protected abstract void doStop() throws Exception;
+
+    protected Logger getLogger() {
+        return logger;
     }
 
     protected boolean isFailed() {
@@ -115,14 +118,14 @@ public abstract class AbstractLifecycle extends AbstractComponent implements Lif
         return is(State.STOPPED);
     }
 
-    private void ensure(final State... allowed) {
+    private void ensure(final Set<State> allowed) {
         for (State allow : allowed) {
             if (is(allow)) {
                 return;
             }
         }
 
-        throw new IllegalStateException("Invalid state: " + currentState + "; allowed: " + Arrays.toString(allowed));
+        throw new IllegalStateException("Invalid state: " + currentState + "; allowed: " + allowed.stream().map(State::name).collect(Collectors.joining(",")));
     }
 
     private boolean is(final State state) {

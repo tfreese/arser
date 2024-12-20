@@ -45,7 +45,7 @@ public class CachedRepository extends AbstractRepository {
             getLogger().debug("exist - not found: {}", resource);
         }
 
-        return this.delegate.exist(request);
+        return delegate.exist(request);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class CachedRepository extends AbstractRepository {
 
         if (resource.getPath().endsWith("maven-metadata.xml")) {
             // Never save these files, versions:display-dependency-updates won't work!
-            resourceResponse = this.delegate.getResource(request);
+            resourceResponse = delegate.getResource(request);
         }
         else {
             final BlobId blobId = new BlobId(resource);
@@ -75,7 +75,7 @@ public class CachedRepository extends AbstractRepository {
                     getLogger().debug("Resource - not found: {}", resource);
                 }
 
-                final ResourceResponse response = this.delegate.getResource(request);
+                final ResourceResponse response = delegate.getResource(request);
 
                 if (response != null) {
                     resourceResponse = new CachingResourceResponse(response, blobId, getBlobStore());
@@ -88,15 +88,11 @@ public class CachedRepository extends AbstractRepository {
 
     @Override
     protected void doStart() throws Exception {
-        super.doStart();
-
         delegate.start();
     }
 
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
-
         delegate.stop();
     }
 

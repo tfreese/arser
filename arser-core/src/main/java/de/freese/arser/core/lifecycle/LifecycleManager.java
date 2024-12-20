@@ -68,19 +68,19 @@ public class LifecycleManager extends AbstractLifecycle {
 
         getLogger().info("Starting {} components", count);
 
-        final List<Throwable> throwables = new ArrayList<>(count);
+        final List<Exception> exceptions = new ArrayList<>(count);
 
         for (Lifecycle component : components) {
             try {
                 component.start();
             }
-            catch (Throwable failure) {
-                getLogger().error("Failed to start component: %s".formatted(component), failure);
-                throwables.add(failure);
+            catch (Exception ex) {
+                getLogger().error("Failed to start component: %s".formatted(component), ex);
+                exceptions.add(ex);
             }
         }
 
-        maybePropagate(throwables, "start");
+        maybePropagate(exceptions, "start");
     }
 
     @Override
@@ -89,27 +89,27 @@ public class LifecycleManager extends AbstractLifecycle {
 
         getLogger().info("Stopping {} components", count);
 
-        final List<Throwable> throwables = new ArrayList<>(count);
+        final List<Exception> exceptions = new ArrayList<>(count);
 
         for (Lifecycle component : components.reversed()) {
             try {
                 component.stop();
             }
-            catch (Throwable failure) {
-                getLogger().error("Failed to stop component: %s".formatted(component), failure);
-                throwables.add(failure);
+            catch (Exception ex) {
+                getLogger().error("Failed to stop component: %s".formatted(component), ex);
+                exceptions.add(ex);
             }
         }
 
-        maybePropagate(throwables, "stop");
+        maybePropagate(exceptions, "stop");
     }
 
-    protected void maybePropagate(final List<Throwable> throwables, final String messagePart) {
-        if (throwables.isEmpty()) {
+    protected void maybePropagate(final List<Exception> exceptions, final String messagePart) {
+        if (exceptions.isEmpty()) {
             return;
         }
 
-        final String message = "Failed to %s %d components".formatted(messagePart, throwables.size());
+        final String message = "Failed to %s %d components".formatted(messagePart, exceptions.size());
 
         getLogger().error(message);
 

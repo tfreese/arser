@@ -98,4 +98,14 @@ public class VirtualRepository extends AbstractRepository {
 
         return response;
     }
+
+    @Override
+    protected void doStart() throws Exception {
+        // Empty
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        // Empty
+    }
 }

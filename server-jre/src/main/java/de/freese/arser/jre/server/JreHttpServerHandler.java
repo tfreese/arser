@@ -11,9 +11,10 @@ import java.util.Objects;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.freese.arser.core.Arser;
-import de.freese.arser.core.component.AbstractComponent;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
@@ -22,7 +23,9 @@ import de.freese.arser.core.utils.HttpMethod;
 /**
  * @author Thomas Freese
  */
-public class JreHttpServerHandler extends AbstractComponent implements HttpHandler {
+public class JreHttpServerHandler implements HttpHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JreHttpServerHandler.class);
+
     private final Arser arser;
 
     JreHttpServerHandler(final Arser arser) {
@@ -35,11 +38,11 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     public void handle(final HttpExchange exchange) throws IOException {
         final HttpMethod httpMethod = HttpMethod.get(exchange.getRequestMethod());
 
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("{}: {}", httpMethod, exchange.getRequestURI());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{}: {}", httpMethod, exchange.getRequestURI());
 
-            if (getLogger().isTraceEnabled()) {
-                exchange.getRequestHeaders().forEach((key, value) -> getLogger().trace("{} = {}", key, value));
+            if (LOGGER.isTraceEnabled()) {
+                exchange.getRequestHeaders().forEach((key, value) -> LOGGER.trace("{} = {}", key, value));
             }
         }
 
@@ -62,7 +65,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
             }
         }
         catch (final IOException ex) {
-            getLogger().error(ex.getMessage(), ex);
+            LOGGER.error(ex.getMessage(), ex);
         }
         catch (final Exception ex) {
             sendError(exchange, ex.getMessage());
@@ -141,7 +144,7 @@ public class JreHttpServerHandler extends AbstractComponent implements HttpHandl
     }
 
     protected void sendError(final HttpExchange exchange, final String message) throws IOException {
-        getLogger().error(message);
+        LOGGER.error(message);
 
         consumeAndCloseRequestStream(exchange);
 

@@ -34,7 +34,7 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
 
     @Override
     protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI uri = createResourceUri(getUri(), request.getResource());
+        final URI uri = createRemoteUri(getUri(), request.getResource());
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("exist - Request: {}", uri);
@@ -55,7 +55,7 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
 
     @Override
     protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
-        final URI uri = createResourceUri(getUri(), request.getResource());
+        final URI uri = createRemoteUri(getUri(), request.getResource());
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Resource - Request: {}", uri);
@@ -75,7 +75,7 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
                         try (InputStream inputStream = clientResponse.getBody()) {
                             inputStream.transferTo(OutputStream.nullOutputStream());
                         }
-                        
+
                         return null;
                     }
 

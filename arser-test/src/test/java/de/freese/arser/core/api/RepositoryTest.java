@@ -16,5 +16,5 @@ public interface RepositoryTest {
 
     void streamTo(ResourceRequest resourceRequest, OutputStream outputStream);
 
-    void write(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception;
+    void write(ResourceRequest resourceRequest, InputStream inputStream) throws Exception;
 }

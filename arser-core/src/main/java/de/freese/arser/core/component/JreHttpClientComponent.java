@@ -37,13 +37,11 @@ public class JreHttpClientComponent extends AbstractLifecycle {
 
     @Override
     protected void doStart() throws Exception {
-        super.doStart();
-
         final String threadNamePattern = httpClientConfig.getThreadNamePattern();
         final int threadPoolCoreSize = httpClientConfig.getThreadPoolCoreSize();
         final int threadPoolMaxSize = httpClientConfig.getThreadPoolMaxSize();
 
-        this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+        executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));
 
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
@@ -51,24 +49,21 @@ public class JreHttpClientComponent extends AbstractLifecycle {
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .proxy(ProxySelector.getDefault())
                 .connectTimeout(Duration.ofSeconds(30))
-                .executor(this.executorService);
+                .executor(executorService);
 
         // .authenticator(Authenticator.getDefault())
         // .cookieHandler(CookieHandler.getDefault())
         // .sslContext(SSLContext.getDefault())
         // .sslParameters(new SSLParameters())
 
-        this.httpClient = httpClientBuilder.build();
+        httpClient = httpClientBuilder.build();
     }
 
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
+        httpClient.close();
+        httpClient = null;
 
-        this.httpClient.shutdownNow();
-        this.httpClient.close();
-        this.httpClient = null;
-
-        ArserUtils.shutdown(this.executorService, getLogger());
+        ArserUtils.shutdown(executorService, getLogger());
     }
 }

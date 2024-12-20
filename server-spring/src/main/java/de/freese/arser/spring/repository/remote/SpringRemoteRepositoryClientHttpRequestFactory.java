@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
@@ -36,7 +37,7 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
 
     @Override
     protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI uri = createResourceUri(getUri(), request.getResource());
+        final URI uri = createRemoteUri(getUri(), request.getResource());
 
         final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(uri, HttpMethod.HEAD);
         clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
@@ -56,11 +57,11 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
 
     @Override
     protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
-        final URI uri = createResourceUri(getUri(), request.getResource());
+        final URI uri = createRemoteUri(getUri(), request.getResource());
 
         final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(uri, HttpMethod.GET);
         clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
-        clientHttpRequest.getHeaders().put("Accept", List.of("application/octet-stream"));
+        clientHttpRequest.getHeaders().put("Accept", List.of(MediaType.APPLICATION_OCTET_STREAM_VALUE));
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Resource - Request: {}", uri);

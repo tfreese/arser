@@ -40,8 +40,6 @@ public class BlobStoreComponent extends AbstractLifecycle {
 
     @Override
     protected void doStart() throws Exception {
-        super.doStart();
-
         if (blobStore instanceof FileBlobStore) {
             final Path path = Paths.get(blobStore.getUri());
 
@@ -60,5 +58,10 @@ public class BlobStoreComponent extends AbstractLifecycle {
         else if (blobStore instanceof JdbcBlobStore jdbcBlobStore) {
             jdbcBlobStore.createDatabaseIfNotExist();
         }
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        // Empty
     }
 }

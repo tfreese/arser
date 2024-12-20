@@ -45,8 +45,6 @@ public class DatasourceComponent extends AbstractLifecycle {
 
     @Override
     protected void doStart() throws Exception {
-        super.doStart();
-
         final HikariConfig config = new HikariConfig();
         config.setDriverClassName(storeConfig.getDriverClassName());
         config.setJdbcUrl(storeConfig.getUri().toString());
@@ -57,13 +55,11 @@ public class DatasourceComponent extends AbstractLifecycle {
         config.setPoolName(storeConfig.getPoolName());
         config.setAutoCommit(false);
 
-        this.dataSource = new HikariDataSource(config);
+        dataSource = new HikariDataSource(config);
     }
 
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
-
         try (Connection connection = dataSource.getConnection()) {
             final String productName = connection.getMetaData().getDatabaseProductName().toLowerCase();
 

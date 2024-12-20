@@ -45,17 +45,15 @@ public class JreHttpServer extends AbstractLifecycle {
 
     @Override
     protected void doStart() throws Exception {
-        super.doStart();
-
         final int port = serverConfig.getPort();
         final String threadNamePattern = serverConfig.getThreadNamePattern();
         final int threadPoolCoreSize = serverConfig.getThreadPoolCoreSize();
         final int threadPoolMaxSize = serverConfig.getThreadPoolMaxSize();
 
-        this.executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+        executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
                 new ArserThreadFactory(threadNamePattern));
 
-        // this.httpServer = HttpsServer.create(new InetSocketAddress(port), 0);
+        // httpServer = HttpsServer.create(new InetSocketAddress(port), 0);
         // if (httpServer instanceof HttpsServer https) {
         //     https.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()) {
         //         @Override
@@ -65,21 +63,19 @@ public class JreHttpServer extends AbstractLifecycle {
         //     });
         // }
 
-        this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
-        this.httpServer.setExecutor(executorService);
-        this.httpServer.createContext("/", new JreHttpServerHandler(arser));
+        httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+        httpServer.setExecutor(executorService);
+        httpServer.createContext("/", new JreHttpServerHandler(arser));
 
-        this.httpServer.start();
-        // new Thread(this.httpServer::start, "arser").start();
+        httpServer.start();
+        // new Thread(httpServer::start, "arser").start();
     }
 
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
+        // httpContexts.clear();
+        httpServer.stop(3);
 
-        //        this.httpContexts.clear();
-        this.httpServer.stop(3);
-
-        ArserUtils.shutdown(this.executorService, getLogger());
+        ArserUtils.shutdown(executorService, getLogger());
     }
 }
