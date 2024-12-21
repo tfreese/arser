@@ -14,9 +14,10 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.freese.arser.core.Arser;
+import de.freese.arser.core.api.Arser;
+import de.freese.arser.core.api.Repository;
+import de.freese.arser.core.api.ResponseHandler;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResourceResponse;
 import de.freese.arser.core.utils.ArserUtils;
 import de.freese.arser.core.utils.HttpMethod;
 
@@ -86,10 +87,13 @@ public class JreHttpServerHandler implements HttpHandler {
     }
 
     protected void handleGet(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
-        try (ResourceResponse response = arser.getResource(request)) {
-            if (response == null) {
-                final String message = "File not found: " + request.getResource();
-                final byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+        final Repository repository = arser.getRepository(request.getContextRoot());
+
+        repository.streamTo(request, new ResponseHandler() {
+            @Override
+            public void onError(final Exception exception) throws Exception {
+                // final String message = "File not found: " + request.getResource();
+                final byte[] bytes = exception.getMessage().getBytes(StandardCharsets.UTF_8);
 
                 exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
                 exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
@@ -99,26 +103,27 @@ public class JreHttpServerHandler implements HttpHandler {
 
                     outputStream.flush();
                 }
-
-                return;
             }
 
-            final long contentLength = response.getContentLength();
+            @Override
+            public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(request.getFileName()));
+                exchange.sendResponseHeaders(ArserUtils.HTTP_OK, contentLength);
 
-            exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-            exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(request.getFileName()));
-            exchange.sendResponseHeaders(ArserUtils.HTTP_OK, contentLength);
+                try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
+                    inputStream.transferTo(outputStream);
 
-            try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
-                response.transferTo(outputStream);
-
-                outputStream.flush();
+                    outputStream.flush();
+                }
             }
-        }
+        });
     }
 
     protected void handleHead(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
-        final boolean exist = arser.exist(request);
+        final Repository repository = arser.getRepository(request.getContextRoot());
+
+        final boolean exist = repository.exist(request);
 
         final int response = exist ? ArserUtils.HTTP_OK : ArserUtils.HTTP_NOT_FOUND;
 
@@ -130,8 +135,10 @@ public class JreHttpServerHandler implements HttpHandler {
      * Deploy
      **/
     protected void handlePut(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
+        final Repository repository = arser.getRepository(request.getContextRoot());
+
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
-            arser.write(request, inputStream);
+            repository.write(request, inputStream);
         }
         catch (Exception ex) {
             sendError(exchange, ex.getMessage());

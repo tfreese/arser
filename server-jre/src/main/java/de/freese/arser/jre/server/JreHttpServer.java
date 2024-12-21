@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpServer;
 
-import de.freese.arser.core.Arser;
+import de.freese.arser.core.api.Arser;
 import de.freese.arser.core.config.ServerConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
@@ -22,6 +22,7 @@ import de.freese.arser.core.utils.ArserUtils;
 public class JreHttpServer extends AbstractLifecycle {
     private final Arser arser;
     private final ServerConfig serverConfig;
+    
     private ExecutorService executorService;
     private HttpServer httpServer;
 
@@ -29,7 +30,6 @@ public class JreHttpServer extends AbstractLifecycle {
         super();
 
         this.arser = Objects.requireNonNull(arser, "arser required");
-
         this.serverConfig = Objects.requireNonNull(serverConfig, "serverConfig required");
     }
 
