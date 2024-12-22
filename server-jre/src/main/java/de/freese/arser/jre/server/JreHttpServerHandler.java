@@ -6,6 +6,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -14,10 +15,10 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.freese.arser.core.api.Arser;
-import de.freese.arser.core.api.Repository;
-import de.freese.arser.core.api.ResponseHandler;
+import de.freese.arser.Arser;
+import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.response.ResponseHandler;
 import de.freese.arser.core.utils.ArserUtils;
 import de.freese.arser.core.utils.HttpMethod;
 
@@ -91,30 +92,40 @@ public class JreHttpServerHandler implements HttpHandler {
 
         repository.streamTo(request, new ResponseHandler() {
             @Override
-            public void onError(final Exception exception) throws Exception {
-                // final String message = "File not found: " + request.getResource();
-                final byte[] bytes = exception.getMessage().getBytes(StandardCharsets.UTF_8);
+            public void onError(final Exception exception) {
+                try {
+                    // final String message = "File not found: " + request.getResource();
+                    final byte[] bytes = exception.getMessage().getBytes(StandardCharsets.UTF_8);
 
-                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-                exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
+                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                    exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
 
-                try (OutputStream outputStream = exchange.getResponseBody()) {
-                    exchange.getResponseBody().write(bytes);
+                    try (OutputStream outputStream = exchange.getResponseBody()) {
+                        exchange.getResponseBody().write(bytes);
 
-                    outputStream.flush();
+                        outputStream.flush();
+                    }
+                }
+                catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
                 }
             }
 
             @Override
-            public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
-                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(request.getFileName()));
-                exchange.sendResponseHeaders(ArserUtils.HTTP_OK, contentLength);
+            public void onSuccess(final long contentLength, final InputStream inputStream) {
+                try {
+                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(request.getFileName()));
+                    exchange.sendResponseHeaders(ArserUtils.HTTP_OK, contentLength);
 
-                try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
-                    inputStream.transferTo(outputStream);
+                    try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
+                        inputStream.transferTo(outputStream);
 
-                    outputStream.flush();
+                        outputStream.flush();
+                    }
+                }
+                catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
                 }
             }
         });

@@ -171,14 +171,14 @@ public final class ArserConfig {
 
     private void configureLocalRepositories(final List<LocalRepoSetting> settings) {
         settings.forEach(setting -> {
-            final String name = setting.getName();
+            final String contextRoot = setting.getContextRoot();
 
-            if (repositoryConfigs.containsKey(name)) {
-                throw new IllegalArgumentException("repository already exist: " + name);
+            if (repositoryConfigs.containsKey(contextRoot)) {
+                throw new IllegalArgumentException("repository already exist: " + contextRoot);
             }
 
-            repositoryConfigs.put(name, LocalRepositoryConfig.builder()
-                    .name(name)
+            repositoryConfigs.put(contextRoot, LocalRepositoryConfig.builder()
+                    .contextRoot(contextRoot)
                     .uri(URI.create(setting.getPath()))
                     .writeable(setting.isWriteable())
                     .build()
@@ -188,10 +188,10 @@ public final class ArserConfig {
 
     private void configureRemoteRepositories(final List<RemoteRepoSetting> settings) {
         settings.forEach(setting -> {
-            final String name = setting.getName();
+            final String contextRoot = setting.getContextRoot();
 
-            if (repositoryConfigs.containsKey(name)) {
-                throw new IllegalArgumentException("repository already exist: " + name);
+            if (repositoryConfigs.containsKey(contextRoot)) {
+                throw new IllegalArgumentException("repository already exist: " + contextRoot);
             }
 
             final StoreSetting storeSetting = setting.getStoreSetting();
@@ -212,7 +212,7 @@ public final class ArserConfig {
                             .password(storeSetting.getPassword())
                             .poolCoreSize(storeSetting.getPoolCoreSize())
                             .poolMaxSize(storeSetting.getPoolMaxSize())
-                            .poolName(name)
+                            .poolName(contextRoot)
                             .build()
                     ;
                 }
@@ -221,8 +221,8 @@ public final class ArserConfig {
                 }
             }
 
-            repositoryConfigs.put(name, RemoteRepositoryConfig.builder()
-                    .name(name)
+            repositoryConfigs.put(contextRoot, RemoteRepositoryConfig.builder()
+                    .contextRoot(contextRoot)
                     .uri(URI.create(setting.getUri()))
                     .storeConfig(storeConfig)
                     .build()
@@ -232,10 +232,10 @@ public final class ArserConfig {
 
     private void configureVirtualRepositories(final List<VirtualRepoSetting> settings) {
         settings.forEach(setting -> {
-            final String name = setting.getName();
+            final String contextRoot = setting.getContextRoot();
 
-            if (repositoryConfigs.containsKey(name)) {
-                throw new IllegalArgumentException("repository already exist: " + name);
+            if (repositoryConfigs.containsKey(contextRoot)) {
+                throw new IllegalArgumentException("repository already exist: " + contextRoot);
             }
 
             final List<String> repositoryRefs = setting.getRepositoryReves();
@@ -246,8 +246,8 @@ public final class ArserConfig {
                 }
             });
 
-            repositoryConfigs.put(name, VirtualRepositoryConfig.builder()
-                    .name(name)
+            repositoryConfigs.put(contextRoot, VirtualRepositoryConfig.builder()
+                    .contextRoot(contextRoot)
                     .repositoryRefs(repositoryRefs)
                     .build()
             );

@@ -9,8 +9,8 @@ import java.util.function.Supplier;
  * @author Thomas Freese
  */
 public final class ConfigValidator {
-    public static String name(final String name) {
-        return string(name, () -> "name required: '%s'".formatted(name));
+    public static String contextRoot(final String name) {
+        return string(name, () -> "contextRoot required: '%s'".formatted(name));
     }
 
     public static String string(final String value, final Supplier<String> messageSupplier) {

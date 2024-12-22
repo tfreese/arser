@@ -104,9 +104,9 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="RepoName">
+    <xs:simpleType name="ContextRoot">
         <xs:annotation>
-            <xs:documentation source="description">Name of a Repository</xs:documentation>
+            <xs:documentation source="description">ContextRoot of a Repository</xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:normalizedString">
             <xs:minLength value="5" />
@@ -119,7 +119,7 @@
             <xs:documentation source="description">Local file Repository [file://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="name" type="RepoName" />
+            <xs:element name="contextRoot" type="ContextRoot" />
             <xs:element name="path" type="FileUri" />
         </xs:sequence>
         <!-- <xs:attribute name="writeable" type="xs:boolean" default="false"> -->
@@ -135,7 +135,7 @@
             <xs:documentation source="description">Remote Repository [http://*,https://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="name" type="RepoName" />
+            <xs:element name="contextRoot" type="ContextRoot" />
             <xs:element name="uri" type="WebUri" />
             <xs:element name="storeSetting" type="StoreSetting" minOccurs="0" />
         </xs:sequence>
@@ -149,7 +149,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="name" type="RepoName" />
+            <xs:element name="contextRoot" type="ContextRoot" />
             <xs:element name="repository-ref" type="xs:normalizedString" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>

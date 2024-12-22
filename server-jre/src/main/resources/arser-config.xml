@@ -24,11 +24,11 @@
 
     <repositories>
         <remote>
-            <name>maven-central</name>
+            <contextRoot>maven-central</contextRoot>
             <uri>https://repo1.maven.org/maven2</uri>
         </remote>
         <remote>
-            <name>gradle-releases</name>
+            <contextRoot>gradle-releases</contextRoot>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
             <storeSetting>
                 <type>file</type>
@@ -36,21 +36,21 @@
             </storeSetting>
         </remote>
         <remote>
-            <name>gradle-plugins</name>
+            <contextRoot>gradle-plugins</contextRoot>
             <uri>https://plugins.gradle.org</uri>
         </remote>
         <local writeable="true">
-            <name>deploy-snapshots</name>
+            <contextRoot>deploy-snapshots</contextRoot>
             <path>file:///tmp/arser/deploy-snapshots</path>
         </local>
         <virtual>
-            <name>public</name>
+            <contextRoot>public</contextRoot>
             <repository-ref>maven-central</repository-ref>
             <repository-ref>gradle-releases</repository-ref>
             <repository-ref>gradle-plugins</repository-ref>
         </virtual>
         <virtual>
-            <name>public-snapshots</name>
+            <contextRoot>public-snapshots</contextRoot>
             <repository-ref>deploy-snapshots</repository-ref>
         </virtual>
     </repositories>

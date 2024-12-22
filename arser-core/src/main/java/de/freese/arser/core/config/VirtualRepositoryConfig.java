@@ -14,14 +14,14 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
     public static final class Builder {
         private final List<Repository> repositories = new ArrayList<>();
         private final List<String> repositoryRefs = new ArrayList<>();
-        private String name;
+        private String contextRoot;
 
         private Builder() {
             super();
         }
 
         public VirtualRepositoryConfig build() {
-            ConfigValidator.name(name);
+            ConfigValidator.contextRoot(contextRoot);
 
             if (!repositories.isEmpty() && !repositoryRefs.isEmpty()) {
                 throw new IllegalStateException("either repositories OR repositoryRefs can be used");
@@ -38,8 +38,8 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
             return new VirtualRepositoryConfig(this);
         }
 
-        public Builder name(final String name) {
-            this.name = name;
+        public Builder contextRoot(final String contextRoot) {
+            this.contextRoot = contextRoot;
 
             return this;
         }
@@ -51,7 +51,7 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
 
             repositories.forEach(repository -> {
                 if (this.repositories.contains(repository)) {
-                    throw new IllegalArgumentException("repository already exist: " + repository.getName());
+                    throw new IllegalArgumentException("repository already exist: " + repository.getContextRoot());
                 }
 
                 this.repositories.add(repository);
@@ -85,7 +85,7 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
     private final List<String> repositoryRefs;
 
     private VirtualRepositoryConfig(final Builder builder) {
-        super(builder.name, URI.create("virtual"));
+        super(builder.contextRoot, URI.create("virtual"));
 
         repositoryRefs = List.copyOf(builder.repositoryRefs);
         repositories = List.copyOf(builder.repositories);

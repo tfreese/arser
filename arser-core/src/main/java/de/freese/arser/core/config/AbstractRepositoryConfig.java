@@ -7,19 +7,19 @@ import java.net.URI;
  * @author Thomas Freese
  */
 public abstract class AbstractRepositoryConfig implements RepositoryConfig {
-    private final String name;
+    private final String contextRoot;
     private final URI uri;
 
-    protected AbstractRepositoryConfig(final String name, final URI uri) {
+    protected AbstractRepositoryConfig(final String contextRoot, final URI uri) {
         super();
 
-        this.name = name;
+        this.contextRoot = contextRoot;
         this.uri = uri;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public String getContextRoot() {
+        return contextRoot;
     }
 
     @Override

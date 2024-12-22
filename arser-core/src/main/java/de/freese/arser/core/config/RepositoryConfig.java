@@ -7,7 +7,7 @@ import java.net.URI;
  * @author Thomas Freese
  */
 public interface RepositoryConfig {
-    String getName();
+    String getContextRoot();
 
     URI getUri();
 }

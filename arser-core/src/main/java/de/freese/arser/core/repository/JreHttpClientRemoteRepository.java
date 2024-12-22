@@ -1,46 +1,37 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
-import java.util.function.Supplier;
+import java.time.Duration;
 
-import de.freese.arser.core.config.RemoteRepositoryConfig;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.DefaultResourceResponse;
-import de.freese.arser.core.response.ResourceHandle;
-import de.freese.arser.core.response.ResourceResponse;
+import de.freese.arser.core.response.ResponseHandler;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  */
 public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
-    private final Supplier<HttpClient> httpClientSupplier;
 
     private HttpClient httpClient;
 
-    public JreHttpClientRemoteRepository(final RemoteRepositoryConfig config, final Supplier<HttpClient> httpClientSupplier, final Path tempDir) {
-        super(config.getName(), config.getUri(), tempDir);
-
-        this.httpClientSupplier = Objects.requireNonNull(httpClientSupplier, "httpClientSupplier required");
+    public JreHttpClientRemoteRepository(final String contextRoot, final URI uri) {
+        super(contextRoot, uri);
     }
 
     @Override
     protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI uri = createRemoteUri(getUri(), request.getResource());
+        final URI remoteUri = createRemoteUri(getUri(), request.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(uri)
+                .uri(remoteUri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .method("HEAD", HttpRequest.BodyPublishers.noBody()) // Liefert Header, Status und ResponseBody.
                 .build();
@@ -59,11 +50,38 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
     }
 
     @Override
-    protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
-        final URI uri = createRemoteUri(getUri(), request.getResource());
+    protected void doStart() throws Exception {
+        super.doStart();
+
+        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .followRedirects(HttpClient.Redirect.NEVER)
+                .proxy(ProxySelector.getDefault())
+                .connectTimeout(Duration.ofSeconds(30));
+
+        httpClient = httpClientBuilder.build();
+
+        // final ResilientHttpClient.ResilientHttpClientBuilder resilientHttpClientBuilder = ResilientHttpClient.newBuilder(httpClient)
+        //         .retries(2)
+        //         .retryDuration(Duration.ofMillis(750));
+        //
+        // httpClient = resilientHttpClientBuilder.build();
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        super.doStop();
+
+        httpClient.close();
+        httpClient = null;
+    }
+
+    @Override
+    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
+        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(uri)
+                .uri(remoteUri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .header("Accept", "application/octet-stream")
                 .GET()
@@ -84,61 +102,21 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
                 inputStream.transferTo(OutputStream.nullOutputStream());
             }
 
-            return null;
+            final String message = "HTTP-STATUS: %d for %s".formatted(httpResponse.statusCode(), remoteUri.toString());
+            handler.onError(new IOException(message));
+
+            return;
         }
 
         final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(-1);
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
+            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
         }
-
-        final ResourceHandle resourceHandle;
 
         try (InputStream inputStream = httpResponse.body()) {
-            if (contentLength > 0 && contentLength < KEEP_IN_MEMORY_LIMIT) {
-                // Keep small files in Memory.
-                final byte[] bytes = inputStream.readAllBytes();
-
-                resourceHandle = () -> new ByteArrayInputStream(bytes);
-            }
-            else {
-                // Use Temp-Files.
-                final Path tempFile = saveTemp(inputStream);
-
-                resourceHandle = new ResourceHandle() {
-                    @Override
-                    public void close() {
-                        try {
-                            Files.delete(tempFile);
-                        }
-                        catch (IOException ex) {
-                            getLogger().error(ex.getMessage(), ex);
-                        }
-                    }
-
-                    @Override
-                    public InputStream createInputStream() throws IOException {
-                        return Files.newInputStream(tempFile);
-                    }
-                };
-            }
-
-            return new DefaultResourceResponse(contentLength, resourceHandle);
+            handler.onSuccess(contentLength, inputStream);
         }
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-        super.doStart();
-
-        httpClient = httpClientSupplier.get();
-
-        // final ResilientHttpClient.ResilientHttpClientBuilder resilientHttpClientBuilder = ResilientHttpClient.newBuilder(httpClientSupplier.get())
-        //         .retries(2)
-        //         .retryDuration(Duration.ofMillis(750));
-        //
-        // httpClient = resilientHttpClientBuilder.build();
     }
 
     protected HttpClient getHttpClient() {

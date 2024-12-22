@@ -8,7 +8,7 @@ import java.net.URI;
  */
 public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
     public static final class Builder {
-        private String name;
+        private String contextRoot;
         private StoreConfig storeConfig;
         private URI uri;
 
@@ -17,15 +17,15 @@ public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
         }
 
         public RemoteRepositoryConfig build() {
-            ConfigValidator.name(name);
+            ConfigValidator.contextRoot(contextRoot);
             ConfigValidator.uri(uri);
             // ConfigValidator.value(storeConfig, Objects::nonNull, () -> "storeConfig required");
 
             return new RemoteRepositoryConfig(this);
         }
 
-        public Builder name(final String name) {
-            this.name = name;
+        public Builder contextRoot(final String contextRoot) {
+            this.contextRoot = contextRoot;
 
             return this;
         }
@@ -51,7 +51,7 @@ public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
     private final StoreConfig storeConfig;
 
     private RemoteRepositoryConfig(final Builder builder) {
-        super(builder.name, builder.uri);
+        super(builder.contextRoot, builder.uri);
 
         storeConfig = builder.storeConfig;
     }

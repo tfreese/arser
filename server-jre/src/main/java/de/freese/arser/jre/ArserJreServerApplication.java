@@ -3,21 +3,21 @@ package de.freese.arser.jre;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import de.freese.arser.core.api.Arser;
-import de.freese.arser.core.api.FileRepository;
-import de.freese.arser.core.api.JreHttpClientRemoteRepository;
-import de.freese.arser.core.api.Repository;
-import de.freese.arser.core.api.VirtualRepository;
+import de.freese.arser.Arser;
 import de.freese.arser.core.config.ArserConfig;
 import de.freese.arser.core.config.ServerConfig;
 import de.freese.arser.core.lifecycle.LifecycleManager;
+import de.freese.arser.core.repository.FileRepository;
+import de.freese.arser.core.repository.JreHttpClientRemoteRepository;
+import de.freese.arser.core.repository.Repository;
+import de.freese.arser.core.repository.VirtualRepository;
 import de.freese.arser.jre.server.JreHttpServer;
 
 /**
@@ -51,8 +51,8 @@ public final class ArserJreServerApplication {
             //     arserConfig = ArserConfig.fromXml(inputStream);
             // }
             //
-            // final Arser arser = createArser(arserConfig);
-            final Arser arser = createArser(null);
+
+            final LifecycleManager lifecycleManager = createArser(null);
 
             // ArserUtils.setupProxy();
 
@@ -61,14 +61,14 @@ public final class ArserJreServerApplication {
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
-                    arser.stop();
+                    lifecycleManager.stop();
                 }
                 catch (final Exception ex) {
                     LOGGER.error(ex.getMessage(), ex);
                 }
             }, "Shutdown"));
 
-            arser.start();
+            lifecycleManager.start();
         }
         catch (final Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
@@ -77,10 +77,11 @@ public final class ArserJreServerApplication {
         }
     }
 
-    private static Arser createArser(final ArserConfig arserConfig) {
+    private static LifecycleManager createArser(final ArserConfig arserConfig) {
         final LifecycleManager lifecycleManager = new LifecycleManager();
-        final Arser arser = new Arser(lifecycleManager);
-        final Set<Repository> publicRepositories = new HashSet<>();
+
+        final Arser arser = new Arser();
+        final List<Repository> publicRepositories = new ArrayList<>();
 
         Repository repository = new JreHttpClientRemoteRepository("maven-central", URI.create("https://repo1.maven.org/maven2"));
         lifecycleManager.add(repository);
@@ -105,7 +106,7 @@ public final class ArserJreServerApplication {
         lifecycleManager.add(repository);
         arser.addRepository(repository);
 
-        repository = new VirtualRepository("public-snapshots", Set.of(repository));
+        repository = new VirtualRepository("public-snapshots", List.of(repository));
         lifecycleManager.add(repository);
         arser.addRepository(repository);
 
@@ -169,7 +170,7 @@ public final class ArserJreServerApplication {
         );
         lifecycleManager.add(proxyServer);
 
-        return arser;
+        return lifecycleManager;
     }
 
     // private static URI findConfigFile(final String[] args) throws Exception {

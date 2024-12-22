@@ -3,31 +3,31 @@ package de.freese.arser.core.repository;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Objects;
 
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResourceResponse;
+import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
  */
 public abstract class AbstractRepository extends AbstractLifecycle implements Repository {
 
-    private final String name;
+    private final String contextRoot;
     private final URI uri;
 
-    protected AbstractRepository(final String name, final URI uri) {
+    protected AbstractRepository(final String contextRoot, final URI uri) {
         super();
 
-        this.name = name;
-        this.uri = uri;
+        this.contextRoot = Objects.requireNonNull(contextRoot, "contextRoot required");
+        this.uri = Objects.requireNonNull(uri, "uri required");
     }
 
     @Override
     public boolean exist(final ResourceRequest request) throws Exception {
         if (!isStarted()) {
-            getLogger().warn("Component not started: {}", getName());
-            return false;
+            throw new IllegalStateException("Component not started: " + getContextRoot());
         }
 
         if (getLogger().isDebugEnabled()) {
@@ -38,22 +38,8 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public ResourceResponse getResource(final ResourceRequest request) throws Exception {
-        if (!isStarted()) {
-            getLogger().warn("Component not started: {}", getName());
-            return null;
-        }
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Resource: {}", request.getResource());
-        }
-
-        return doGetResource(request);
+    public String getContextRoot() {
+        return contextRoot;
     }
 
     @Override
@@ -62,15 +48,27 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
+    public void streamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
+        if (!isStarted()) {
+            throw new IllegalStateException("Component not started: " + getContextRoot());
+        }
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Resource: {}", resourceRequest.getResource());
+        }
+
+        doStreamTo(resourceRequest, handler);
+    }
+
+    @Override
     public String toString() {
-        return getName() + ": " + getUri();
+        return getContextRoot() + ": " + getUri();
     }
 
     @Override
     public void write(final ResourceRequest request, final InputStream inputStream) throws Exception {
         if (!isStarted()) {
-            getLogger().warn("Component not started: {}", getName());
-            return;
+            throw new IllegalStateException("Component not started: " + getContextRoot());
         }
 
         if (getLogger().isDebugEnabled()) {
@@ -82,9 +80,9 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     protected abstract boolean doExist(ResourceRequest request) throws Exception;
 
-    protected abstract ResourceResponse doGetResource(ResourceRequest request) throws Exception;
+    protected abstract void doStreamTo(ResourceRequest resourceRequest, ResponseHandler handler) throws Exception;
 
     protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
-        throw new UnsupportedOperationException("read only repository: " + getName() + " - " + getUri());
+        throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getUri());
     }
 }

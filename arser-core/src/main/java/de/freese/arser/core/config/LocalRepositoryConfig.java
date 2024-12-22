@@ -8,7 +8,7 @@ import java.net.URI;
  */
 public final class LocalRepositoryConfig extends AbstractRepositoryConfig {
     public static final class Builder {
-        private String name;
+        private String contextRoot;
         private URI uri;
         private boolean writeable;
 
@@ -17,14 +17,14 @@ public final class LocalRepositoryConfig extends AbstractRepositoryConfig {
         }
 
         public LocalRepositoryConfig build() {
-            ConfigValidator.name(name);
+            ConfigValidator.contextRoot(contextRoot);
             ConfigValidator.uri(uri);
 
             return new LocalRepositoryConfig(this);
         }
 
-        public Builder name(final String name) {
-            this.name = name;
+        public Builder contextRoot(final String contextRoot) {
+            this.contextRoot = contextRoot;
 
             return this;
         }
@@ -49,7 +49,7 @@ public final class LocalRepositoryConfig extends AbstractRepositoryConfig {
     private final boolean writeable;
 
     private LocalRepositoryConfig(final Builder builder) {
-        super(builder.name, builder.uri);
+        super(builder.contextRoot, builder.uri);
 
         writeable = builder.writeable;
     }

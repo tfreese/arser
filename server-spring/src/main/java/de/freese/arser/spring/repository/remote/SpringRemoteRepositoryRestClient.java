@@ -1,13 +1,10 @@
 // Created: 21.01.24
 package de.freese.arser.spring.repository.remote;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
 
 import org.springframework.http.MediaType;
@@ -15,9 +12,7 @@ import org.springframework.web.client.RestClient;
 
 import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.DefaultResourceResponse;
-import de.freese.arser.core.response.ResourceHandle;
-import de.freese.arser.core.response.ResourceResponse;
+import de.freese.arser.core.response.ResponseHandler;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -26,26 +21,26 @@ import de.freese.arser.core.utils.ArserUtils;
 public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
     private final RestClient restClient;
 
-    public SpringRemoteRepositoryRestClient(final String name, final URI uri, final RestClient restClient, final Path tempDir) {
-        super(name, uri, tempDir);
+    public SpringRemoteRepositoryRestClient(final String name, final URI uri, final RestClient restClient) {
+        super(name, uri);
 
         this.restClient = Objects.requireNonNull(restClient, "restClient required");
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI uri = createRemoteUri(getUri(), request.getResource());
+    protected boolean doExist(final ResourceRequest resourceRequest) {
+        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("exist - Request: {}", uri);
+            getLogger().debug("exist - Request: {}", remoteUri);
         }
 
         return Boolean.TRUE.equals(restClient.head()
-                .uri(uri)
+                .uri(remoteUri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .exchange((clientRequest, clientResponse) -> {
                     if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("exist - Response: {} / {}", clientResponse.getStatusCode(), uri);
+                        getLogger().debug("exist - Response: {} / {}", clientResponse.getStatusCode(), remoteUri);
                     }
 
                     return clientResponse.getStatusCode().is2xxSuccessful();
@@ -54,21 +49,21 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected ResourceResponse doGetResource(final ResourceRequest request) throws Exception {
-        final URI uri = createRemoteUri(getUri(), request.getResource());
+    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) {
+        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Resource - Request: {}", uri);
+            getLogger().debug("Resource - Request: {}", remoteUri);
         }
 
-        // Note: The response is closed after the exchange function has been invoked
-        return restClient.get()
-                .uri(uri)
+        // Note: The response is closed after the exchange function has been invoked.
+        restClient.get()
+                .uri(remoteUri)
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .exchange((clientRequest, clientResponse) -> {
                     if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("Resource - Response: {} / {}", clientResponse.getStatusCode(), uri);
+                        getLogger().debug("Resource - Response: {} / {}", clientResponse.getStatusCode(), remoteUri);
                     }
 
                     if (!clientResponse.getStatusCode().is2xxSuccessful()) {
@@ -76,48 +71,23 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
                             inputStream.transferTo(OutputStream.nullOutputStream());
                         }
 
+                        final String message = "HTTP-STATUS: %d for %s".formatted(clientResponse.getStatusCode().value(), remoteUri.toString());
+                        handler.onError(new IOException(message));
+
                         return null;
                     }
 
                     final long contentLength = clientResponse.getHeaders().getContentLength();
 
                     if (getLogger().isDebugEnabled()) {
-                        getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), uri);
+                        getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
                     }
-
-                    final ResourceHandle resourceHandle;
 
                     try (InputStream inputStream = clientResponse.getBody()) {
-                        if (contentLength > 0 && contentLength < KEEP_IN_MEMORY_LIMIT) {
-                            // Keep small files in Memory.
-                            final byte[] bytes = inputStream.readAllBytes();
-
-                            resourceHandle = () -> new ByteArrayInputStream(bytes);
-                        }
-                        else {
-                            // Use Temp-Files.
-                            final Path tempFile = saveTemp(inputStream);
-
-                            resourceHandle = new ResourceHandle() {
-                                @Override
-                                public void close() {
-                                    try {
-                                        Files.delete(tempFile);
-                                    }
-                                    catch (IOException ex) {
-                                        getLogger().error(ex.getMessage(), ex);
-                                    }
-                                }
-
-                                @Override
-                                public InputStream createInputStream() throws IOException {
-                                    return Files.newInputStream(tempFile);
-                                }
-                            };
-                        }
+                        handler.onSuccess(contentLength, inputStream);
                     }
 
-                    return new DefaultResourceResponse(contentLength, resourceHandle);
+                    return null;
                 });
     }
 }

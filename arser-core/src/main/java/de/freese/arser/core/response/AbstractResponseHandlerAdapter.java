@@ -1,5 +1,5 @@
 // Created: 20 Dez. 2024
-package de.freese.arser.core.api;
+package de.freese.arser.core.response;
 
 import java.io.InputStream;
 
@@ -8,12 +8,12 @@ import java.io.InputStream;
  */
 public abstract class AbstractResponseHandlerAdapter implements ResponseHandler {
     @Override
-    public void onError(final Exception exception) throws Exception {
+    public void onError(final Exception exception) {
         // Empty
     }
 
     @Override
-    public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
+    public void onSuccess(final long contentLength, final InputStream inputStream) {
         // Empty
     }
 }

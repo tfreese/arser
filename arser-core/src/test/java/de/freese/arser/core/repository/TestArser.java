@@ -9,9 +9,7 @@ import java.net.URI;
 
 import org.junit.jupiter.api.Test;
 
-import de.freese.arser.core.api.Arser;
-import de.freese.arser.core.api.JreHttpClientRemoteRepository;
-import de.freese.arser.core.api.Repository;
+import de.freese.arser.Arser;
 
 /**
  * @author Thomas Freese

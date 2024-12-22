@@ -24,15 +24,15 @@
 
     <repositories>
         <remote>
-            <name>maven-central</name>
+            <contextRoot>maven-central</contextRoot>
             <uri>https://repo1.maven.org/maven2</uri>
         </remote>
         <remote>
-            <name>spring-release</name>
+            <contextRoot>spring-release</contextRoot>
             <uri>https://repo.spring.io/release</uri>
         </remote>
         <remote>
-            <name>primefaces</name>
+            <contextRoot>primefaces</contextRoot>
             <uri>https://repository.primefaces.org</uri>
             <storeSetting>
                 <type>file</type>
@@ -40,7 +40,7 @@
             </storeSetting>
         </remote>
         <remote>
-            <name>gradle-releases</name>
+            <contextRoot>gradle-releases</contextRoot>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
             <storeSetting>
                 <type>jdbc</type>
@@ -53,27 +53,27 @@
             </storeSetting>
         </remote>
         <remote>
-            <name>gradle-plugins</name>
+            <contextRoot>gradle-plugins</contextRoot>
             <uri>https://plugins.gradle.org</uri>
         </remote>
         <local writeable="true">
-            <name>third-party</name>
+            <contextRoot>third-party</contextRoot>
             <path>file:///home/tommy/.m2/third-party</path>
         </local>
         <local writeable="true">
-            <name>deploy-releases</name>
+            <contextRoot>deploy-releases</contextRoot>
             <path>file:///opt/jvmapps/arser/work/deploy-releases</path>
         </local>
         <local writeable="true">
-            <name>deploy-snapshots</name>
+            <contextRoot>deploy-snapshots</contextRoot>
             <path>file:///opt/jvmapps/arser/work/deploy-snapshots</path>
         </local>
         <local writeable="true">
-            <name>deploy-sites</name>
+            <contextRoot>deploy-sites</contextRoot>
             <path>file:///opt/jvmapps/arser/work/deploy-sites</path>
         </local>
         <virtual>
-            <name>public</name>
+            <contextRoot>public</contextRoot>
             <repository-ref>maven-central</repository-ref>
             <repository-ref>spring-releases</repository-ref>
             <repository-ref>primefaces</repository-ref>
@@ -81,7 +81,7 @@
             <repository-ref>gradle-plugins</repository-ref>
         </virtual>
         <virtual>
-            <name>public-local</name>
+            <contextRoot>public-local</contextRoot>
             <repository-ref>third-party</repository-ref>
             <repository-ref>deploy-releases</repository-ref>
             <repository-ref>deploy-snapshots</repository-ref>

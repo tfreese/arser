@@ -2,14 +2,13 @@
 package de.freese.arser.spring.facade;
 
 import java.io.BufferedInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import de.freese.arser.core.Arser;
+import de.freese.arser.Arser;
+import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResourceResponse;
+import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * <a href="https://dev.to/rpkr/different-ways-to-send-a-file-as-a-response-in-spring-boot-for-a-rest-api-43g7">different-ways-to-send-a-file</a>
@@ -54,30 +55,58 @@ public class ArserRestController {
      * StreamingResponseBody, InputStreamResource working booth alone and with ResponseEntity.
      */
     @GetMapping
-    public ResponseEntity<InputStreamResource> doGet(final HttpServletRequest httpServletRequest) throws Exception {
+    public ResponseEntity<StreamingResponseBody> doGet(final HttpServletRequest httpServletRequest) throws Exception {
         // LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
 
-        // StreamingResponseBody streamingResponseBody=outputStream -> {
-        //
-        // };
+        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
-        // try {
-        final ResourceResponse resourceResponse = arser.getResource(resourceRequest);
-
-        if (resourceResponse == null) {
+        if (repository == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(new InputStreamResource(new FilterInputStream(resourceResponse.createInputStream()) {
-            @Override
-            public void close() throws IOException {
-                super.close();
+        final StreamingResponseBody streamingResponseBody = outputStream -> {
+            try {
+                repository.streamTo(resourceRequest, new ResponseHandler() {
+                    @Override
+                    public void onError(final Exception exception) {
+                        // Empty
+                    }
 
-                resourceResponse.close();
+                    @Override
+                    public void onSuccess(final long contentLength, final InputStream inputStream) {
+                        try {
+                            inputStream.transferTo(outputStream);
+                            outputStream.flush();
+                        }
+                        catch (IOException ex) {
+                            throw new UncheckedIOException(ex);
+                        }
+                    }
+                });
             }
-        }));
+            catch (RuntimeException ex) {
+                throw ex;
+            }
+            catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+            catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        };
+
+        return ResponseEntity.ok(streamingResponseBody);
+
+        // return ResponseEntity.ok(new InputStreamResource(new FilterInputStream(resourceResponse.createInputStream()) {
+        //     @Override
+        //     public void close() throws IOException {
+        //         super.close();
+        //
+        //         resourceResponse.close();
+        //     }
+        // }));
         // }
         // catch (Exception ex) {
         //     final byte[] errorMessage = ex.getMessage().getBytes(StandardCharsets.UTF_8);
@@ -115,9 +144,9 @@ public class ArserRestController {
         // LOGGER.info("doHead: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
+        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
-        // try {
-        final boolean exist = arser.exist(resourceRequest);
+        final boolean exist = repository.exist(resourceRequest);
 
         return ResponseEntity.ok(exist);
         // }
@@ -131,9 +160,10 @@ public class ArserRestController {
         // LOGGER.info("doPut: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
+        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
         try (InputStream inputStream = new BufferedInputStream(httpServletRequest.getInputStream())) {
-            arser.write(resourceRequest, inputStream);
+            repository.write(resourceRequest, inputStream);
         }
         // catch (Exception ex) {
         //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());

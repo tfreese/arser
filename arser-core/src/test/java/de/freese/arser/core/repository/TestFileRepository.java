@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -25,10 +26,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import de.freese.arser.core.api.FileRepository;
-import de.freese.arser.core.api.Repository;
-import de.freese.arser.core.api.ResponseHandler;
 import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
@@ -150,12 +149,18 @@ class TestFileRepository {
                 }
 
                 @Override
-                public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
+                public void onSuccess(final long contentLength, final InputStream inputStream) {
                     assertTrue(contentLength > 0);
                     assertNotNull(inputStream);
 
                     contentLengthAtomicLong.set(contentLength);
-                    dataAtomicReference.set(inputStream.readAllBytes());
+
+                    try {
+                        dataAtomicReference.set(inputStream.readAllBytes());
+                    }
+                    catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
                 }
             });
 
