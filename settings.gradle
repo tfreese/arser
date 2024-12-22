@@ -14,6 +14,5 @@ include "blobstore-api"
 include "arser-configuration"
 include "arser-core"
 include "server-jre"
-include 'server-spring'
-include 'arser-test'
+include "server-spring"
 include "arser-application"

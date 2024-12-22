@@ -6,7 +6,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -63,14 +62,13 @@ public class JreHttpServerHandler implements HttpHandler {
                 handlePut(exchange, request, arser);
             }
             else {
-                sendError(exchange, String.format("unknown method: %s from %s", httpMethod, exchange.getRemoteAddress()));
+                sendError(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, String.format("unknown method: %s from %s", httpMethod, exchange.getRemoteAddress()));
             }
         }
-        catch (final IOException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-        }
         catch (final Exception ex) {
-            sendError(exchange, ex.getMessage());
+            LOGGER.error(ex.getMessage(), ex);
+
+            sendError(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, ex.getMessage());
         }
         finally {
             exchange.getResponseBody().close();
@@ -85,6 +83,9 @@ public class JreHttpServerHandler implements HttpHandler {
         try (InputStream inputStream = exchange.getRequestBody()) {
             inputStream.transferTo(OutputStream.nullOutputStream());
         }
+        catch (IOException ex) {
+            // Ignore
+        }
     }
 
     protected void handleGet(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
@@ -92,40 +93,30 @@ public class JreHttpServerHandler implements HttpHandler {
 
         repository.streamTo(request, new ResponseHandler() {
             @Override
-            public void onError(final Exception exception) {
-                try {
-                    // final String message = "File not found: " + request.getResource();
-                    final byte[] bytes = exception.getMessage().getBytes(StandardCharsets.UTF_8);
+            public void onError(final Exception exception) throws Exception {
+                // final String message = "File not found: " + request.getResource();
+                final byte[] bytes = exception.getMessage().getBytes(StandardCharsets.UTF_8);
 
-                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-                    exchange.sendResponseHeaders(ArserUtils.HTTP_NOT_FOUND, bytes.length);
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_NOT_FOUND, bytes.length);
 
-                    try (OutputStream outputStream = exchange.getResponseBody()) {
-                        exchange.getResponseBody().write(bytes);
+                try (OutputStream outputStream = exchange.getResponseBody()) {
+                    exchange.getResponseBody().write(bytes);
 
-                        outputStream.flush();
-                    }
-                }
-                catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
+                    outputStream.flush();
                 }
             }
 
             @Override
-            public void onSuccess(final long contentLength, final InputStream inputStream) {
-                try {
-                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-                    exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.getContentType(request.getFileName()));
-                    exchange.sendResponseHeaders(ArserUtils.HTTP_OK, contentLength);
+            public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
+                exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM);
+                exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, contentLength);
 
-                    try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
-                        inputStream.transferTo(outputStream);
+                try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
+                    inputStream.transferTo(outputStream);
 
-                        outputStream.flush();
-                    }
-                }
-                catch (IOException ex) {
-                    throw new UncheckedIOException(ex);
+                    outputStream.flush();
                 }
             }
         });
@@ -136,7 +127,7 @@ public class JreHttpServerHandler implements HttpHandler {
 
         final boolean exist = repository.exist(request);
 
-        final int response = exist ? ArserUtils.HTTP_OK : ArserUtils.HTTP_NOT_FOUND;
+        final int response = exist ? ArserUtils.HTTP_STATUS_OK : ArserUtils.HTTP_STATUS_NOT_FOUND;
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
         exchange.sendResponseHeaders(response, -1);
@@ -152,22 +143,22 @@ public class JreHttpServerHandler implements HttpHandler {
             repository.write(request, inputStream);
         }
         catch (Exception ex) {
-            sendError(exchange, ex.getMessage());
+            sendError(exchange, ArserUtils.HTTP_STATUS_FORBIDDEN, ex.getMessage());
 
             return;
         }
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-        exchange.sendResponseHeaders(ArserUtils.HTTP_OK, -1);
+        exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, -1);
     }
 
-    protected void sendError(final HttpExchange exchange, final String message) throws IOException {
+    protected void sendError(final HttpExchange exchange, final int httpStatus, final String message) throws IOException {
         LOGGER.error(message);
 
         consumeAndCloseRequestStream(exchange);
 
         exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-        exchange.sendResponseHeaders(ArserUtils.HTTP_INTERNAL_ERROR, 0);
+        exchange.sendResponseHeaders(httpStatus, 0);
         exchange.getResponseBody().close();
         exchange.close();
     }

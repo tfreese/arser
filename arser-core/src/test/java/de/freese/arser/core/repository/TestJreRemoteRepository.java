@@ -48,7 +48,7 @@ class TestJreRemoteRepository {
     }
 
     @Test
-    void testNotExist() throws Exception {
+    void testExistNot() throws Exception {
         final String contentRoot = "not-exist";
 
         final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://plugins.gradle.org"));
@@ -67,30 +67,11 @@ class TestJreRemoteRepository {
     }
 
     @Test
-    void testNotWriteable() throws Exception {
-        final String contentRoot = "not-writeable";
-
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://something"));
-        repository.start();
-
-        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
-
-        try (InputStream inputStream = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8))) {
-            final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> repository.write(resourceRequest, inputStream));
-
-            assertNotNull(exception);
-            assertTrue(exception.getMessage().startsWith("read only repository: " + contentRoot));
-        }
-        finally {
-            repository.stop();
-        }
-    }
-
-    @Test
     void testStreamTo() throws Exception {
         final String contentRoot = "stream-to";
+        final URI uri = URI.create("https://repo1.maven.org/maven2");
 
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://repo1.maven.org/maven2"));
+        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, uri);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -124,6 +105,60 @@ class TestJreRemoteRepository {
             assertTrue(contentLengthAtomicLong.get() > 0);
             assertNotNull(dataAtomicReference.get());
             assertEquals(contentLengthAtomicLong.get(), dataAtomicReference.get().length);
+        }
+        finally {
+            repository.stop();
+        }
+    }
+
+    @Test
+    void testStreamToFail() throws Exception {
+        final String contentRoot = "stream-to-fail";
+        final URI uri = URI.create("https://plugins.gradle.org");
+
+        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, uri);
+        repository.start();
+
+        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
+
+        final AtomicReference<Exception> atomicReference = new AtomicReference<>();
+
+        try {
+            repository.streamTo(resourceRequest, new ResponseHandler() {
+                @Override
+                public void onError(final Exception exception) {
+                    atomicReference.set(exception);
+                }
+
+                @Override
+                public void onSuccess(final long contentLength, final InputStream inputStream) {
+                    fail();
+                }
+            });
+
+            assertNotNull(atomicReference.get());
+            assertEquals(IOException.class, atomicReference.get().getClass());
+            assertEquals("HTTP-STATUS: 404 for " + uri.resolve(RESOURCE), atomicReference.get().getMessage());
+        }
+        finally {
+            repository.stop();
+        }
+    }
+
+    @Test
+    void testWriteableNot() throws Exception {
+        final String contentRoot = "not-writeable";
+
+        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://something"));
+        repository.start();
+
+        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
+
+        try (InputStream inputStream = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8))) {
+            final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> repository.write(resourceRequest, inputStream));
+
+            assertNotNull(exception);
+            assertTrue(exception.getMessage().startsWith("read only repository: " + contentRoot));
         }
         finally {
             repository.stop();

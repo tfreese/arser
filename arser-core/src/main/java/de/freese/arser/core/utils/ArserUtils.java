@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
@@ -20,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,19 +50,25 @@ public final class ArserUtils {
     /**
      * io.netty.handler.codec.http.HttpResponseStatus
      */
-    public static final int HTTP_INTERNAL_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
+    public static final int HTTP_STATUS_FORBIDDEN = HttpURLConnection.HTTP_FORBIDDEN;
     /**
      * io.netty.handler.codec.http.HttpResponseStatus
      */
-    public static final int HTTP_NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
+    public static final int HTTP_STATUS_INTERNAL_ERROR = HttpURLConnection.HTTP_INTERNAL_ERROR;
     /**
      * io.netty.handler.codec.http.HttpResponseStatus
      */
-    public static final int HTTP_OK = HttpURLConnection.HTTP_OK;
+    public static final int HTTP_STATUS_NOT_FOUND = HttpURLConnection.HTTP_NOT_FOUND;
     /**
      * io.netty.handler.codec.http.HttpResponseStatus
      */
-    public static final int HTTP_SERVICE_UNAVAILABLE = HttpURLConnection.HTTP_UNAVAILABLE;
+    public static final int HTTP_STATUS_OK = HttpURLConnection.HTTP_OK;
+    /**
+     * io.netty.handler.codec.http.HttpResponseStatus
+     */
+    public static final int HTTP_STATUS_SERVICE_UNAVAILABLE = HttpURLConnection.HTTP_UNAVAILABLE;
+    public static final String MIMETYPE_APPLICATION_OCTED_STREAM = "application/octet-stream";
+
     public static final Pattern PATTERN_SNAPSHOT_TIMESTAMP = Pattern.compile("\\d{8}\\.\\d{6}-\\d+");
     public static final String SERVER_NAME = "ARtifact-SERvice";
 
@@ -69,11 +77,16 @@ public final class ArserUtils {
     //    private static final MimetypesFileTypeMap MIMETYPES_FILE_TYPE_MAP = new MimetypesFileTypeMap();
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserUtils.class);
 
-    public static String getContentType(final String fileName) {
-        return "application/octet-stream";
-        //        return MIMETYPES_FILE_TYPE_MAP.getContentType(fileName);
-        //        return FILE_NAME_MAP.getContentTypeFor(fileName);
+    public static int findRandomOpenPort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
     }
+
+    // public static String getContentType(final String fileName) {
+    //     // return MIMETYPES_FILE_TYPE_MAP.getContentType(fileName);
+    //     return FILE_NAME_MAP.getContentTypeFor(fileName);
+    // }
 
     public static ClassLoader getDefaultClassLoader() {
         ClassLoader classLoader = null;
@@ -171,12 +184,9 @@ public final class ArserUtils {
 
                 try (InputStream response = connection.getInputStream();
                      InputStreamReader inputStreamReader = new InputStreamReader(response, StandardCharsets.UTF_8);
-                     BufferedReader in = new BufferedReader(inputStreamReader)) {
-                    String line = null;
-
-                    while ((line = in.readLine()) != null) {
-                        LOGGER.info(line);
-                    }
+                     BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                     Stream<String> lines = bufferedReader.lines()) {
+                    lines.forEach(LOGGER::info);
                 }
 
                 ((HttpURLConnection) connection).disconnect();
@@ -185,10 +195,6 @@ public final class ArserUtils {
                 LOGGER.error(ex.getMessage(), ex);
             }
         }
-    }
-
-    public static void shutdown(final ExecutorService executorService) {
-        shutdown(executorService, LoggerFactory.getLogger(ArserUtils.class));
     }
 
     public static void shutdown(final ExecutorService executorService, final Logger logger) {
@@ -214,7 +220,7 @@ public final class ArserUtils {
                     }
                 }
 
-                // Wait a while for tasks to respond to being cancelled
+                // Wait a while for tasks to respond to being cancelled.
                 if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
                     logger.error("ExecutorService did not terminate");
                 }
@@ -235,6 +241,10 @@ public final class ArserUtils {
             // Preserve interrupt status.
             Thread.currentThread().interrupt();
         }
+    }
+
+    public static void shutdown(final ExecutorService executorService) {
+        shutdown(executorService, LoggerFactory.getLogger(ArserUtils.class));
     }
 
     public static String toFileName(final URI uri) {

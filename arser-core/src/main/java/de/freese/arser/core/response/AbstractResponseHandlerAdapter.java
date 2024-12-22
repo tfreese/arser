@@ -8,12 +8,12 @@ import java.io.InputStream;
  */
 public abstract class AbstractResponseHandlerAdapter implements ResponseHandler {
     @Override
-    public void onError(final Exception exception) {
+    public void onError(final Exception exception) throws Exception {
         // Empty
     }
 
     @Override
-    public void onSuccess(final long contentLength, final InputStream inputStream) {
+    public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
         // Empty
     }
 }

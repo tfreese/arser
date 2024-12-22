@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.AbstractResponseHandlerAdapter;
 import de.freese.arser.core.response.ResponseHandler;
 
 /**
@@ -17,7 +16,7 @@ import de.freese.arser.core.response.ResponseHandler;
  */
 public class VirtualRepository extends AbstractRepository {
 
-    private static final class VirtualResponseHandler extends AbstractResponseHandlerAdapter {
+    private static final class VirtualResponseHandler implements ResponseHandler {
         private final ResponseHandler responseHandler;
 
         private boolean success;
@@ -29,12 +28,12 @@ public class VirtualRepository extends AbstractRepository {
         }
 
         @Override
-        public void onError(final Exception exception) {
+        public void onError(final Exception exception) throws Exception {
             responseHandler.onError(exception);
         }
 
         @Override
-        public void onSuccess(final long contentLength, final InputStream inputStream) {
+        public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
             responseHandler.onSuccess(contentLength, inputStream);
 
             success = true;
@@ -60,7 +59,7 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) throws Exception {
+    protected boolean doExist(final ResourceRequest request) {
         boolean exist = false;
 
         for (final Repository repository : repositoryMap.values()) {
@@ -90,7 +89,7 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
+    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) {
         final VirtualResponseHandler virtualResponseHandler = new VirtualResponseHandler(handler);
 
         for (final Repository repository : repositoryMap.values()) {

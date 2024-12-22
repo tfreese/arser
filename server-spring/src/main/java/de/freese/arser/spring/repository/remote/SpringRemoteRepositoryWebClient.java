@@ -88,7 +88,14 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                         }
 
                         final String message = "HTTP-STATUS: %d for %s".formatted(clientResponse.statusCode().value(), remoteUri.toString());
-                        handler.onError(new IOException(message));
+
+                        try {
+                            handler.onError(new IOException(message));
+                        }
+                        catch (Exception ex) {
+                            getLogger().error("Resource - Response: " + ex.getMessage(), ex);
+                            // return Mono.error(ex);
+                        }
 
                         return Mono.empty();
                     }
@@ -102,8 +109,9 @@ public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
                     try (InputStream inputStream = DataBufferUtils.subscriberInputStream(dataBufferFlux, 1)) {
                         handler.onSuccess(contentLength, inputStream);
                     }
-                    catch (IOException ex) {
+                    catch (Exception ex) {
                         getLogger().error("Resource - Response: " + ex.getMessage(), ex);
+                        // return Mono.error(ex);
                     }
 
                     return Mono.empty();

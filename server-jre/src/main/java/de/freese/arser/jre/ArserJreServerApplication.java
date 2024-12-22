@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import de.freese.arser.Arser;
-import de.freese.arser.core.config.ArserConfig;
 import de.freese.arser.core.config.ServerConfig;
 import de.freese.arser.core.lifecycle.LifecycleManager;
 import de.freese.arser.core.repository.FileRepository;
@@ -52,7 +51,7 @@ public final class ArserJreServerApplication {
             // }
             //
 
-            final LifecycleManager lifecycleManager = createArser(null);
+            final LifecycleManager lifecycleManager = createArser();
 
             // ArserUtils.setupProxy();
 
@@ -77,7 +76,7 @@ public final class ArserJreServerApplication {
         }
     }
 
-    private static LifecycleManager createArser(final ArserConfig arserConfig) {
+    private static LifecycleManager createArser() {
         final LifecycleManager lifecycleManager = new LifecycleManager();
 
         final Arser arser = new Arser();

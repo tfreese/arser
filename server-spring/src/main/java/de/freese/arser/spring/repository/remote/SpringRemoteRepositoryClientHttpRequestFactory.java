@@ -48,7 +48,7 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
             getLogger().debug("exist - Response: {} / {}", responseCode, remoteUri);
         }
 
-        return responseCode == ArserUtils.HTTP_OK;
+        return responseCode == ArserUtils.HTTP_STATUS_OK;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemo
                 getLogger().debug("Resource - Response: {} / {}", responseCode, remoteUri);
             }
 
-            if (responseCode != ArserUtils.HTTP_OK) {
+            if (responseCode != ArserUtils.HTTP_STATUS_OK) {
                 try (InputStream inputStream = clientHttpResponse.getBody()) {
                     inputStream.transferTo(OutputStream.nullOutputStream());
                 }

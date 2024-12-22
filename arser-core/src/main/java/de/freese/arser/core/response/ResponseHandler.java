@@ -7,7 +7,7 @@ import java.io.InputStream;
  * @author Thomas Freese
  */
 public interface ResponseHandler {
-    void onError(Exception exception);
+    void onError(Exception exception) throws Exception;
 
-    void onSuccess(long contentLength, InputStream inputStream);
+    void onSuccess(long contentLength, InputStream inputStream) throws Exception;
 }

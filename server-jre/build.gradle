@@ -1,5 +1,5 @@
 plugins {
-    id "java-library"
+    id "java"
 //    id "application"
 }
 
@@ -22,7 +22,9 @@ jar {
 }
 
 dependencies {
-    api(project(":arser-core"))
+    implementation(project(":arser-core"))
 
     runtimeOnly("org.slf4j:slf4j-simple")
+
+    testRuntimeOnly("org.slf4j:slf4j-simple")
 }

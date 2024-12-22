@@ -32,8 +32,8 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
+                .HEAD()
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .method("HEAD", HttpRequest.BodyPublishers.noBody()) // Liefert Header, Status und ResponseBody.
                 .build();
 
         if (getLogger().isDebugEnabled()) {
@@ -46,7 +46,7 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
             getLogger().debug("exist - Response: {}", httpResponse);
         }
 
-        return httpResponse.statusCode() == ArserUtils.HTTP_OK;
+        return httpResponse.statusCode() == ArserUtils.HTTP_STATUS_OK;
     }
 
     @Override
@@ -82,9 +82,9 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
+                .GET()
                 .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
                 .header("Accept", "application/octet-stream")
-                .GET()
                 .build();
 
         if (getLogger().isDebugEnabled()) {
@@ -97,7 +97,7 @@ public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
             getLogger().debug("Resource - Response: {}", httpResponse);
         }
 
-        if (httpResponse.statusCode() != ArserUtils.HTTP_OK) {
+        if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
             try (InputStream inputStream = httpResponse.body()) {
                 inputStream.transferTo(OutputStream.nullOutputStream());
             }

@@ -1,5 +1,5 @@
 // Created: 21 Dez. 2024
-package de.freese.arser.core.repository;
+package de.freese.arser.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,6 +10,8 @@ import java.net.URI;
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.Arser;
+import de.freese.arser.core.repository.JreHttpClientRemoteRepository;
+import de.freese.arser.core.repository.Repository;
 
 /**
  * @author Thomas Freese

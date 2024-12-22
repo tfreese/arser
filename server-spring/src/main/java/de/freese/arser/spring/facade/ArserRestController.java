@@ -2,12 +2,13 @@
 package de.freese.arser.spring.facade;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import de.freese.arser.Arser;
 import de.freese.arser.core.repository.Repository;
@@ -37,8 +37,14 @@ import de.freese.arser.core.response.ResponseHandler;
 public class ArserRestController {
     // private static final Logger LOGGER = LoggerFactory.getLogger(ArserRestController.class);
 
-    @Resource
-    private Arser arser;
+    // @Resource
+    private final Arser arser;
+
+    public ArserRestController(final Arser arser) {
+        super();
+
+        this.arser = Objects.requireNonNull(arser, "arser required");
+    }
 
     /**
      * Jakarta:<br>
@@ -54,90 +60,108 @@ public class ArserRestController {
      *
      * StreamingResponseBody, InputStreamResource working booth alone and with ResponseEntity.
      */
+    // @GetMapping
+    // public ResponseEntity<StreamingResponseBody> doGet(final HttpServletRequest httpServletRequest) {
+    //     // LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
+    //
+    //     final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
+    //
+    //     final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+    //
+    //     if (repository == null) {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    //
+    //     final StreamingResponseBody streamingResponseBody = outputStream -> {
+    //         try {
+    //             repository.streamTo(resourceRequest, new ResponseHandler() {
+    //                 @Override
+    //                 public void onError(final Exception exception) {
+    //                     // Empty
+    //                 }
+    //
+    //                 @Override
+    //                 public void onSuccess(final long contentLength, final InputStream inputStream) {
+    //                     try {
+    //                         inputStream.transferTo(outputStream);
+    //                         outputStream.flush();
+    //                     }
+    //                     catch (IOException ex) {
+    //                         throw new UncheckedIOException(ex);
+    //                     }
+    //                 }
+    //             });
+    //         }
+    //         catch (RuntimeException ex) {
+    //             throw ex;
+    //         }
+    //         catch (IOException ex) {
+    //             throw new UncheckedIOException(ex);
+    //         }
+    //         catch (Exception ex) {
+    //             throw new RuntimeException(ex);
+    //         }
+    //     };
+    //
+    //     return ResponseEntity.ok(streamingResponseBody);
+    //
+    //     // return ResponseEntity.ok(new InputStreamResource(new FilterInputStream(resourceResponse.createInputStream()) {
+    //     //     @Override
+    //     //     public void close() throws IOException {
+    //     //         super.close();
+    //     //
+    //     //         resourceResponse.close();
+    //     //     }
+    //     // }));
+    //     // }
+    //     // catch (Exception ex) {
+    //     //     final byte[] errorMessage = ex.getMessage().getBytes(StandardCharsets.UTF_8);
+    //     //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new InputStreamResource(new ByteArrayInputStream(errorMessage)));
+    //     // }
+    // }
     @GetMapping
-    public ResponseEntity<StreamingResponseBody> doGet(final HttpServletRequest httpServletRequest) throws Exception {
-        // LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
+    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+        final ResourceRequest resourceRequest = ResourceRequest.of(request.getRequestURI());
 
-        final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
+        response.setContentType("application/binary");
 
         final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
         if (repository == null) {
-            return ResponseEntity.notFound().build();
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            response.flushBuffer();
+
+            return;
         }
 
-        final StreamingResponseBody streamingResponseBody = outputStream -> {
-            try {
-                repository.streamTo(resourceRequest, new ResponseHandler() {
-                    @Override
-                    public void onError(final Exception exception) {
-                        // Empty
+        try {
+            repository.streamTo(resourceRequest, new ResponseHandler() {
+                @Override
+                public void onError(final Exception exception) throws Exception {
+                    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+                    try (OutputStream outputStream = response.getOutputStream()) {
+                        outputStream.write(exception.getMessage().getBytes(StandardCharsets.UTF_8));
+                        outputStream.flush();
                     }
+                }
 
-                    @Override
-                    public void onSuccess(final long contentLength, final InputStream inputStream) {
-                        try {
-                            inputStream.transferTo(outputStream);
-                            outputStream.flush();
-                        }
-                        catch (IOException ex) {
-                            throw new UncheckedIOException(ex);
-                        }
+                @Override
+                public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
+                    response.setStatus(HttpStatus.OK.value());
+                    response.setContentLengthLong(contentLength);
+
+                    try (OutputStream outputStream = response.getOutputStream()) {
+                        inputStream.transferTo(outputStream);
+                        outputStream.flush();
                     }
-                });
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        };
-
-        return ResponseEntity.ok(streamingResponseBody);
-
-        // return ResponseEntity.ok(new InputStreamResource(new FilterInputStream(resourceResponse.createInputStream()) {
-        //     @Override
-        //     public void close() throws IOException {
-        //         super.close();
-        //
-        //         resourceResponse.close();
-        //     }
-        // }));
-        // }
-        // catch (Exception ex) {
-        //     final byte[] errorMessage = ex.getMessage().getBytes(StandardCharsets.UTF_8);
-        //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new InputStreamResource(new ByteArrayInputStream(errorMessage)));
-        // }
+                }
+            });
+        }
+        finally {
+            response.flushBuffer();
+        }
     }
-
-    // public void doGett(final HttpServletRequest request, final HttpServletResponse response) {
-    //     final ResourceRequest resourceRequest = ResourceRequest.of(request.getRequestURI());
-    //
-    //     response.setContentType("application/binary");
-    //
-    //     final ResourceResponse resourceResponse = arser.getResource(resourceRequest);
-    //
-    //     if (resourceResponse == null) {
-    //         response.setStatus(HttpStatus.NOT_FOUND.value());
-    //         response.flushBuffer();
-    //         return;
-    //     }
-    //
-    //     try (OutputStream outputStream = response.getOutputStream()) {
-    //         resourceResponse.transferTo(outputStream);
-    //         outputStream.flush();
-    //
-    //         response.setStatus(HttpStatus.OK.value());
-    //         response.flushBuffer();
-    //     }
-    //     catch (IOException e) {
-    //         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    //     }
-    // }
 
     @RequestMapping(method = RequestMethod.HEAD)
     public ResponseEntity<Boolean> doHead(final HttpServletRequest httpServletRequest) throws Exception {

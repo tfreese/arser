@@ -4,6 +4,7 @@ package de.freese.arser;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import de.freese.arser.core.repository.Repository;
@@ -37,6 +38,10 @@ public final class Arser {
         }
 
         repositoryMap.put(contextRoot, repository);
+    }
+
+    public void forEach(final Consumer<Repository> consumer) {
+        repositoryMap.values().forEach(consumer);
     }
 
     public Repository getRepository(final String contextRoot) {

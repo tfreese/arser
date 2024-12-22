@@ -1,12 +1,14 @@
 plugins {
-    id "java-library"
+    id "java"
 }
 
 dependencies {
-    api(project(":arser-core"))
+    implementation(project(":arser-core"))
 
-    api("org.springframework.boot:spring-boot-starter-web")
-    api("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    testRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
 // For Placeholder in Resources.

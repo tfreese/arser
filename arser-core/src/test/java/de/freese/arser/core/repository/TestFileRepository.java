@@ -38,6 +38,10 @@ class TestFileRepository {
 
     @AfterAll
     static void afterAll() throws IOException {
+        if (!Files.exists(PATH_TEST)) {
+            return;
+        }
+
         Files.walkFileTree(PATH_TEST, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
@@ -84,7 +88,7 @@ class TestFileRepository {
     }
 
     @Test
-    void testNotExist() throws Exception {
+    void testExistNot() throws Exception {
         final String contentRoot = "not-exist";
 
         final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
@@ -100,29 +104,6 @@ class TestFileRepository {
         finally {
             repository.stop();
         }
-    }
-
-    @Test
-    void testNotWriteable() throws Exception {
-        final String contentRoot = "not-writeable";
-
-        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
-        repository.start();
-
-        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
-
-        try (InputStream inputStream = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8))) {
-            final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> repository.write(resourceRequest, inputStream));
-
-            assertNotNull(exception);
-            assertTrue(exception.getMessage().startsWith("read only repository: " + contentRoot));
-        }
-        finally {
-            repository.stop();
-        }
-
-        final Path path = Path.of(repository.getUri()).resolve(RESOURCE);
-        assertFalse(Files.exists(path));
     }
 
     @Test
@@ -194,5 +175,28 @@ class TestFileRepository {
         assertTrue(Files.exists(path));
 
         assertEquals("test", Files.readString(path));
+    }
+
+    @Test
+    void testWriteableNot() throws Exception {
+        final String contentRoot = "not-writeable";
+
+        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
+        repository.start();
+
+        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
+
+        try (InputStream inputStream = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8))) {
+            final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> repository.write(resourceRequest, inputStream));
+
+            assertNotNull(exception);
+            assertTrue(exception.getMessage().startsWith("read only repository: " + contentRoot));
+        }
+        finally {
+            repository.stop();
+        }
+
+        final Path path = Path.of(repository.getUri()).resolve(RESOURCE);
+        assertFalse(Files.exists(path));
     }
 }

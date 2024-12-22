@@ -72,7 +72,12 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
                         }
 
                         final String message = "HTTP-STATUS: %d for %s".formatted(clientResponse.getStatusCode().value(), remoteUri.toString());
-                        handler.onError(new IOException(message));
+                        try {
+                            handler.onError(new IOException(message));
+                        }
+                        catch (Exception ex) {
+                            getLogger().error("Resource - Response: " + ex.getMessage(), ex);
+                        }
 
                         return null;
                     }
@@ -85,6 +90,9 @@ public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
 
                     try (InputStream inputStream = clientResponse.getBody()) {
                         handler.onSuccess(contentLength, inputStream);
+                    }
+                    catch (Exception ex) {
+                        getLogger().error("Resource - Response: " + ex.getMessage(), ex);
                     }
 
                     return null;
