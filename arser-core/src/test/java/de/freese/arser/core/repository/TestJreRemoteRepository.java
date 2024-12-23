@@ -26,13 +26,14 @@ import de.freese.arser.core.response.ResponseHandler;
  * @author Thomas Freese
  */
 class TestJreRemoteRepository {
+    private static final URI REMOTE_REPO = URI.create("https://repo1.maven.org/maven2");
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
 
     @Test
     void testExist() throws Exception {
         final String contentRoot = "exist";
 
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://repo1.maven.org/maven2"));
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -48,13 +49,13 @@ class TestJreRemoteRepository {
     }
 
     @Test
-    void testExistNot() throws Exception {
-        final String contentRoot = "not-exist";
+    void testExistFail() throws Exception {
+        final String contentRoot = "exist-fail";
 
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://plugins.gradle.org"));
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
         repository.start();
 
-        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
+        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
 
         try {
             final boolean exist = repository.exist(resourceRequest);
@@ -69,9 +70,8 @@ class TestJreRemoteRepository {
     @Test
     void testStreamTo() throws Exception {
         final String contentRoot = "stream-to";
-        final URI uri = URI.create("https://repo1.maven.org/maven2");
 
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, uri);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -114,12 +114,11 @@ class TestJreRemoteRepository {
     @Test
     void testStreamToFail() throws Exception {
         final String contentRoot = "stream-to-fail";
-        final URI uri = URI.create("https://plugins.gradle.org");
 
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, uri);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
         repository.start();
 
-        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
+        final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
 
         final AtomicReference<Exception> atomicReference = new AtomicReference<>();
 
@@ -138,7 +137,7 @@ class TestJreRemoteRepository {
 
             assertNotNull(atomicReference.get());
             assertEquals(IOException.class, atomicReference.get().getClass());
-            assertEquals("HTTP-STATUS: 404 for " + uri.resolve(RESOURCE), atomicReference.get().getMessage());
+            assertEquals("HTTP-STATUS: 404 for " + REMOTE_REPO + "/a" + RESOURCE, atomicReference.get().getMessage());
         }
         finally {
             repository.stop();
@@ -146,10 +145,10 @@ class TestJreRemoteRepository {
     }
 
     @Test
-    void testWriteableNot() throws Exception {
-        final String contentRoot = "not-writeable";
+    void testWriteableFail() throws Exception {
+        final String contentRoot = "writeable-fail";
 
-        final Repository repository = new JreHttpClientRemoteRepository(contentRoot, URI.create("https://something"));
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, URI.create("https://something"));
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));

@@ -88,8 +88,8 @@ class TestFileRepository {
     }
 
     @Test
-    void testExistNot() throws Exception {
-        final String contentRoot = "not-exist";
+    void testExistFail() throws Exception {
+        final String contentRoot = "exist-fail";
 
         final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
         repository.start();
@@ -178,8 +178,8 @@ class TestFileRepository {
     }
 
     @Test
-    void testWriteableNot() throws Exception {
-        final String contentRoot = "not-writeable";
+    void testWriteableFail() throws Exception {
+        final String contentRoot = "writeable-fail";
 
         final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
         repository.start();

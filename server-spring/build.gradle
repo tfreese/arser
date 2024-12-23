@@ -8,7 +8,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    testRuntimeOnly("org.slf4j:slf4j-simple")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // testImplementation project(path: ":server-jre", configuration: "testRuntime")
+
+    // testRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
 // For Placeholder in Resources.

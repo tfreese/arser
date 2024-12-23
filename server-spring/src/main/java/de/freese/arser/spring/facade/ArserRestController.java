@@ -138,7 +138,7 @@ public class ArserRestController {
             repository.streamTo(resourceRequest, new ResponseHandler() {
                 @Override
                 public void onError(final Exception exception) throws Exception {
-                    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    response.setStatus(HttpStatus.NOT_FOUND.value());
 
                     try (OutputStream outputStream = response.getOutputStream()) {
                         outputStream.write(exception.getMessage().getBytes(StandardCharsets.UTF_8));
@@ -164,7 +164,7 @@ public class ArserRestController {
     }
 
     @RequestMapping(method = RequestMethod.HEAD)
-    public ResponseEntity<Boolean> doHead(final HttpServletRequest httpServletRequest) throws Exception {
+    public ResponseEntity<Void> doHead(final HttpServletRequest httpServletRequest) throws Exception {
         // LOGGER.info("doHead: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
@@ -172,11 +172,7 @@ public class ArserRestController {
 
         final boolean exist = repository.exist(resourceRequest);
 
-        return ResponseEntity.ok(exist);
-        // }
-        // catch (Exception ex) {
-        //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-        // }
+        return exist ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     @PutMapping
@@ -188,12 +184,12 @@ public class ArserRestController {
 
         try (InputStream inputStream = new BufferedInputStream(httpServletRequest.getInputStream())) {
             repository.write(resourceRequest, inputStream);
-        }
-        // catch (Exception ex) {
-        //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
-        // }
 
-        return ResponseEntity.ok().build();
+            return ResponseEntity.ok().build();
+        }
+        catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+        }
     }
 
     @ExceptionHandler(Exception.class)

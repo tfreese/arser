@@ -34,44 +34,44 @@
         <remote>
             <contextRoot>primefaces</contextRoot>
             <uri>https://repository.primefaces.org</uri>
-            <storeSetting>
-                <type>file</type>
-                <uri>file:///opt/jvmapps/arser/cache/primefaces</uri>
-            </storeSetting>
+            <!-- <storeSetting> -->
+            <!--     <type>file</type> -->
+            <!--     <uri>file:///opt/jvmapps/arser/cache/primefaces</uri> -->
+            <!-- </storeSetting> -->
         </remote>
         <remote>
             <contextRoot>gradle-releases</contextRoot>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
-            <storeSetting>
-                <type>jdbc</type>
-                <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/gradle-releases/gradle-releases;shutdown=true</uri>
-                <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName>
-                <user>sa</user>
-                <password />
-                <pool-core-size>2</pool-core-size>
-                <pool-max-size>6</pool-max-size>
-            </storeSetting>
+            <!-- <storeSetting> -->
+            <!--     <type>jdbc</type> -->
+            <!--     <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/gradle-releases/gradle-releases;shutdown=true</uri> -->
+            <!--     <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName> -->
+            <!--     <user>sa</user> -->
+            <!--     <password /> -->
+            <!--     <pool-core-size>2</pool-core-size> -->
+            <!--     <pool-max-size>6</pool-max-size> -->
+            <!-- </storeSetting> -->
         </remote>
         <remote>
             <contextRoot>gradle-plugins</contextRoot>
             <uri>https://plugins.gradle.org</uri>
         </remote>
-        <local writeable="true">
+        <file writeable="true">
             <contextRoot>third-party</contextRoot>
             <path>file:///home/tommy/.m2/third-party</path>
-        </local>
-        <local writeable="true">
+        </file>
+        <file writeable="true">
             <contextRoot>deploy-releases</contextRoot>
             <path>file:///opt/jvmapps/arser/work/deploy-releases</path>
-        </local>
-        <local writeable="true">
+        </file>
+        <file writeable="true">
             <contextRoot>deploy-snapshots</contextRoot>
             <path>file:///opt/jvmapps/arser/work/deploy-snapshots</path>
-        </local>
-        <local writeable="true">
+        </file>
+        <file writeable="true">
             <contextRoot>deploy-sites</contextRoot>
             <path>file:///opt/jvmapps/arser/work/deploy-sites</path>
-        </local>
+        </file>
         <virtual>
             <contextRoot>public</contextRoot>
             <repository-ref>maven-central</repository-ref>

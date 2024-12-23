@@ -1,5 +1,5 @@
 // Created: 31 Okt. 2024
-package de.freese.arser.core.config;
+package de.freese.arser.config;
 
 import java.net.URI;
 

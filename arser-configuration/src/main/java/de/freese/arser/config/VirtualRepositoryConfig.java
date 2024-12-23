@@ -1,18 +1,16 @@
 // Created: 31 Okt. 2024
-package de.freese.arser.core.config;
+package de.freese.arser.config;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import de.freese.arser.core.repository.Repository;
 
 /**
  * @author Thomas Freese
  */
 public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
     public static final class Builder {
-        private final List<Repository> repositories = new ArrayList<>();
+        // private final List<Repository> repositories = new ArrayList<>();
         private final List<String> repositoryRefs = new ArrayList<>();
         private String contextRoot;
 
@@ -23,17 +21,17 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         public VirtualRepositoryConfig build() {
             ConfigValidator.contextRoot(contextRoot);
 
-            if (!repositories.isEmpty() && !repositoryRefs.isEmpty()) {
-                throw new IllegalStateException("either repositories OR repositoryRefs can be used");
-            }
-
-            if (repositories.isEmpty()) {
-                ConfigValidator.value(repositoryRefs, value -> !value.isEmpty(), () -> "repositoryRefs are empty");
-            }
-
-            if (repositoryRefs.isEmpty()) {
-                ConfigValidator.value(repositories, value -> !value.isEmpty(), () -> "repositories are empty");
-            }
+            // if (!repositories.isEmpty() && !repositoryRefs.isEmpty()) {
+            //     throw new IllegalStateException("either repositories OR repositoryRefs can be used");
+            // }
+            //
+            // if (repositories.isEmpty()) {
+            //     ConfigValidator.value(repositoryRefs, value -> !value.isEmpty(), () -> "repositoryRefs are empty");
+            // }
+            //
+            // if (repositoryRefs.isEmpty()) {
+            //     ConfigValidator.value(repositories, value -> !value.isEmpty(), () -> "repositories are empty");
+            // }
 
             return new VirtualRepositoryConfig(this);
         }
@@ -44,21 +42,21 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
             return this;
         }
 
-        public Builder repositories(final List<Repository> repositories) {
-            if (repositories == null) {
-                return this;
-            }
-
-            repositories.forEach(repository -> {
-                if (this.repositories.contains(repository)) {
-                    throw new IllegalArgumentException("repository already exist: " + repository.getContextRoot());
-                }
-
-                this.repositories.add(repository);
-            });
-
-            return this;
-        }
+        // public Builder repositories(final List<Repository> repositories) {
+        //     if (repositories == null) {
+        //         return this;
+        //     }
+        //
+        //     repositories.forEach(repository -> {
+        //         if (this.repositories.contains(repository)) {
+        //             throw new IllegalArgumentException("repository already exist: " + repository.getContextRoot());
+        //         }
+        //
+        //         this.repositories.add(repository);
+        //     });
+        //
+        //     return this;
+        // }
 
         public Builder repositoryRefs(final List<String> repositoryRefs) {
             if (repositoryRefs == null) {
@@ -81,19 +79,19 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         return new Builder();
     }
 
-    private final List<Repository> repositories;
+    // private final List<Repository> repositories;
     private final List<String> repositoryRefs;
 
     private VirtualRepositoryConfig(final Builder builder) {
         super(builder.contextRoot, URI.create("virtual"));
 
         repositoryRefs = List.copyOf(builder.repositoryRefs);
-        repositories = List.copyOf(builder.repositories);
+        // repositories = List.copyOf(builder.repositories);
     }
 
-    public List<Repository> getRepositories() {
-        return repositories;
-    }
+    // public List<Repository> getRepositories() {
+    //     return repositories;
+    // }
 
     public List<String> getRepositoryRefs() {
         return repositoryRefs;

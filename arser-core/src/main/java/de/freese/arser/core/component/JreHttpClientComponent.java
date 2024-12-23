@@ -10,7 +10,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import de.freese.arser.core.config.HttpClientConfig;
+import de.freese.arser.config.HttpClientConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ArserUtils;

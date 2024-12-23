@@ -2,8 +2,10 @@
 package de.freese.arser.spring.config;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -14,15 +16,18 @@ import de.freese.arser.Arser;
 import de.freese.arser.core.repository.FileRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.VirtualRepository;
-import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryClientHttpRequestFactory;
+import de.freese.arser.spring.repository.remote.RemoteRepositoryRequestFactory;
 
 /**
  * @author Thomas Freese
  */
 @Configuration
-@Profile("web")
-public class ArserConfigWeb {
+@Profile("request-factory")
+public class ArserConfigRequestFactory {
     // private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWeb.class);
+
+    // @Value("${arser.workingDir}")
+    // private Path workingDir;
 
     @Bean
     Arser arser() {
@@ -49,39 +54,32 @@ public class ArserConfigWeb {
     //     return arser;
     // }
 
-    //    @Bean(initMethod = "start", destroyMethod = "stop")
-    //    JreHttpClientComponent jreHttpClientComponent() {
-    //        final HttpClientConfig httpClientConfig = new HttpClientConfig();
-    //        httpClientConfig.setThreadNamePattern("http-client-%d");
-    //        httpClientConfig.setThreadPoolCoreSize(2);
-    //        httpClientConfig.setThreadPoolMaxSize(6);
-    //
-    //        return new JreHttpClientComponent(httpClientConfig);
-    //    }
-
     @Bean
     ClientHttpRequestFactory clientHttpRequestFactory() {
         return new JdkClientHttpRequestFactory();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository localDeploySnapshots() {
-        return new FileRepository("deploy-snapshots", URI.create("file:///tmp/arser/deploy-snapshots"), true);
+    Repository localDeploySnapshots(final Arser arser, @Value("${arser.workingDir}") final Path workingDir) {
+        final Repository repository = new FileRepository("deploy-snapshots", workingDir.resolve("deploy-snapshots").toUri(), true);
+        arser.addRepository(repository);
+
+        return repository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradlePlugins(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new SpringRemoteRepositoryClientHttpRequestFactory("gradle-plugins", URI.create("https://plugins.gradle.org"), clientHttpRequestFactory);
+        return new RemoteRepositoryRequestFactory("gradle-plugins", URI.create("https://plugins.gradle.org"), clientHttpRequestFactory);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradleReleases(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new SpringRemoteRepositoryClientHttpRequestFactory("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), clientHttpRequestFactory);
+        return new RemoteRepositoryRequestFactory("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), clientHttpRequestFactory);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteMavenCentral(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new SpringRemoteRepositoryClientHttpRequestFactory("maven-central", URI.create("https://repo1.maven.org/maven2"), clientHttpRequestFactory);
+        return new RemoteRepositoryRequestFactory("maven-central", URI.create("https://repo1.maven.org/maven2"), clientHttpRequestFactory);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

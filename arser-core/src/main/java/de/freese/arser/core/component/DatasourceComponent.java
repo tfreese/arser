@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import de.freese.arser.core.config.DatabaseStoreConfig;
+import de.freese.arser.config.DatabaseStoreConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 
 /**

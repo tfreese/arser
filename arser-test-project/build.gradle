@@ -5,9 +5,9 @@ allprojects {
     apply plugin: "base"
 
     ext["version_slf4j"] = "2.0.16"
-    ext["version_gradleToolingApi"] = "8.10.2"
-    ext["version_junitJupiter"] = "5.11.3"
-    ext["version_junitPlatform"] = "1.11.3"
+    ext["version_gradleToolingApi"] = "8.12"
+    ext["version_junitJupiter"] = "5.11.4"
+    ext["version_junitPlatform"] = "1.11.4"
 }
 
 subprojects {

@@ -18,10 +18,10 @@ import de.freese.arser.core.utils.ArserUtils;
 /**
  * @author Thomas Freese
  */
-public class SpringRemoteRepositoryRestClient extends AbstractRemoteRepository {
+public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
     private final RestClient restClient;
 
-    public SpringRemoteRepositoryRestClient(final String name, final URI uri, final RestClient restClient) {
+    public RemoteRepositoryRestClient(final String name, final URI uri, final RestClient restClient) {
         super(name, uri);
 
         this.restClient = Objects.requireNonNull(restClient, "restClient required");

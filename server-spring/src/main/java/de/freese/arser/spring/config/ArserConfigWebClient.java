@@ -2,8 +2,10 @@
 package de.freese.arser.spring.config;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -16,7 +18,7 @@ import de.freese.arser.core.repository.FileRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.VirtualRepository;
 import de.freese.arser.core.utils.ArserUtils;
-import de.freese.arser.spring.repository.remote.SpringRemoteRepositoryWebClient;
+import de.freese.arser.spring.repository.remote.RemoteRepositoryWebClient;
 
 /**
  * @author Thomas Freese
@@ -27,7 +29,7 @@ public class ArserConfigWebClient {
     // private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWebClient.class);
 
     // @Value("${arser.workingDir}")
-    // private URI workingDir;
+    // private Path workingDir;
 
     @Bean
     Arser arser() {
@@ -60,23 +62,26 @@ public class ArserConfigWebClient {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository localDeploySnapshots() {
-        return new FileRepository("deploy-snapshots", URI.create("file:///tmp/arser/deploy-snapshots"), true);
+    Repository localDeploySnapshots(final Arser arser, @Value("${arser.workingDir}") final Path workingDir) {
+        final Repository repository = new FileRepository("deploy-snapshots", workingDir.resolve("deploy-snapshots").toUri(), true);
+        arser.addRepository(repository);
+
+        return repository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradlePlugins(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
+        return new RemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteGradleReleases(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+        return new RemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     Repository remoteMavenCentral(final WebClient webclient) {
-        return new SpringRemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
+        return new RemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

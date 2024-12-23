@@ -1,18 +1,9 @@
 // Created: 21.01.24
 package de.freese.arser.spring;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.EventListener;
 
 /**
  * @author Thomas Freese
@@ -24,10 +15,10 @@ public class ArserSpringServerApplication {
         //
         final SpringApplication application = new SpringApplicationBuilder(ArserSpringServerApplication.class)
                 // .properties("spring.config.name:application-Server")
-                .headless(false) // Default true
+                .headless(true) // Default true
                 .registerShutdownHook(true) // Default true
                 // .profiles("web")
-                .profiles("rest-client")
+                // .profiles("rest-client")
                 // .profiles("web-client")
                 //.banner(new MyBanner())
                 //.listeners(new ApplicationPidFileWriter("arser.pid"))
@@ -37,28 +28,28 @@ public class ArserSpringServerApplication {
         application.run(args);
     }
 
-    private static void showShutdownFrame(final ConfigurableApplicationContext applicationContext) {
-        final JFrame jFrame = new JFrame("Shutdown");
-        jFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        jFrame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(final WindowEvent event) {
-                // applicationContext.close();
-                SpringApplication.exit(applicationContext, () -> 0);
-            }
-        });
-        jFrame.setSize(250, 100);
-        jFrame.setLocationRelativeTo(null);
-        jFrame.setVisible(true);
-    }
+    // private static void showShutdownFrame(final ConfigurableApplicationContext applicationContext) {
+    //     final JFrame jFrame = new JFrame("Shutdown");
+    //     jFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    //     jFrame.addWindowListener(new WindowAdapter() {
+    //         @Override
+    //         public void windowClosed(final WindowEvent event) {
+    //             // applicationContext.close();
+    //             SpringApplication.exit(applicationContext, () -> 0);
+    //         }
+    //     });
+    //     jFrame.setSize(250, 100);
+    //     jFrame.setLocationRelativeTo(null);
+    //     jFrame.setVisible(true);
+    // }
 
     // @Bean
     // ApplicationRunner openShutdownFrame(final ConfigurableApplicationContext applicationContext) {
     //     return args -> showShutdownFrame(applicationContext);
     // }
 
-    @EventListener(ApplicationReadyEvent.class)
-    void openShutdownFrame(final ApplicationReadyEvent event) {
-        showShutdownFrame(event.getApplicationContext());
-    }
+    // @EventListener(ApplicationReadyEvent.class)
+    // void openShutdownFrame(final ApplicationReadyEvent event) {
+    //     showShutdownFrame(event.getApplicationContext());
+    // }
 }

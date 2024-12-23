@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import com.sun.net.httpserver.HttpServer;
 
 import de.freese.arser.Arser;
-import de.freese.arser.core.config.ServerConfig;
+import de.freese.arser.config.ServerConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ArserUtils;

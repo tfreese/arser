@@ -114,9 +114,9 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:complexType name="LocalRepoSetting">
+    <xs:complexType name="FileRepoSetting">
         <xs:annotation>
-            <xs:documentation source="description">Local file Repository [file://*].</xs:documentation>
+            <xs:documentation source="description">File Repository [file://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
             <xs:element name="contextRoot" type="ContextRoot" />
@@ -160,7 +160,7 @@
         </xs:annotation>
         <xs:sequence>
             <xs:element name="remote" type="RemoteRepoSetting" maxOccurs="unbounded" />
-            <xs:element name="local" type="LocalRepoSetting" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="file" type="FileRepoSetting" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="virtual" type="VirtualRepoSetting" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>

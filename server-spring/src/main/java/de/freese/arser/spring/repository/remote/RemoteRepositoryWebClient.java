@@ -23,10 +23,10 @@ import de.freese.arser.core.utils.ArserUtils;
 /**
  * @author Thomas Freese
  */
-public class SpringRemoteRepositoryWebClient extends AbstractRemoteRepository {
+public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
     private final WebClient webClient;
 
-    public SpringRemoteRepositoryWebClient(final String name, final URI uri, final WebClient webClient) {
+    public RemoteRepositoryWebClient(final String name, final URI uri, final WebClient webClient) {
         super(name, uri);
 
         this.webClient = Objects.requireNonNull(webClient, "webClient required");

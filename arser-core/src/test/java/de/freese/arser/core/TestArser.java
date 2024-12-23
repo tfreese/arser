@@ -10,7 +10,7 @@ import java.net.URI;
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.Arser;
-import de.freese.arser.core.repository.JreHttpClientRemoteRepository;
+import de.freese.arser.core.repository.RemoteRepositoryJreHttpClient;
 import de.freese.arser.core.repository.Repository;
 
 /**
@@ -20,10 +20,10 @@ class TestArser {
     @Test
     void testAddRepositoryThatExist() {
         final Arser arser = new Arser();
-        arser.addRepository(new JreHttpClientRemoteRepository("a", URI.create("https://a")));
-        arser.addRepository(new JreHttpClientRemoteRepository("b", URI.create("https://b")));
+        arser.addRepository(new RemoteRepositoryJreHttpClient("a", URI.create("https://a")));
+        arser.addRepository(new RemoteRepositoryJreHttpClient("b", URI.create("https://b")));
 
-        final Repository repository = new JreHttpClientRemoteRepository("a", URI.create("https://a"));
+        final Repository repository = new RemoteRepositoryJreHttpClient("a", URI.create("https://a"));
 
         final IllegalStateException exception = assertThrows(IllegalStateException.class, () -> arser.addRepository(repository));
 
@@ -34,8 +34,8 @@ class TestArser {
     @Test
     void testGetRepository() {
         final Arser arser = new Arser();
-        arser.addRepository(new JreHttpClientRemoteRepository("a", URI.create("https://a")));
-        arser.addRepository(new JreHttpClientRemoteRepository("b", URI.create("https://b")));
+        arser.addRepository(new RemoteRepositoryJreHttpClient("a", URI.create("https://a")));
+        arser.addRepository(new RemoteRepositoryJreHttpClient("b", URI.create("https://b")));
 
         Repository repository = arser.getRepository("a");
         assertNotNull(repository);

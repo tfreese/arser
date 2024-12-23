@@ -1,5 +1,5 @@
 // Created: 31 Okt. 2024
-package de.freese.arser.core.config;
+package de.freese.arser.config;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -20,8 +20,7 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 
 import de.freese.arser.config.xml.ArserSettings;
-import de.freese.arser.config.xml.HttpClientSetting;
-import de.freese.arser.config.xml.LocalRepoSetting;
+import de.freese.arser.config.xml.FileRepoSetting;
 import de.freese.arser.config.xml.RemoteRepoSetting;
 import de.freese.arser.config.xml.ServerSetting;
 import de.freese.arser.config.xml.StoreSetting;
@@ -89,7 +88,7 @@ public final class ArserConfig {
         return new ArserConfig(settings);
     }
 
-    private final HttpClientConfig httpClientConfig;
+    // private final HttpClientConfig httpClientConfig;
     private final Map<String, RepositoryConfig> repositoryConfigs = new HashMap<>();
     private final ServerConfig serverConfig;
     private final Path workingDir;
@@ -109,14 +108,14 @@ public final class ArserConfig {
                 .threadPoolMaxSize(serverSetting.getThreadPoolMaxSize())
                 .build();
 
-        final HttpClientSetting httpClientSetting = settings.getHttpClientSetting();
-        httpClientConfig = HttpClientConfig.builder()
-                .threadNamePattern(httpClientSetting.getThreadNamePattern())
-                .threadPoolCoreSize(httpClientSetting.getThreadPoolCoreSize())
-                .threadPoolMaxSize(httpClientSetting.getThreadPoolMaxSize())
-                .build();
+        // final HttpClientSetting httpClientSetting = settings.getHttpClientSetting();
+        // httpClientConfig = HttpClientConfig.builder()
+        //         .threadNamePattern(httpClientSetting.getThreadNamePattern())
+        //         .threadPoolCoreSize(httpClientSetting.getThreadPoolCoreSize())
+        //         .threadPoolMaxSize(httpClientSetting.getThreadPoolMaxSize())
+        //         .build();
 
-        configureLocalRepositories(settings.getRepositories().getLocals());
+        configureFileRepositories(settings.getRepositories().getFiles());
         configureRemoteRepositories(settings.getRepositories().getRemotes());
         configureVirtualRepositories(settings.getRepositories().getVirtuals());
     }
@@ -124,19 +123,19 @@ public final class ArserConfig {
     private ArserConfig(final Builder builder) {
         super();
 
-        httpClientConfig = builder.httpClientConfig;
+        // httpClientConfig = builder.httpClientConfig;
         serverConfig = null;
         workingDir = builder.workingDir;
     }
 
-    public HttpClientConfig getHttpClientConfig() {
-        return httpClientConfig;
-    }
+    // public HttpClientConfig getHttpClientConfig() {
+    //     return httpClientConfig;
+    // }
 
-    public List<LocalRepositoryConfig> getRepositoryConfigsLocal() {
+    public List<FileRepositoryConfig> getRepositoryConfigsLocal() {
         return repositoryConfigs.values().stream()
-                .filter(config -> config.getClass().isAssignableFrom(LocalRepositoryConfig.class))
-                .map(LocalRepositoryConfig.class::cast)
+                .filter(config -> config.getClass().isAssignableFrom(FileRepositoryConfig.class))
+                .map(FileRepositoryConfig.class::cast)
                 .toList()
                 ;
     }
@@ -169,7 +168,7 @@ public final class ArserConfig {
         return workingDir;
     }
 
-    private void configureLocalRepositories(final List<LocalRepoSetting> settings) {
+    private void configureFileRepositories(final List<FileRepoSetting> settings) {
         settings.forEach(setting -> {
             final String contextRoot = setting.getContextRoot();
 
@@ -177,7 +176,7 @@ public final class ArserConfig {
                 throw new IllegalArgumentException("repository already exist: " + contextRoot);
             }
 
-            repositoryConfigs.put(contextRoot, LocalRepositoryConfig.builder()
+            repositoryConfigs.put(contextRoot, FileRepositoryConfig.builder()
                     .contextRoot(contextRoot)
                     .uri(URI.create(setting.getPath()))
                     .writeable(setting.isWriteable())

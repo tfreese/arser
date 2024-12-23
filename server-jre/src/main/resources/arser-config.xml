@@ -30,19 +30,19 @@
         <remote>
             <contextRoot>gradle-releases</contextRoot>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
-            <storeSetting>
-                <type>file</type>
-                <uri>file:///tmp/arser/cache/gradle/libs-releases</uri>
-            </storeSetting>
+            <!-- <storeSetting> -->
+            <!--     <type>file</type> -->
+            <!--     <uri>file:///tmp/arser/cache/gradle/libs-releases</uri> -->
+            <!-- </storeSetting> -->
         </remote>
         <remote>
             <contextRoot>gradle-plugins</contextRoot>
             <uri>https://plugins.gradle.org</uri>
         </remote>
-        <local writeable="true">
+        <file writeable="true">
             <contextRoot>deploy-snapshots</contextRoot>
             <path>file:///tmp/arser/deploy-snapshots</path>
-        </local>
+        </file>
         <virtual>
             <contextRoot>public</contextRoot>
             <repository-ref>maven-central</repository-ref>

@@ -1,12 +1,12 @@
 // Created: 31 Okt. 2024
-package de.freese.arser.core.config;
+package de.freese.arser.config;
 
 import java.net.URI;
 
 /**
  * @author Thomas Freese
  */
-public final class LocalRepositoryConfig extends AbstractRepositoryConfig {
+public final class FileRepositoryConfig extends AbstractRepositoryConfig {
     public static final class Builder {
         private String contextRoot;
         private URI uri;
@@ -16,11 +16,11 @@ public final class LocalRepositoryConfig extends AbstractRepositoryConfig {
             super();
         }
 
-        public LocalRepositoryConfig build() {
+        public FileRepositoryConfig build() {
             ConfigValidator.contextRoot(contextRoot);
             ConfigValidator.uri(uri);
 
-            return new LocalRepositoryConfig(this);
+            return new FileRepositoryConfig(this);
         }
 
         public Builder contextRoot(final String contextRoot) {
@@ -48,7 +48,7 @@ public final class LocalRepositoryConfig extends AbstractRepositoryConfig {
 
     private final boolean writeable;
 
-    private LocalRepositoryConfig(final Builder builder) {
+    private FileRepositoryConfig(final Builder builder) {
         super(builder.contextRoot, builder.uri);
 
         writeable = builder.writeable;

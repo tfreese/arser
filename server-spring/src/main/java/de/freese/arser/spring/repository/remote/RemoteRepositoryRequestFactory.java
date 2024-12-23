@@ -22,10 +22,10 @@ import de.freese.arser.core.utils.ArserUtils;
 /**
  * @author Thomas Freese
  */
-public class SpringRemoteRepositoryClientHttpRequestFactory extends AbstractRemoteRepository {
+public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
     private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public SpringRemoteRepositoryClientHttpRequestFactory(final String name, final URI uri, final ClientHttpRequestFactory clientHttpRequestFactory) {
+    public RemoteRepositoryRequestFactory(final String name, final URI uri, final ClientHttpRequestFactory clientHttpRequestFactory) {
         super(name, uri);
 
         this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");

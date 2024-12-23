@@ -18,11 +18,11 @@ import de.freese.arser.core.utils.ArserUtils;
 /**
  * @author Thomas Freese
  */
-public class JreHttpClientRemoteRepository extends AbstractRemoteRepository {
+public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
 
     private HttpClient httpClient;
 
-    public JreHttpClientRemoteRepository(final String contextRoot, final URI uri) {
+    public RemoteRepositoryJreHttpClient(final String contextRoot, final URI uri) {
         super(contextRoot, uri);
     }
 
