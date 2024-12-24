@@ -58,6 +58,20 @@ public class ArserConfigWebClient {
 
     @Bean
     ClientHttpConnector clientHttpConnector() {
+        // Doesn't work for download/get Methods!
+        //
+        // // Create reactor netty HTTP client.
+        // final HttpClient httpClient = HttpClient.create()
+        //         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 100_000)
+        //         .doOnConnected(con -> con
+        //                 // .addHandlerLast(new ReadTimeoutHandler(100L, TimeUnit.SECONDS))
+        //                 .addHandlerFirst(new ReadTimeoutHandler(100L, TimeUnit.SECONDS))
+        //                 .addHandlerLast(new WriteTimeoutHandler(100L, TimeUnit.SECONDS))
+        //         );
+        //
+        // // Create a client http connector using above http client.
+        // return new ReactorClientHttpConnector(httpClient);
+
         return new JdkClientHttpConnector();
     }
 

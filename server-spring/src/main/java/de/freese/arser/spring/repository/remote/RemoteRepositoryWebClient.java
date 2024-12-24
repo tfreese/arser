@@ -80,6 +80,7 @@ public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
                     final Flux<DataBuffer> dataBufferFlux = clientResponse.body(BodyExtractors.toDataBuffers());
 
                     if (!clientResponse.statusCode().is2xxSuccessful()) {
+                        // Drain DataBuffers.
                         try (OutputStream outputStream = OutputStream.nullOutputStream()) {
                             DataBufferUtils.write(dataBufferFlux, outputStream).blockLast();
                         }

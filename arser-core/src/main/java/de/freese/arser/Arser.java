@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
+import de.freese.arser.config.ConfigValidator;
 import de.freese.arser.core.repository.Repository;
 
 /**
@@ -16,14 +16,6 @@ import de.freese.arser.core.repository.Repository;
  * @author Thomas Freese
  */
 public final class Arser {
-    private static final Pattern PATTERN_CONTEXT_ROOT = Pattern.compile("([a-z0-9\\-_])+");
-
-    public static void validateContextRoot(final String contextRoot) {
-        if (!PATTERN_CONTEXT_ROOT.matcher(contextRoot).matches()) {
-            throw new IllegalArgumentException("contextRoot must match the pattern: " + PATTERN_CONTEXT_ROOT);
-        }
-    }
-
     private final Map<String, Repository> repositoryMap = new HashMap<>();
 
     public void addRepository(final Repository repository) {
@@ -31,7 +23,7 @@ public final class Arser {
 
         final String contextRoot = repository.getContextRoot();
 
-        validateContextRoot(contextRoot);
+        ConfigValidator.contextRoot(contextRoot);
 
         if (repositoryMap.containsKey(contextRoot)) {
             throw new IllegalStateException("repository already exist for contextRoot: " + contextRoot);

@@ -67,6 +67,7 @@ public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
                     }
 
                     if (!clientResponse.getStatusCode().is2xxSuccessful()) {
+                        // Drain Body.
                         try (InputStream inputStream = clientResponse.getBody()) {
                             inputStream.transferTo(OutputStream.nullOutputStream());
                         }

@@ -71,6 +71,7 @@ public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
             }
 
             if (responseCode != ArserUtils.HTTP_STATUS_OK) {
+                // Drain Body.
                 try (InputStream inputStream = clientHttpResponse.getBody()) {
                     inputStream.transferTo(OutputStream.nullOutputStream());
                 }

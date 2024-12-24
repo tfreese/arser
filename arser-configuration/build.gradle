@@ -18,6 +18,7 @@ dependencies {
 //    compile(files(genJaxb.classesDir).builtBy(genJaxb))
 
     api("jakarta.xml.bind:jakarta.xml.bind-api")
+    api("org.slf4j:slf4j-api")
 }
 
 def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")

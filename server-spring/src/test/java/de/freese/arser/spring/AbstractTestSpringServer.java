@@ -19,6 +19,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import jakarta.annotation.Resource;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -27,6 +28,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 /**
  * @author Thomas Freese
  */
+@AutoConfigureWebTestClient(timeout = "10000")
 abstract class AbstractTestSpringServer {
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
 

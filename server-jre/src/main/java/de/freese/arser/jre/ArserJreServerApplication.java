@@ -1,11 +1,6 @@
 // Created: 27.07.23
 package de.freese.arser.jre;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -43,14 +38,7 @@ public final class ArserJreServerApplication {
         }
 
         try {
-            final URI configUri = findConfigFile(args);
-            LOGGER.info("load settings from {}", configUri);
-
-            final ArserConfig arserConfig;
-
-            try (InputStream inputStream = configUri.toURL().openStream()) {
-                arserConfig = ArserConfig.fromXml(inputStream);
-            }
+            final ArserConfig arserConfig = ArserConfig.fromXml(args);
 
             final LifecycleManager lifecycleManager = createArser(arserConfig);
 
@@ -114,7 +102,7 @@ public final class ArserJreServerApplication {
         // lifecycleManager.add(httpClientComponent);
 
         // FileRepository
-        arserConfig.getRepositoryConfigsLocal().forEach(config -> {
+        arserConfig.getRepositoryConfigsFile().forEach(config -> {
             final Repository repository = new FileRepository(config.getContextRoot(), config.getUri(), config.isWriteable());
             lifecycleManager.add(repository);
 
@@ -171,65 +159,6 @@ public final class ArserJreServerApplication {
         lifecycleManager.add(proxyServer);
 
         return lifecycleManager;
-    }
-
-    private static URI findConfigFile(final String[] args) throws Exception {
-        LOGGER.info("Try to find arser-config.xml");
-
-        URI configUri = null;
-
-        if (args != null && args.length == 2) {
-            final String parameter = args[0];
-
-            if ("-arser.config".equals(parameter)) {
-                configUri = Path.of(args[1]).toUri();
-            }
-        }
-
-        if (configUri == null) {
-            final String propertyValue = System.getProperty("arser.config");
-
-            if (propertyValue != null) {
-                configUri = Path.of(propertyValue).toUri();
-            }
-        }
-
-        if (configUri == null) {
-            final String envValue = System.getenv("arser.config");
-
-            if (envValue != null) {
-                configUri = Path.of(envValue).toUri();
-            }
-        }
-
-        if (configUri == null) {
-            final URL url = ClassLoader.getSystemResource("arser-config.xml");
-
-            if (url != null) {
-                configUri = url.toURI();
-            }
-        }
-
-        if (configUri == null) {
-            final Path path = Path.of("arser-config.xml");
-
-            if (Files.exists(path)) {
-                configUri = path.toUri();
-            }
-        }
-
-        if (configUri == null) {
-            LOGGER.error("no arser config file found");
-            LOGGER.error("define it as programm argument: -arser.config <ABSOLUTE_PATH>/arser-config.xml");
-            LOGGER.error("or as system property: -Darser.config=<ABSOLUTE_PATH>/arser-config.xml");
-            LOGGER.error("or as environment variable: set/export arser.config=<ABSOLUTE_PATH>/arser-config.xml");
-            LOGGER.error("or in Classpath");
-            LOGGER.error("or in directory of the Proxy-Jar.");
-
-            throw new IllegalStateException("no arser config file found");
-        }
-
-        return configUri;
     }
 
     private ArserJreServerApplication() {

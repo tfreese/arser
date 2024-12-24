@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import de.freese.arser.core.indexer.ArtifactIndexer;
+import de.freese.arser.core.indexer.ArtifactIndexerMemory;
 import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.response.ResponseHandler;
 
@@ -44,6 +46,7 @@ public class VirtualRepository extends AbstractRepository {
         }
     }
 
+    private final ArtifactIndexer artifactIndexer = new ArtifactIndexerMemory();
     private final Map<String, Repository> repositoryMap = new HashMap<>();
 
     public VirtualRepository(final String contextRoot, final List<Repository> repositories) {
@@ -59,18 +62,23 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) {
+    protected boolean doExist(final ResourceRequest resourceRequest) {
+        if (artifactIndexer.findRepository(resourceRequest) != null) {
+            return true;
+        }
+
         boolean exist = false;
 
         for (final Repository repository : repositoryMap.values()) {
             try {
-                exist = repository.exist(request);
+                exist = repository.exist(resourceRequest);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
             if (exist) {
+                artifactIndexer.storeRepository(resourceRequest, repository);
                 break;
             }
         }
@@ -89,7 +97,15 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) {
+    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
+        final Repository repositoryIndexed = artifactIndexer.findRepository(resourceRequest);
+
+        if (repositoryIndexed != null) {
+            repositoryIndexed.streamTo(resourceRequest, handler);
+
+            return;
+        }
+
         final VirtualResponseHandler virtualResponseHandler = new VirtualResponseHandler(handler);
 
         for (final Repository repository : repositoryMap.values()) {
@@ -101,6 +117,7 @@ public class VirtualRepository extends AbstractRepository {
             }
 
             if (virtualResponseHandler.isSuccess()) {
+                artifactIndexer.storeRepository(resourceRequest, repository);
                 break;
             }
         }
