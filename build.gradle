@@ -25,12 +25,15 @@ subprojects {
         }
 
         dependencies {
+            dependency("com.github.spotbugs:spotbugs-annotations:$version_spotbugs")
             dependency("dev.failsafe:failsafe:$version_failsafe")
 
             dependencySet(group: "com.sun.xml.bind:", version: "$version_jaxb") {
                 entry "jaxb-xjc"
                 entry "jaxb-impl"
             }
+
+            dependency("org.apiguardian:apiguardian-api:$version_apiGuardian")
         }
     }
 
@@ -41,6 +44,12 @@ subprojects {
 
             testImplementation("org.awaitility:awaitility")
             testImplementation("org.junit.jupiter:junit-jupiter")
+
+            // To avoid compiler warnings about @API annotations in Log4j Code.
+            // testCompileOnly("com.github.spotbugs:spotbugs-annotations")
+            
+            // To avoid compiler warnings about @API annotations in JUnit Code.
+            testCompileOnly("org.apiguardian:apiguardian-api")
 
             testRuntimeOnly("org.junit.platform:junit-platform-launcher")
         }
