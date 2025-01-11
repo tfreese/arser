@@ -14,14 +14,14 @@ import de.freese.arser.core.response.ResponseHandler;
  */
 public abstract class AbstractRepository extends AbstractLifecycle implements Repository {
 
+    private final URI baseUri;
     private final String contextRoot;
-    private final URI uri;
 
-    protected AbstractRepository(final String contextRoot, final URI uri) {
+    protected AbstractRepository(final String contextRoot, final URI baseUri) {
         super();
 
         this.contextRoot = Objects.requireNonNull(contextRoot, "contextRoot required");
-        this.uri = Objects.requireNonNull(uri, "uri required");
+        this.baseUri = Objects.requireNonNull(baseUri, "baseUri required");
     }
 
     @Override
@@ -38,31 +38,31 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
+    public URI getBaseUri() {
+        return baseUri;
+    }
+
+    @Override
     public String getContextRoot() {
         return contextRoot;
     }
 
     @Override
-    public URI getUri() {
-        return uri;
-    }
-
-    @Override
-    public void streamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
+    public void streamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
         if (!isStarted()) {
             throw new IllegalStateException("Component not started: " + getContextRoot());
         }
 
         if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Resource: {}", resourceRequest.getResource());
+            getLogger().debug("Resource: {}", request.getResource());
         }
 
-        doStreamTo(resourceRequest, handler);
+        doStreamTo(request, handler);
     }
 
     @Override
     public String toString() {
-        return getContextRoot() + ": " + getUri();
+        return getContextRoot() + ": " + getBaseUri();
     }
 
     @Override
@@ -80,9 +80,9 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     protected abstract boolean doExist(ResourceRequest request) throws Exception;
 
-    protected abstract void doStreamTo(ResourceRequest resourceRequest, ResponseHandler handler) throws Exception;
+    protected abstract void doStreamTo(ResourceRequest request, ResponseHandler handler) throws Exception;
 
     protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
-        throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getUri());
+        throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
     }
 }

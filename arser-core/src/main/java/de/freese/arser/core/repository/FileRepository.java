@@ -20,14 +20,14 @@ import de.freese.arser.core.response.ResponseHandler;
 public class FileRepository extends AbstractRepository {
     private final boolean writeable;
 
-    public FileRepository(final String contextRoot, final URI uri, final boolean writeable) {
-        super(contextRoot, uri);
+    public FileRepository(final String contextRoot, final URI baseUri, final boolean writeable) {
+        super(contextRoot, baseUri);
 
         this.writeable = writeable;
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) throws Exception {
+    protected boolean doExist(final ResourceRequest request) {
         final Path path = toPath(request.getResource());
 
         final boolean exist = Files.exists(path);
@@ -46,7 +46,7 @@ public class FileRepository extends AbstractRepository {
 
     @Override
     protected void doStart() throws Exception {
-        final Path path = Paths.get(getUri());
+        final Path path = Paths.get(getBaseUri());
 
         if (!Files.exists(path)) {
             Files.createDirectories(path);
@@ -63,8 +63,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
-        final Path path = toPath(resourceRequest.getResource());
+    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+        final Path path = toPath(request.getResource());
 
         if (Files.exists(path)) {
             if (getLogger().isDebugEnabled()) {
@@ -88,7 +88,7 @@ public class FileRepository extends AbstractRepository {
     @Override
     protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
         if (!writeable) {
-            throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getUri());
+            throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
         }
 
         final Path path = toPath(request.getResource());
@@ -107,7 +107,7 @@ public class FileRepository extends AbstractRepository {
     protected Path toPath(final URI resource) {
         final Path relativePath = toRelativePath(resource);
 
-        return Paths.get(getUri()).resolve(relativePath);
+        return Paths.get(getBaseUri()).resolve(relativePath);
     }
 
     protected Path toRelativePath(final URI resource) {

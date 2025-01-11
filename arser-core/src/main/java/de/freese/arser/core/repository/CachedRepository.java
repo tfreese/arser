@@ -58,19 +58,19 @@ public class CachedRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
-        final URI remoteUri = resourceRequest.getResource();
+    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+        final URI remoteUri = request.getResource();
 
         if (remoteUri.getPath().endsWith("maven-metadata.xml")) {
             // Never save these files, versions:display-dependency-updates won't work!
-            delegate.streamTo(resourceRequest, handler);
+            delegate.streamTo(request, handler);
         }
         else {
             final BlobId blobId = new BlobId(remoteUri);
 
             if (getBlobStore().exists(blobId)) {
                 if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Resource - found: {}", resourceRequest);
+                    getLogger().debug("Resource - found: {}", request);
                 }
 
                 final Blob blob = getBlobStore().get(blobId);
@@ -81,10 +81,10 @@ public class CachedRepository extends AbstractRepository {
             }
             else {
                 if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Resource - not found: {}", resourceRequest);
+                    getLogger().debug("Resource - not found: {}", request);
                 }
 
-                delegate.streamTo(resourceRequest, handler);
+                delegate.streamTo(request, handler);
             }
         }
     }

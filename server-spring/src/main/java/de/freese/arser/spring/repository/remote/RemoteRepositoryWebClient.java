@@ -26,15 +26,15 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
     private final WebClient webClient;
 
-    public RemoteRepositoryWebClient(final String name, final URI uri, final WebClient webClient) {
-        super(name, uri);
+    public RemoteRepositoryWebClient(final String name, final URI baseUri, final WebClient webClient) {
+        super(name, baseUri);
 
         this.webClient = Objects.requireNonNull(webClient, "webClient required");
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
+    protected boolean doExist(final ResourceRequest request) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("exist - Request: {}", remoteUri);
@@ -61,8 +61,8 @@ public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
+    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("Resource - Request: {}", remoteUri);

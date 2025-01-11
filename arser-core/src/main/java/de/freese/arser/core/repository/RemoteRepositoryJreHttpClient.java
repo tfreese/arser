@@ -22,13 +22,13 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
 
     private HttpClient httpClient;
 
-    public RemoteRepositoryJreHttpClient(final String contextRoot, final URI uri) {
-        super(contextRoot, uri);
+    public RemoteRepositoryJreHttpClient(final String contextRoot, final URI baseUri) {
+        super(contextRoot, baseUri);
     }
 
     @Override
     protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), request.getResource());
+        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
@@ -77,8 +77,8 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
+    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)

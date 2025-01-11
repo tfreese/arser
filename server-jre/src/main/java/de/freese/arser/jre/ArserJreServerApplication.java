@@ -114,7 +114,7 @@ public final class ArserJreServerApplication {
             final Repository repository = new RemoteRepositoryJreHttpClient(config.getContextRoot(), config.getUri());
 
             // if (config.getStoreConfig() instanceof FileStoreConfig fsc) {
-            //     final BlobStoreComponent blobStoreComponent = new BlobStoreComponent(new FileBlobStore(fsc.getUri()));
+            //     final BlobStoreComponent blobStoreComponent = new BlobStoreComponent(new FileBlobStore(fsc.getBaseUri()));
             //     lifecycleManager.add(blobStoreComponent);
             //
             //     repository = new CachedRepository(repository, blobStoreComponent.getBlobStore());

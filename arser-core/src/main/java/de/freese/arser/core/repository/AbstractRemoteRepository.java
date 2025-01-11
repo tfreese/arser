@@ -8,8 +8,8 @@ import java.net.URI;
  */
 public abstract class AbstractRemoteRepository extends AbstractRepository {
 
-    protected AbstractRemoteRepository(final String contextRoot, final URI uri) {
-        super(contextRoot, uri);
+    protected AbstractRemoteRepository(final String contextRoot, final URI baseUri) {
+        super(contextRoot, baseUri);
     }
 
     protected URI createRemoteUri(final URI uri, final URI resource) {
@@ -31,7 +31,7 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
 
     @Override
     protected void doStart() throws Exception {
-        final String scheme = getUri().getScheme();
+        final String scheme = getBaseUri().getScheme();
 
         if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
             final String msg = "HTTP or HTTPS protocol required: " + scheme;

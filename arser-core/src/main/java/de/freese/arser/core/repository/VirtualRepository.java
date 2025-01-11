@@ -62,8 +62,8 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) {
-        if (artifactIndexer.findRepository(resourceRequest) != null) {
+    protected boolean doExist(final ResourceRequest request) {
+        if (artifactIndexer.findRepository(request) != null) {
             return true;
         }
 
@@ -71,14 +71,14 @@ public class VirtualRepository extends AbstractRepository {
 
         for (final Repository repository : repositoryMap.values()) {
             try {
-                exist = repository.exist(resourceRequest);
+                exist = repository.exist(request);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
             if (exist) {
-                artifactIndexer.storeRepository(resourceRequest, repository);
+                artifactIndexer.storeRepository(request, repository.getContextRoot());
                 break;
             }
         }
@@ -97,11 +97,12 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
-        final Repository repositoryIndexed = artifactIndexer.findRepository(resourceRequest);
+    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+        final String repositoryContextRoot = artifactIndexer.findRepository(request);
+        final Repository repositoryIndexed = repositoryMap.get(repositoryContextRoot);
 
         if (repositoryIndexed != null) {
-            repositoryIndexed.streamTo(resourceRequest, handler);
+            repositoryIndexed.streamTo(request, handler);
 
             return;
         }
@@ -110,14 +111,14 @@ public class VirtualRepository extends AbstractRepository {
 
         for (final Repository repository : repositoryMap.values()) {
             try {
-                repository.streamTo(resourceRequest, virtualResponseHandler);
+                repository.streamTo(request, virtualResponseHandler);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
             if (virtualResponseHandler.isSuccess()) {
-                artifactIndexer.storeRepository(resourceRequest, repository);
+                artifactIndexer.storeRepository(request, repository.getContextRoot());
                 break;
             }
         }

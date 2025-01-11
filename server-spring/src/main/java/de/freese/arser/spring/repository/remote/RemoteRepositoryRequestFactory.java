@@ -25,15 +25,15 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
     private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public RemoteRepositoryRequestFactory(final String name, final URI uri, final ClientHttpRequestFactory clientHttpRequestFactory) {
-        super(name, uri);
+    public RemoteRepositoryRequestFactory(final String name, final URI baseUri, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        super(name, baseUri);
 
         this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
+    protected boolean doExist(final ResourceRequest request) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
 
         final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(remoteUri, HttpMethod.HEAD);
         clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
@@ -52,8 +52,8 @@ public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
     }
 
     @Override
-    protected void doStreamTo(final ResourceRequest resourceRequest, final ResponseHandler handler) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), resourceRequest.getResource());
+    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
 
         final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(remoteUri, HttpMethod.GET);
         clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));

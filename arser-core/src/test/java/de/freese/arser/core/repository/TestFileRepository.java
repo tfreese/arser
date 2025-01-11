@@ -71,7 +71,7 @@ class TestFileRepository {
         final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
         repository.start();
 
-        final Path path = Path.of(repository.getUri()).resolve(RESOURCE);
+        final Path path = Path.of(repository.getBaseUri()).resolve(RESOURCE);
         Files.createDirectories(path.getParent());
         Files.writeString(path, "test");
 
@@ -113,7 +113,7 @@ class TestFileRepository {
         final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
         repository.start();
 
-        final Path path = Path.of(repository.getUri()).resolve(RESOURCE);
+        final Path path = Path.of(repository.getBaseUri()).resolve(RESOURCE);
         Files.createDirectories(path.getParent());
         Files.writeString(path, "test");
 
@@ -171,7 +171,7 @@ class TestFileRepository {
             repository.stop();
         }
 
-        final Path path = Path.of(repository.getUri()).resolve(RESOURCE);
+        final Path path = Path.of(repository.getBaseUri()).resolve(RESOURCE);
         assertTrue(Files.exists(path));
 
         assertEquals("test", Files.readString(path));
@@ -196,7 +196,7 @@ class TestFileRepository {
             repository.stop();
         }
 
-        final Path path = Path.of(repository.getUri()).resolve(RESOURCE);
+        final Path path = Path.of(repository.getBaseUri()).resolve(RESOURCE);
         assertFalse(Files.exists(path));
     }
 }

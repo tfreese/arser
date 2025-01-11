@@ -15,13 +15,17 @@ public interface Repository extends Lifecycle {
 
     boolean exist(ResourceRequest request) throws Exception;
 
+    URI getBaseUri();
+
     String getContextRoot();
 
-    URI getUri();
-
-    void streamTo(ResourceRequest resourceRequest, ResponseHandler handler) throws Exception;
+    void streamTo(ResourceRequest request, ResponseHandler handler) throws Exception;
 
     default void write(final ResourceRequest request, final InputStream inputStream) throws Exception {
-        throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getUri());
+        throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
     }
+
+    // default void write(final ResourceRequest request, final Consumer<URI> uriConsumer) throws Exception {
+    //     throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
+    // }
 }
