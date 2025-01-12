@@ -175,7 +175,7 @@ class TestArserJreServer {
 
             final String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             assertNotNull(content);
-            assertEquals("HTTP-STATUS: 404 for https://repo1.maven.org/maven2/a" + RESOURCE, content);
+            assertEquals("HTTP-STATUS: 404 for /a" + RESOURCE, content);
         }
     }
 

@@ -6,7 +6,6 @@ import java.net.URI;
 
 import de.freese.arser.core.lifecycle.Lifecycle;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
@@ -19,13 +18,16 @@ public interface Repository extends Lifecycle {
 
     String getContextRoot();
 
-    void streamTo(ResourceRequest request, ResponseHandler handler) throws Exception;
+    /**
+     * Schemes:
+     * <ul>
+     *     <li>file for local cached/stored resources</li>
+     *     <li>http/https for remote resources</li>
+     * </ul>
+     */
+    URI getDownloadUri(ResourceRequest request) throws Exception;
 
     default void write(final ResourceRequest request, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
     }
-
-    // default void write(final ResourceRequest request, final Consumer<URI> uriConsumer) throws Exception {
-    //     throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
-    // }
 }

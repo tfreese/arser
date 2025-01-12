@@ -4,15 +4,22 @@ package de.freese.arser.spring.facade;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import de.freese.arser.Arser;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
+import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * <a href="https://dev.to/rpkr/different-ways-to-send-a-file-as-a-response-in-spring-boot-for-a-rest-api-43g7">different-ways-to-send-a-file</a>
@@ -39,11 +46,13 @@ public class ArserRestController {
 
     // @Resource
     private final Arser arser;
+    private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public ArserRestController(final Arser arser) {
+    public ArserRestController(final Arser arser, final ClientHttpRequestFactory clientHttpRequestFactory) {
         super();
 
         this.arser = Objects.requireNonNull(arser, "arser required");
+        this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
 
     /**
@@ -60,70 +69,12 @@ public class ArserRestController {
      *
      * StreamingResponseBody, InputStreamResource working booth alone and with ResponseEntity.
      */
-    // @GetMapping
-    // public ResponseEntity<StreamingResponseBody> doGet(final HttpServletRequest httpServletRequest) {
-    //     // LOGGER.info("doGet: {}", httpServletRequest.getRequestURI());
-    //
-    //     final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
-    //
-    //     final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
-    //
-    //     if (repository == null) {
-    //         return ResponseEntity.notFound().build();
-    //     }
-    //
-    //     final StreamingResponseBody streamingResponseBody = outputStream -> {
-    //         try {
-    //             repository.streamTo(resourceRequest, new ResponseHandler() {
-    //                 @Override
-    //                 public void onError(final Exception exception) {
-    //                     // Empty
-    //                 }
-    //
-    //                 @Override
-    //                 public void onSuccess(final long contentLength, final InputStream inputStream) {
-    //                     try {
-    //                         inputStream.transferTo(outputStream);
-    //                         outputStream.flush();
-    //                     }
-    //                     catch (IOException ex) {
-    //                         throw new UncheckedIOException(ex);
-    //                     }
-    //                 }
-    //             });
-    //         }
-    //         catch (RuntimeException ex) {
-    //             throw ex;
-    //         }
-    //         catch (IOException ex) {
-    //             throw new UncheckedIOException(ex);
-    //         }
-    //         catch (Exception ex) {
-    //             throw new RuntimeException(ex);
-    //         }
-    //     };
-    //
-    //     return ResponseEntity.ok(streamingResponseBody);
-    //
-    //     // return ResponseEntity.ok(new InputStreamResource(new FilterInputStream(resourceResponse.createInputStream()) {
-    //     //     @Override
-    //     //     public void close() throws IOException {
-    //     //         super.close();
-    //     //
-    //     //         resourceResponse.close();
-    //     //     }
-    //     // }));
-    //     // }
-    //     // catch (Exception ex) {
-    //     //     final byte[] errorMessage = ex.getMessage().getBytes(StandardCharsets.UTF_8);
-    //     //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new InputStreamResource(new ByteArrayInputStream(errorMessage)));
-    //     // }
-    // }
     @GetMapping
     public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final ResourceRequest resourceRequest = ResourceRequest.of(request.getRequestURI());
 
-        response.setContentType("application/binary");
+        // response.setContentType("application/binary");
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
         final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
@@ -135,28 +86,54 @@ public class ArserRestController {
         }
 
         try {
-            repository.streamTo(resourceRequest, new ResponseHandler() {
-                @Override
-                public void onError(final Exception exception) throws Exception {
+            final URI downloadUri = repository.getDownloadUri(resourceRequest);
+
+            if (downloadUri == null) {
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+
+                try (OutputStream outputStream = response.getOutputStream()) {
+                    final String message = "HTTP-STATUS: %d for %s".formatted(HttpStatus.NOT_FOUND.value(), resourceRequest.getResource());
+                    outputStream.write(message.getBytes(StandardCharsets.UTF_8));
+                    outputStream.flush();
+                }
+
+                return;
+            }
+
+            final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(downloadUri, HttpMethod.GET);
+            clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
+            clientHttpRequest.getHeaders().put("Accept", List.of(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+
+            try (ClientHttpResponse clientHttpResponse = clientHttpRequest.execute()) {
+                final int responseCode = clientHttpResponse.getStatusCode().value();
+
+                if (responseCode != ArserUtils.HTTP_STATUS_OK) {
+                    // Drain Body.
+                    try (InputStream inputStream = clientHttpResponse.getBody()) {
+                        inputStream.transferTo(OutputStream.nullOutputStream());
+                    }
+
                     response.setStatus(HttpStatus.NOT_FOUND.value());
 
                     try (OutputStream outputStream = response.getOutputStream()) {
-                        outputStream.write(exception.getMessage().getBytes(StandardCharsets.UTF_8));
+                        final String message = "HTTP-STATUS: %d for %s".formatted(responseCode, downloadUri.toString());
+                        outputStream.write(message.getBytes(StandardCharsets.UTF_8));
                         outputStream.flush();
                     }
+
+                    return;
                 }
 
-                @Override
-                public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
-                    response.setStatus(HttpStatus.OK.value());
-                    response.setContentLengthLong(contentLength);
+                final long contentLength = clientHttpResponse.getHeaders().getContentLength();
+                response.setStatus(HttpStatus.OK.value());
+                response.setContentLengthLong(contentLength);
 
-                    try (OutputStream outputStream = response.getOutputStream()) {
-                        inputStream.transferTo(outputStream);
-                        outputStream.flush();
-                    }
+                try (InputStream inputStream = clientHttpResponse.getBody();
+                     OutputStream outputStream = response.getOutputStream()) {
+                    inputStream.transferTo(outputStream);
+                    outputStream.flush();
                 }
-            });
+            }
         }
         finally {
             response.flushBuffer();

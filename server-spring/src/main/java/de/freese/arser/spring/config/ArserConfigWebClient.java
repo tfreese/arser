@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.JdkClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -73,6 +75,11 @@ public class ArserConfigWebClient {
         // return new ReactorClientHttpConnector(httpClient);
 
         return new JdkClientHttpConnector();
+    }
+
+    @Bean
+    ClientHttpRequestFactory clientHttpRequestFactory() {
+        return new JdkClientHttpRequestFactory();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

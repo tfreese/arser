@@ -4,23 +4,18 @@ package de.freese.arser.core.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
@@ -68,43 +63,20 @@ class TestJreRemoteRepository {
     }
 
     @Test
-    void testStreamTo() throws Exception {
-        final String contentRoot = "stream-to";
+    void testGetDownloadUri() throws Exception {
+        final String contentRoot = "download-uri";
 
         final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
 
-        final AtomicLong contentLengthAtomicLong = new AtomicLong(0);
-        final AtomicReference<byte[]> dataAtomicReference = new AtomicReference<>();
-
         try {
-            repository.streamTo(resourceRequest, new ResponseHandler() {
-                @Override
-                public void onError(final Exception exception) {
-                    fail();
-                }
+            final URI uri = repository.getDownloadUri(resourceRequest);
 
-                @Override
-                public void onSuccess(final long contentLength, final InputStream inputStream) {
-                    assertTrue(contentLength > 0);
-                    assertNotNull(inputStream);
-
-                    contentLengthAtomicLong.set(contentLength);
-
-                    try {
-                        dataAtomicReference.set(inputStream.readAllBytes());
-                    }
-                    catch (IOException ex) {
-                        throw new UncheckedIOException(ex);
-                    }
-                }
-            });
-
-            assertTrue(contentLengthAtomicLong.get() > 0);
-            assertNotNull(dataAtomicReference.get());
-            assertEquals(contentLengthAtomicLong.get(), dataAtomicReference.get().length);
+            assertNotNull(uri);
+            assertEquals("https", uri.getScheme());
+            assertEquals(uri, URI.create(REMOTE_REPO + "/" + RESOURCE));
         }
         finally {
             repository.stop();
@@ -112,32 +84,18 @@ class TestJreRemoteRepository {
     }
 
     @Test
-    void testStreamToFail() throws Exception {
-        final String contentRoot = "stream-to-fail";
+    void testGetDownloadUriFail() throws Exception {
+        final String contentRoot = "download-uri-fail";
 
         final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
 
-        final AtomicReference<Exception> atomicReference = new AtomicReference<>();
-
         try {
-            repository.streamTo(resourceRequest, new ResponseHandler() {
-                @Override
-                public void onError(final Exception exception) {
-                    atomicReference.set(exception);
-                }
+            final URI uri = repository.getDownloadUri(resourceRequest);
 
-                @Override
-                public void onSuccess(final long contentLength, final InputStream inputStream) {
-                    fail();
-                }
-            });
-
-            assertNotNull(atomicReference.get());
-            assertEquals(IOException.class, atomicReference.get().getClass());
-            assertEquals("HTTP-STATUS: 404 for " + REMOTE_REPO + "/a" + RESOURCE, atomicReference.get().getMessage());
+            assertNull(uri);
         }
         finally {
             repository.stop();

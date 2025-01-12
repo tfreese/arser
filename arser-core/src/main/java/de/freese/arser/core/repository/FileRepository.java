@@ -1,9 +1,7 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -12,7 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
@@ -45,6 +42,13 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
+    protected URI doGetDownloadUri(final ResourceRequest request) {
+        final Path path = toPath(request.getResource());
+
+        return path.toUri();
+    }
+
+    @Override
     protected void doStart() throws Exception {
         final Path path = Paths.get(getBaseUri());
 
@@ -60,29 +64,6 @@ public class FileRepository extends AbstractRepository {
     @Override
     protected void doStop() throws Exception {
         // Empty
-    }
-
-    @Override
-    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
-        final Path path = toPath(request.getResource());
-
-        if (Files.exists(path)) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Resource - found: {}", path);
-            }
-
-            try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(path))) {
-                handler.onSuccess(Files.size(path), inputStream);
-            }
-
-            return;
-        }
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Resource - not found: {}", path);
-        }
-
-        handler.onError(new FileNotFoundException(path.toString()));
     }
 
     @Override
@@ -110,8 +91,8 @@ public class FileRepository extends AbstractRepository {
         return Paths.get(getBaseUri()).resolve(relativePath);
     }
 
-    protected Path toRelativePath(final URI resource) {
-        String uriPath = resource.getPath();
+    protected Path toRelativePath(final URI uri) {
+        String uriPath = uri.getPath();
         uriPath = uriPath.replace(' ', '_');
 
         if (uriPath.startsWith("/")) {

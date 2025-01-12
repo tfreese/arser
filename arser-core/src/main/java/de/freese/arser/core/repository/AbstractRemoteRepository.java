@@ -3,6 +3,8 @@ package de.freese.arser.core.repository;
 
 import java.net.URI;
 
+import de.freese.arser.core.request.ResourceRequest;
+
 /**
  * @author Thomas Freese
  */
@@ -12,8 +14,8 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
         super(contextRoot, baseUri);
     }
 
-    protected URI createRemoteUri(final URI uri, final URI resource) {
-        String path = uri.getPath();
+    protected URI createRemoteUri(final URI baseUri, final URI resource) {
+        String path = baseUri.getPath();
         final String pathResource = resource.getPath();
 
         if (path.endsWith("/") && pathResource.startsWith("/")) {
@@ -26,7 +28,16 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
             path += pathResource;
         }
 
-        return uri.resolve(path);
+        return baseUri.resolve(path);
+    }
+
+    @Override
+    protected URI doGetDownloadUri(final ResourceRequest request) throws Exception {
+        if (exist(request)) {
+            return createRemoteUri(getBaseUri(), request.getResource());
+        }
+
+        return null;
     }
 
     @Override

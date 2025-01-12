@@ -1,15 +1,12 @@
 // Created: 03.05.2021
 package de.freese.arser.core.repository;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Objects;
 
-import de.freese.arser.blobstore.api.Blob;
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
@@ -48,6 +45,39 @@ public class CachedRepository extends AbstractRepository {
     }
 
     @Override
+    protected URI doGetDownloadUri(final ResourceRequest request) throws Exception {
+        final URI remoteUri = request.getResource();
+
+        if (remoteUri.getPath().endsWith("maven-metadata.xml")) {
+            // Never save these files, versions:display-dependency-updates won't work!
+            return delegate.getDownloadUri(request);
+        }
+
+        final BlobId blobId = new BlobId(remoteUri);
+
+        if (getBlobStore().exists(blobId)) {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Resource - found: {}", request);
+            }
+
+            // final Blob blob = getBlobStore().get(blobId);
+
+            return blobId.getUri();
+        }
+        else {
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Resource - not found: {}", request);
+            }
+
+            // final URI uri = delegate.getDownloadUri(request);
+
+            // TODO Download and save
+        }
+
+        return null;
+    }
+
+    @Override
     protected void doStart() throws Exception {
         delegate.start();
     }
@@ -55,38 +85,6 @@ public class CachedRepository extends AbstractRepository {
     @Override
     protected void doStop() throws Exception {
         delegate.stop();
-    }
-
-    @Override
-    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
-        final URI remoteUri = request.getResource();
-
-        if (remoteUri.getPath().endsWith("maven-metadata.xml")) {
-            // Never save these files, versions:display-dependency-updates won't work!
-            delegate.streamTo(request, handler);
-        }
-        else {
-            final BlobId blobId = new BlobId(remoteUri);
-
-            if (getBlobStore().exists(blobId)) {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Resource - found: {}", request);
-                }
-
-                final Blob blob = getBlobStore().get(blobId);
-
-                try (InputStream inputStream = blob.createBufferedInputStream()) {
-                    handler.onSuccess(blob.getLength(), inputStream);
-                }
-            }
-            else {
-                if (getLogger().isDebugEnabled()) {
-                    getLogger().debug("Resource - not found: {}", request);
-                }
-
-                delegate.streamTo(request, handler);
-            }
-        }
     }
 
     protected BlobStore getBlobStore() {

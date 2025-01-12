@@ -1,50 +1,19 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import de.freese.arser.core.indexer.ArtifactIndexer;
 import de.freese.arser.core.indexer.ArtifactIndexerMemory;
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
  */
 public class VirtualRepository extends AbstractRepository {
-
-    private static final class VirtualResponseHandler implements ResponseHandler {
-        private final ResponseHandler responseHandler;
-
-        private boolean success;
-
-        private VirtualResponseHandler(final ResponseHandler responseHandler) {
-            super();
-
-            this.responseHandler = Objects.requireNonNull(responseHandler, "responseHandler required");
-        }
-
-        @Override
-        public void onError(final Exception exception) throws Exception {
-            responseHandler.onError(exception);
-        }
-
-        @Override
-        public void onSuccess(final long contentLength, final InputStream inputStream) throws Exception {
-            responseHandler.onSuccess(contentLength, inputStream);
-
-            success = true;
-        }
-
-        private boolean isSuccess() {
-            return success;
-        }
-    }
 
     private final ArtifactIndexer artifactIndexer = new ArtifactIndexerMemory();
     private final Map<String, Repository> repositoryMap = new HashMap<>();
@@ -87,6 +56,33 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
+    protected URI doGetDownloadUri(final ResourceRequest request) throws Exception {
+        final String repositoryContextRoot = artifactIndexer.findRepository(request);
+        final Repository repositoryIndexed = repositoryMap.get(repositoryContextRoot);
+
+        if (repositoryIndexed != null) {
+            return repositoryIndexed.getDownloadUri(request);
+        }
+
+        for (final Repository repository : repositoryMap.values()) {
+            URI uri = null;
+
+            try {
+                uri = repository.getDownloadUri(request);
+            }
+            catch (final Exception ex) {
+                getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
+            }
+
+            if (uri != null) {
+                return uri;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     protected void doStart() throws Exception {
         // Empty
     }
@@ -94,33 +90,5 @@ public class VirtualRepository extends AbstractRepository {
     @Override
     protected void doStop() throws Exception {
         // Empty
-    }
-
-    @Override
-    protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
-        final String repositoryContextRoot = artifactIndexer.findRepository(request);
-        final Repository repositoryIndexed = repositoryMap.get(repositoryContextRoot);
-
-        if (repositoryIndexed != null) {
-            repositoryIndexed.streamTo(request, handler);
-
-            return;
-        }
-
-        final VirtualResponseHandler virtualResponseHandler = new VirtualResponseHandler(handler);
-
-        for (final Repository repository : repositoryMap.values()) {
-            try {
-                repository.streamTo(request, virtualResponseHandler);
-            }
-            catch (final Exception ex) {
-                getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
-            }
-
-            if (virtualResponseHandler.isSuccess()) {
-                artifactIndexer.storeRepository(request, repository.getContextRoot());
-                break;
-            }
-        }
     }
 }

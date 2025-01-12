@@ -6,12 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -19,15 +17,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.core.request.ResourceRequest;
-import de.freese.arser.core.response.ResponseHandler;
 
 /**
  * @author Thomas Freese
@@ -107,10 +102,11 @@ class TestFileRepository {
     }
 
     @Test
-    void testStreamTo() throws Exception {
-        final String contentRoot = "stream-to";
+    void testGetDownloadUri() throws Exception {
+        final String contentRoot = "download-uri";
+        final Path basePath = PATH_TEST.resolve(contentRoot);
 
-        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
+        final Repository repository = new FileRepository(contentRoot, basePath.toUri(), false);
         repository.start();
 
         final Path path = Path.of(repository.getBaseUri()).resolve(RESOURCE);
@@ -119,36 +115,17 @@ class TestFileRepository {
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
 
-        final AtomicLong contentLengthAtomicLong = new AtomicLong(0);
-        final AtomicReference<byte[]> dataAtomicReference = new AtomicReference<>();
-
         try {
-            repository.streamTo(resourceRequest, new ResponseHandler() {
-                @Override
-                public void onError(final Exception exception) {
-                    fail();
-                }
+            final URI uri = repository.getDownloadUri(resourceRequest);
 
-                @Override
-                public void onSuccess(final long contentLength, final InputStream inputStream) {
-                    assertTrue(contentLength > 0);
-                    assertNotNull(inputStream);
+            assertNotNull(uri);
+            assertEquals("file", uri.getScheme());
 
-                    contentLengthAtomicLong.set(contentLength);
+            final Path uriPath = Path.of(uri);
 
-                    try {
-                        dataAtomicReference.set(inputStream.readAllBytes());
-                    }
-                    catch (IOException ex) {
-                        throw new UncheckedIOException(ex);
-                    }
-                }
-            });
-
-            assertTrue(contentLengthAtomicLong.get() > 0);
-            assertNotNull(dataAtomicReference.get());
-            assertEquals(contentLengthAtomicLong.get(), dataAtomicReference.get().length);
-            assertEquals("test", new String(dataAtomicReference.get(), StandardCharsets.UTF_8));
+            assertTrue(Files.exists(uriPath));
+            assertTrue(Files.size(uriPath) > 0);
+            assertEquals("test", Files.readString(uriPath));
         }
         finally {
             repository.stop();
