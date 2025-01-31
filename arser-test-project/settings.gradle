@@ -4,7 +4,7 @@ pluginManagement {
         // mavenCentral()
         // gradlePluginPortal()
         maven {
-            url "http://localhost:7999/public"
+            url = "http://localhost:7999/public"
             allowInsecureProtocol = true
         }
     }
@@ -15,14 +15,14 @@ dependencyResolutionManagement {
         // mavenLocal()
         // mavenCentral()
         maven {
-            url "http://localhost:7999/public"
+            url = "http://localhost:7999/public"
             allowInsecureProtocol = true
             mavenContent {
                 releasesOnly()
             }
         }
         maven {
-            url "http://localhost:7999/public-snapshots"
+            url = "http://localhost:7999/public-snapshots"
             allowInsecureProtocol = true
             mavenContent {
                 snapshotsOnly()

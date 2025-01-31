@@ -18,7 +18,7 @@ dependencies {
 // https://docs.gradle.org/current/userguide/publishing_maven.html
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        testApi(MavenPublication) {
             from components.java
 
             pom {
@@ -30,11 +30,8 @@ publishing {
 
     repositories {
         maven {
-            // def releasesRepoUrl = layout.buildDirectory.dir('repos/releases')
-            // def snapshotsRepoUrl = layout.buildDirectory.dir('repos/snapshots')
-            // url = project.hasProperty("release") ? releasesRepoUrl : snapshotsRepoUrl
-
             url = "http://localhost:7999/deploy-snapshots"
+            name = "arser"
             allowInsecureProtocol = true
         }
     }
