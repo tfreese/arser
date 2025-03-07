@@ -10,9 +10,9 @@ arser:
 
 info:
     app:
-        name: ${project.artifactId}
-        description: ${project.description}
-        version: ${project.version}
+        name: ${project_artifactId}
+        description: ${project_description}
+        version: ${project_version}
 
 logging:
     #config: classpath:my-logging.xml

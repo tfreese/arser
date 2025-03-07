@@ -3,8 +3,10 @@ plugins {
 }
 
 clean {
+    Directory projectDir = layout.projectDirectory
+
     doFirst {
-        Directory dirApp = layout.projectDirectory.dir("app")
+        Directory dirApp = projectDir.dir("app")
 
         if (dirApp.getAsFile().exists()) {
             println("delete " + dirApp)

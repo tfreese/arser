@@ -18,16 +18,16 @@ dependencies {
 ext.artifactId = project.name
 
 processResources {
-    // def map = [
-    //         "project.artifactId" : project.name,
-    //         "project.description": project.description,
-    //         "project.version"    : project.version
-    // ]
+    def map = [
+            "project_artifactId" : project.name,
+            "project_description": project.description,
+            "project_version"    : project.version
+    ]
 
     filesMatching(["application*.yml", "application*.yaml", "application*.properties"]) {
-        filteringCharset = "UTF-8"
+        // filteringCharset = "UTF-8"
 
-        expand(project.properties)
-        // expand(map)
+        // expand(project.properties)
+        expand(map)
     }
 }
