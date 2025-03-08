@@ -11,9 +11,9 @@ configurations {
 //}
 
 dependencies {
-    jaxb "com.sun.xml.bind:jaxb-impl"
-    jaxb "com.sun.xml.bind:jaxb-xjc" // xsd -> java
-    jaxb "com.sun.xml.bind:jaxb-jxc" // java -> xsd
+    jaxb("com.sun.xml.bind:jaxb-impl")
+    jaxb("com.sun.xml.bind:jaxb-xjc") // xsd -> java
+    jaxb("com.sun.xml.bind:jaxb-jxc") // java -> xsd
 
 //    compile(files(genJaxb.classesDir).builtBy(genJaxb))
 
@@ -29,18 +29,6 @@ sourceSets {
             srcDir(destDir)
         }
     }
-
-//    other {
-//        java {
-//            srcDir "src/other/java"
-//        }
-//        resources {
-//            srcDir "src/other/resources"
-//        }
-//
-//        compileClasspath += sourceSets.main.compileClasspath
-//        runtimeClasspath += sourceSets.main.runtimeClasspath
-//    }
 }
 
 tasks.register("genJaxb") {
@@ -93,4 +81,4 @@ tasks.register("genJaxb") {
     }
     // }
 }
-compileJava.dependsOn "genJaxb"
+compileJava.dependsOn("genJaxb")
