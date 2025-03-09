@@ -15,20 +15,23 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
+import de.freese.arser.EnabledIfReachable;
 import de.freese.arser.core.request.ResourceRequest;
 
 /**
  * @author Thomas Freese
  */
 class TestJreRemoteRepository {
-    private static final URI REMOTE_REPO = URI.create("https://repo1.maven.org/maven2");
+    private static final String REMOTE_REPO = "https://repo1.maven.org/maven2";
+    private static final URI REMOTE_REPO_URI = URI.create(REMOTE_REPO);
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
 
     @Test
+    @EnabledIfReachable(uri = REMOTE_REPO, timeoutMillis = 1000)
     void testExist() throws Exception {
         final String contentRoot = "exist";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -44,10 +47,11 @@ class TestJreRemoteRepository {
     }
 
     @Test
+    @EnabledIfReachable(uri = REMOTE_REPO, timeoutMillis = 1000)
     void testExistFail() throws Exception {
         final String contentRoot = "exist-fail";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
@@ -63,10 +67,11 @@ class TestJreRemoteRepository {
     }
 
     @Test
+    @EnabledIfReachable(uri = REMOTE_REPO, timeoutMillis = 1000)
     void testGetDownloadUri() throws Exception {
         final String contentRoot = "download-uri";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -76,7 +81,7 @@ class TestJreRemoteRepository {
 
             assertNotNull(uri);
             assertEquals("https", uri.getScheme());
-            assertEquals(uri, URI.create(REMOTE_REPO + "/" + RESOURCE));
+            assertEquals(uri, URI.create(REMOTE_REPO_URI + "/" + RESOURCE));
         }
         finally {
             repository.stop();
@@ -84,10 +89,11 @@ class TestJreRemoteRepository {
     }
 
     @Test
+    @EnabledIfReachable(uri = REMOTE_REPO, timeoutMillis = 1000)
     void testGetDownloadUriFail() throws Exception {
         final String contentRoot = "download-uri-fail";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
@@ -103,6 +109,7 @@ class TestJreRemoteRepository {
     }
 
     @Test
+    @EnabledIfReachable(uri = REMOTE_REPO, timeoutMillis = 1000)
     void testWriteableFail() throws Exception {
         final String contentRoot = "writeable-fail";
 
