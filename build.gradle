@@ -1,7 +1,7 @@
 // Execute Tasks in SubModule: gradle MODUL:clean build
 plugins {
     id "de.freese.gradle.java.conventions" version "$version_myJavaConventionPlugin" apply false
-    id "io.spring.dependency-management" version "$version_springDependencyManagement" apply false
+    id "io.spring.dependency-management" version "$version_springDependencyManagementPlugin" apply false
 }
 
 allprojects {
@@ -47,7 +47,7 @@ subprojects {
 
             // To avoid compiler warnings about @API annotations in Log4j Code.
             // testCompileOnly("com.github.spotbugs:spotbugs-annotations")
-            
+
             // To avoid compiler warnings about @API annotations in JUnit Code.
             testCompileOnly("org.apiguardian:apiguardian-api")
 
