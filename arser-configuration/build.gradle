@@ -1,5 +1,5 @@
 plugins {
-    id "java-library"
+    id("java-library")
 }
 
 configurations {
@@ -36,17 +36,17 @@ tasks.register("genJaxb") {
 
     def resourcesDir = layout.projectDirectory.dir("src").dir("main").dir("resources").dir("xsd")
     def schema = resourcesDir.file("arser-config.xsd")
-    inputs.file schema
+    inputs.file(schema)
     def binding = resourcesDir.file("schema.xjb")
-    inputs.file binding
+    inputs.file(binding)
 
-    outputs.dir destDir
+    outputs.dir(destDir)
 
     // doLast {
-    mkdir destDir
+    mkdir(destDir)
 
     ant {
-        taskdef name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath
+        taskdef(name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath)
 
         xjc(destdir: destDir,
                 schema: schema,
@@ -70,7 +70,7 @@ tasks.register("genJaxb") {
             produces(dir: destDir, includes: "**/*.java")
         }
 
-//            taskdef name: "jxc", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.jaxb.asPath
+//            taskdef(name: "jxc", classname: "com.sun.tools.jxc.SchemaGenTask", classpath: configurations.jaxb.asPath)
 //
 //            jxc(srcdir: destDir,
 //                    destdir: layout.buildDirectory.get(),

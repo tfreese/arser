@@ -1,5 +1,5 @@
 plugins {
-    id "java"
+    id("java")
 }
 
 clean {
@@ -10,8 +10,8 @@ clean {
 
         if (dirApp.getAsFile().exists()) {
             println("delete " + dirApp)
-//        delete fileTree(dirApp).include("**/*")
-            delete dirApp
+//        delete(fileTree(dirApp).include("**/*"))
+            delete(dirApp)
         }
     }
 }
@@ -53,12 +53,12 @@ tasks.register("buildApp", Copy) {
 
     into("resources") {
         from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
-            include "log4j2.xml"
-            include "arser-config.xml"
+            include("log4j2.xml")
+            include("arser-config.xml")
         }
     }
 
-//    eachFile { println it.name }
+//    eachFile { println(it.name) }
 }
 
 // No verbose-Mode
@@ -76,7 +76,7 @@ tasks.register("deployApp", Sync) {
     String remoteFolder = "/opt/jvmapps/arser"
 
     // Create Root-Dir
-    into remoteFolder
+    into(remoteFolder)
 
     into("bin") {
         from(appFolder.dir("bin"))
@@ -111,7 +111,7 @@ tasks.register("deployApp", Sync) {
         }
     }
 
-//    eachFile { println it.name }
+//    eachFile { println(it.name) }
 }
 
 //tasks.register("deployApp") {
@@ -139,12 +139,12 @@ tasks.register("deployApp", Sync) {
 //
 //        // Funktioniert nicht, wegen Fehler: "Could not find method from() for arguments ..."
 ////        sync {
-////            from appFolder.dir("resources")
-////            into remoteFolder + "/resources"
+////            from(appFolder.dir("resources"))
+////            into(remoteFolder + "/resources")
 ////            preserve {
-////                include 'extraDir/**'
-////                include 'dir1/**'
-////                exclude 'dir1/extra.txt'
+////                include("extraDir/**")
+////                include("dir1/**")
+////                exclude("dir1/extra.txt")
 ////            }
 ////        }
 //    }
@@ -162,10 +162,10 @@ tasks.register("deployApp", Sync) {
 //    description = "Delete app-Folder."
 //    group = "Maintenance"
 //
-//    logger.lifecycle "delete app-Folder: ${projectDir}/app"
+//    logger.lifecycle("delete app-Folder: ${projectDir}/app")
 //
-//    delete fileTree("app") {
-//        include "**/*.*"
+//    delete(fileTree("app")) {
+//        include("**/*.*")
 //    }
 //}
 //clean.finalizedBy("deleteAppFolder")
@@ -184,24 +184,24 @@ tasks.register("deployApp", Sync) {
 //         // delete layout.projectDirectory.dir("root ").dir("dst")
 //         //
 //         // copy {
-//         //     from "src"
-//         //     into layout.projectDirectory.dir("root").dir("dst")
-//         //     include "**/*.gradle"
-//         //     include "**/gradle.properties"
+//         //     from("src")
+//         //     into(layout.projectDirectory.dir("root").dir("dst"))
+//         //     include("**/*.gradle")
+//         //     include("**/gradle.properties")
 //         //     includeEmptyDirs = false
 //         // }
 //
 //         // CopySpec gradleSpec = copySpec {
 //         //     from("src") {
-//         //         include "**/*.gradle"
-//         //         include "**/gradle.properties"
+//         //         include("**/*.gradle")
+//         //         include("**/gradle.properties")
 //         //         includeEmptyDirs = false
 //         //     }
 //         //     into("dst")
 //         // }
 //         //
 //         // copy {
-//         //     into layout.projectDirectory.dir("root")
+//         //     into(layout.projectDirectory.dir("root"))
 //         //     with(gradleSpec)
 //         // }
 //     }
@@ -230,14 +230,14 @@ tasks.register("deployApp", Sync) {
 // // Target "buildHelp" in ant-hilfe.xml
 // "ant-buildHelp" {
 //     // Use Build-Cache: Tasks in depends="..." will be executed before.
-//     inputs.dir layout.projectDirectory.dir("src").dir("main").dir("resources")
-//     outputs.dir layout.projectDirectory.dir("dist")
+//     inputs.dir(layout.projectDirectory.dir("src").dir("main").dir("resources"))
+//     outputs.dir(layout.projectDirectory.dir("dist"))
 //
 //     // doLast {
 //     //     println("copy help")
 //     //     copy {
-//     //         from layout.projectDirectory.dir("dist")
-//     //         into layout.projectDirectory.dir("..").dir("hilfe")
+//     //         from(layout.projectDirectory.dir("dist"))
+//     //         into(layout.projectDirectory.dir("..").dir("hilfe"))
 //     //     }
 //     // }
 // }
@@ -252,7 +252,7 @@ tasks.register("deployApp", Sync) {
 //
 //        Directory appFolder = layout.projectDirectory.dir("app")
 //
-//        mkdir appFolder.dir("logs")
+//        mkdir(appFolder.dir("logs"))
 //
 //        CopySpec binSpec = copySpec {
 //            from(layout.projectDirectory.dir("service").file("arser.sh"))
@@ -264,13 +264,13 @@ tasks.register("deployApp", Sync) {
 //        }
 //        CopySpec resSpec = copySpec {
 //            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
-//                include "log4j2.xml"
-//                include "arser-config.xml"
+//                include("log4j2.xml")
+//                include("arser-config.xml")
 //            }
 //            into("resources")
 //        }
 //        copy {
-//            into appFolder
+//            into(appFolder)
 //            with(binSpec, libSpec, resSpec)
 //        }
 //
@@ -285,8 +285,8 @@ tasks.register("deployApp", Sync) {
 ////        copy {
 ////            into(appFolder.dir("resources"))
 ////            from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
-////                include "log4j2.xml"
-////                include "arser-config.xml"
+////                include("log4j2.xml")
+////                include("arser-config.xml")
 ////            }
 ////        }
 //
@@ -295,10 +295,10 @@ tasks.register("deployApp", Sync) {
 //             rename("a-" + project.version + ". properties", "a. properties")
 //
 //             from(layout.projectDirectory.dir("..").dir("dir1") {
-//                 include "*. properties "
+//                 include("*. properties")
 //             }
 //             from(layout.projectDirectory.dir("..").dir("dir2") {
-//                 include "a.properties"
+//                 include("a.properties")
 //             }
 //         }
 //     }
