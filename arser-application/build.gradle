@@ -9,7 +9,7 @@ clean {
         Directory dirApp = projectDir.dir("app")
 
         if (dirApp.getAsFile().exists()) {
-            println("delete " + dirApp)
+            logger.lifecycle("delete {}", dirApp)
 //        delete(fileTree(dirApp).include("**/*"))
             delete(dirApp)
         }
@@ -37,7 +37,7 @@ tasks.register("buildApp", Copy) {
     dependsOn(":arser-test:build")
 
     doLast {
-        println("build " + project.name)
+        logger.lifecycle("build {}", project.name)
     }
 
     // Create Root-Dir
@@ -69,7 +69,7 @@ tasks.register("deployApp", Sync) {
     dependsOn("buildApp")
 
     doLast {
-        println("deploy " + project.name)
+        logger.lifecycle("deploy {}", project.name)
     }
 
     Directory appFolder = layout.projectDirectory.dir("app")
@@ -118,7 +118,7 @@ tasks.register("deployApp", Sync) {
 //    group = "Arser"
 //
 //    doLast {
-//        println("deploy " + project.name)
+//        logger.lifecycle("deploy {}", project.name)
 //
 //        Directory appFolder = layout.projectDirectory.dir("app")
 //        String remoteFolder = "/opt/jvmapps/arser"
@@ -162,7 +162,7 @@ tasks.register("deployApp", Sync) {
 //    description = "Delete app-Folder."
 //    group = "Maintenance"
 //
-//    logger.lifecycle("delete app-Folder: ${projectDir}/app")
+//    logger.lifecycle("delete app-Folder: {}/app", ${projectDir})
 //
 //    delete(fileTree("app")) {
 //        include("**/*.*")
@@ -181,7 +181,7 @@ tasks.register("deployApp", Sync) {
 //             }
 //         }
 //
-//         // delete layout.projectDirectory.dir("root ").dir("dst")
+//         // delete(layout.projectDirectory.dir("root ").dir("dst"))
 //         //
 //         // copy {
 //         //     from("src")
@@ -248,7 +248,7 @@ tasks.register("deployApp", Sync) {
 //    group = "Arser"
 //
 //     doLast {
-//        println("build " + project.name)
+//        logger.lifecycle("build {}", project.name)
 //
 //        Directory appFolder = layout.projectDirectory.dir("app")
 //
