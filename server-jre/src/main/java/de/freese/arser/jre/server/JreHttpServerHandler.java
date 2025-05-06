@@ -115,6 +115,7 @@ public class JreHttpServerHandler implements HttpHandler {
 
             if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
                 try (InputStream inputStream = httpResponse.body()) {
+                    // Drain the Body.
                     inputStream.transferTo(OutputStream.nullOutputStream());
                 }
 

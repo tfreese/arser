@@ -75,4 +75,48 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
     protected HttpClient getHttpClient() {
         return httpClient;
     }
+
+    // @Override
+    // protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
+    //     final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
+    //
+    //     final HttpRequest httpRequest = HttpRequest.newBuilder()
+    //             .uri(remoteUri)
+    //             .GET()
+    //             .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+    //             .header("Accept", "application/octet-stream")
+    //             .build();
+    //
+    //     if (getLogger().isDebugEnabled()) {
+    //         getLogger().debug("Resource - Request: {}", httpRequest);
+    //     }
+    //
+    //     final HttpResponse<InputStream> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+    //
+    //     if (getLogger().isDebugEnabled()) {
+    //         getLogger().debug("Resource - Response: {}", httpResponse);
+    //     }
+    //
+    //     if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
+    //         try (InputStream inputStream = httpResponse.body()) {
+    //             // Drain the Body.
+    //             inputStream.transferTo(OutputStream.nullOutputStream());
+    //         }
+    //
+    //         final String message = "HTTP-STATUS: %d for %s".formatted(httpResponse.statusCode(), remoteUri.toString());
+    //         handler.onError(new IOException(message));
+    //
+    //         return;
+    //     }
+    //
+    //     final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(-1);
+    //
+    //     if (getLogger().isDebugEnabled()) {
+    //         getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
+    //     }
+    //
+    //     try (InputStream inputStream = httpResponse.body()) {
+    //         handler.onSuccess(contentLength, inputStream);
+    //     }
+    // }
 }

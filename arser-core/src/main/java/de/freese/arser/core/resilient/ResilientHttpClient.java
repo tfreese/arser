@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * sendAsync: HttpResponse.PushPromiseHandler is ignored, when retries are set !
+ * sendAsync: HttpResponse.PushPromiseHandler is ignored, when retries are set!
  *
  * @author Thomas Freese
  */
@@ -53,7 +53,7 @@ public class ResilientHttpClient extends HttpClient {
             if (retries > 0) {
                 final RetryPolicy<HttpResponse<?>> retryPolicy = RetryPolicy.<HttpResponse<?>>builder()
                         // .withMaxAttempts(3) // Overall Try's.
-                        .withMaxRetries(retries) // Try's after first call.
+                        .withMaxRetries(retries) // Try's after the first call.
                         .withDelay(retryDuration).onRetry(event -> {
                             final Throwable lastException = event.getLastException();
 

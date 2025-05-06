@@ -28,10 +28,10 @@ public final class ResourceRequest {
         // Strip Leading '/'.
         path = path.substring(1);
 
-        // Get first Element.
+        // Get the first Element.
         final String contextRoot = path.substring(0, path.indexOf('/'));
 
-        // Rest of Path.
+        // Rest of the Path.
         final String resourcePath = path.substring(contextRoot.length());
         final URI resource = URI.create(resourcePath);
 

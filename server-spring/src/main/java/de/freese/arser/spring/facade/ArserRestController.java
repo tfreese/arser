@@ -108,7 +108,7 @@ public class ArserRestController {
                 final int responseCode = clientHttpResponse.getStatusCode().value();
 
                 if (responseCode != ArserUtils.HTTP_STATUS_OK) {
-                    // Drain Body.
+                    // Drain the Body.
                     try (InputStream inputStream = clientHttpResponse.getBody()) {
                         inputStream.transferTo(OutputStream.nullOutputStream());
                     }
