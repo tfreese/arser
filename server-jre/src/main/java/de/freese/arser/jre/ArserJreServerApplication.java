@@ -68,7 +68,7 @@ public final class ArserJreServerApplication {
     private static LifecycleManager createArser(final ArserConfig arserConfig) {
         final LifecycleManager lifecycleManager = new LifecycleManager();
 
-        final Arser arser = new Arser();
+        final Arser arser = new Arser(arserConfig.getWorkingDir());
         // final List<Repository> publicRepositories = new ArrayList<>();
         //
         // Repository repository = new RemoteRepositoryJreHttpClient("maven-central", URI.create("https://repo1.maven.org/maven2"));

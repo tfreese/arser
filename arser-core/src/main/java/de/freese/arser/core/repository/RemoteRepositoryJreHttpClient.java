@@ -10,8 +10,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-import de.freese.arser.core.model.DefaultRequestResource;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.DefaultFileResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.utils.ArserUtils;
 
@@ -50,7 +50,7 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -87,7 +87,7 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
             getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
         }
 
-        return new DefaultRequestResource(contentLength, httpResponse::body);
+        return new DefaultFileResource(contentLength, httpResponse::body);
     }
 
     @Override

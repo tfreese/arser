@@ -6,10 +6,10 @@ import java.io.OutputStream;
 /**
  * @author Thomas Freese
  */
-public interface RequestResource {
+public interface FileResource {
     long getContentLength();
 
-    void transferTo(final OutputStream outputStream) throws Exception;
+    void transferTo(OutputStream outputStream) throws Exception;
 
     // default void transferTo(final OutputStream outputStream) throws Exception {
     //     try (InputStream is = new BufferedInputStream(createInputStream(), ArserUtils.DEFAULT_BUFFER_SIZE)) {

@@ -41,7 +41,6 @@ public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
 
             return this;
         }
-
     }
 
     public static Builder builder() {

@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 
 import de.freese.arser.core.lifecycle.Lifecycle;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 
 /**
@@ -19,7 +19,7 @@ public interface Repository extends Lifecycle {
 
     String getContextRoot();
 
-    RequestResource getResource(ResourceRequest resourceRequest) throws Exception;
+    FileResource getResource(ResourceRequest resourceRequest) throws Exception;
 
     default void write(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());

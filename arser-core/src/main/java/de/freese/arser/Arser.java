@@ -1,6 +1,10 @@
 // Created: 21 Dez. 2024
 package de.freese.arser;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -17,6 +21,23 @@ import de.freese.arser.core.repository.Repository;
  */
 public final class Arser {
     private final Map<String, Repository> repositoryMap = new HashMap<>();
+
+    public Arser() {
+        this(Path.of(System.getProperty("java.io.tmpdir"), "arser"));
+    }
+
+    public Arser(final Path workingDir) {
+        super();
+
+        try {
+            Files.createDirectories(workingDir);
+        }
+        catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+        
+        System.setProperty("arser.workingDir", workingDir.toAbsolutePath().toString());
+    }
 
     public void addRepository(final Repository repository) {
         Objects.requireNonNull(repository, "repository required");
@@ -42,5 +63,9 @@ public final class Arser {
 
     public int getRepositoryCount() {
         return repositoryMap.size();
+    }
+
+    public Path getWorkingDir() {
+        return Path.of(System.getProperty("arser.workingDir"));
     }
 }

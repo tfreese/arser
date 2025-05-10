@@ -12,7 +12,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.utils.ArserUtils;
 
@@ -23,22 +23,14 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     private final URI baseUri;
     private final String contextRoot;
-    private final Path workingDir;
+
+    private Path workingDir;
 
     protected AbstractRepository(final String contextRoot, final URI baseUri) {
         super();
 
         this.contextRoot = Objects.requireNonNull(contextRoot, "contextRoot required");
         this.baseUri = Objects.requireNonNull(baseUri, "baseUri required");
-
-        workingDir = Path.of(System.getProperty("java.io.tmpdir"), "arser", contextRoot);
-
-        try {
-            Files.createDirectories(workingDir);
-        }
-        catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
     }
 
     @Override
@@ -65,7 +57,7 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
     }
 
     @Override
-    public final RequestResource getResource(final ResourceRequest resourceRequest) throws Exception {
+    public final FileResource getResource(final ResourceRequest resourceRequest) throws Exception {
         if (!isStarted()) {
             throw new IllegalStateException("Component not started: " + getContextRoot());
         }
@@ -97,13 +89,24 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     protected abstract boolean doExist(ResourceRequest resourceRequest) throws Exception;
 
-    protected abstract RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception;
+    protected abstract FileResource doGetResource(ResourceRequest resourceRequest) throws Exception;
 
     protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
         throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
     }
 
     protected Path getWorkingDir() {
+        if (workingDir == null) {
+            workingDir = Path.of(System.getProperty("arser.workingDir"), contextRoot);
+
+            try {
+                Files.createDirectories(workingDir);
+            }
+            catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        }
+
         return workingDir;
     }
 

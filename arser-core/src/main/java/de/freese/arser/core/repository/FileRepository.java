@@ -9,8 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import de.freese.arser.core.model.DefaultRequestResource;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.DefaultFileResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 
 /**
@@ -44,7 +44,7 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         final Path path = toPath(resourceRequest.getResource());
 
         if (getLogger().isDebugEnabled()) {
@@ -53,7 +53,7 @@ public class FileRepository extends AbstractRepository {
 
         final long contentLength = Files.size(path);
 
-        return new DefaultRequestResource(contentLength, () -> Files.newInputStream(path));
+        return new DefaultFileResource(contentLength, () -> Files.newInputStream(path));
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.EnabledIfReachable;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 
 /**
@@ -77,9 +77,9 @@ class TestJreRemoteRepository {
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
 
         try {
-            final RequestResource requestResource = repository.getResource(resourceRequest);
+            final FileResource fileResource = repository.getResource(resourceRequest);
 
-            assertNotNull(requestResource);
+            assertNotNull(fileResource);
         }
         finally {
             repository.stop();
@@ -97,9 +97,9 @@ class TestJreRemoteRepository {
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
 
         try {
-            final RequestResource requestResource = repository.getResource(resourceRequest);
+            final FileResource fileResource = repository.getResource(resourceRequest);
 
-            assertNull(requestResource);
+            assertNull(fileResource);
         }
         finally {
             repository.stop();

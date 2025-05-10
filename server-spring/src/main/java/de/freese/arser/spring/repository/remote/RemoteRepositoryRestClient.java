@@ -12,8 +12,8 @@ import java.util.Objects;
 
 import org.springframework.web.client.RestClient;
 
-import de.freese.arser.core.model.DefaultRequestResource;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.DefaultFileResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.utils.ArserUtils;
@@ -52,7 +52,7 @@ public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
 
         if (getLogger().isDebugEnabled()) {
@@ -84,7 +84,7 @@ public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
                         path = writeToTempFile(resourceRequest.getResource(), inputStream);
                     }
 
-                    return new DefaultRequestResource(contentLength, () ->
+                    return new DefaultFileResource(contentLength, () ->
                             new FilterInputStream(Files.newInputStream(path)) {
                                 @Override
                                 public void close() throws IOException {

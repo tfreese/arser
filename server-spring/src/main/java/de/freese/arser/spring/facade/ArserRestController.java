@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.freese.arser.Arser;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.utils.ArserUtils;
@@ -79,9 +79,9 @@ public class ArserRestController {
         }
 
         try {
-            final RequestResource requestResource = repository.getResource(resourceRequest);
+            final FileResource fileResource = repository.getResource(resourceRequest);
 
-            if (requestResource == null) {
+            if (fileResource == null) {
                 final String message = "HTTP-STATUS: %d for %s".formatted(ArserUtils.HTTP_STATUS_NOT_FOUND, resourceRequest.getResource());
                 response.setStatus(HttpStatus.NOT_FOUND.value());
 
@@ -93,12 +93,12 @@ public class ArserRestController {
                 return;
             }
 
-            final long contentLength = requestResource.getContentLength();
+            final long contentLength = fileResource.getContentLength();
             response.setStatus(HttpStatus.OK.value());
             response.setContentLengthLong(contentLength);
 
             try (OutputStream outputStream = response.getOutputStream()) {
-                requestResource.transferTo(outputStream);
+                fileResource.transferTo(outputStream);
                 outputStream.flush();
             }
         }

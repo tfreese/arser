@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 
 /**
@@ -46,7 +46,7 @@ public class CachedRepository extends AbstractRepository {
     }
 
     @Override
-    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         return null;
     }
 

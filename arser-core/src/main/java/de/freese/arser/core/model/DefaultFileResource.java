@@ -11,10 +11,10 @@ import de.freese.arser.core.utils.ThrowingSupplier;
 /**
  * @author Thomas Freese
  */
-public class DefaultRequestResource extends AbstractRequestResource {
+public class DefaultFileResource extends AbstractFileResource {
     private final ThrowingSupplier<InputStream, Exception> inputStreamSupplier;
 
-    public DefaultRequestResource(final long contentLength, final ThrowingSupplier<InputStream, Exception> inputStreamSupplier) {
+    public DefaultFileResource(final long contentLength, final ThrowingSupplier<InputStream, Exception> inputStreamSupplier) {
         super(contentLength);
 
         this.inputStreamSupplier = Objects.requireNonNull(inputStreamSupplier, "inputStreamSupplier required");

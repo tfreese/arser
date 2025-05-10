@@ -15,8 +15,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import de.freese.arser.core.model.DefaultRequestResource;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.DefaultFileResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.AbstractRemoteRepository;
 import de.freese.arser.core.utils.ArserUtils;
@@ -62,7 +62,7 @@ public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
 
         if (getLogger().isDebugEnabled()) {
@@ -95,7 +95,7 @@ public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
 
                     DataBufferUtils.write(dataBufferFlux, path).block();
 
-                    return Mono.just(new DefaultRequestResource(contentLength, () ->
+                    return Mono.just(new DefaultFileResource(contentLength, () ->
                             new FilterInputStream(Files.newInputStream(path)) {
                                 @Override
                                 public void close() throws IOException {

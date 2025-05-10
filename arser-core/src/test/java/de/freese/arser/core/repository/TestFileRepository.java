@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 
 /**
@@ -117,9 +117,9 @@ class TestFileRepository {
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
 
         try {
-            final RequestResource requestResource = repository.getResource(resourceRequest);
+            final FileResource fileResource = repository.getResource(resourceRequest);
 
-            assertNotNull(requestResource);
+            assertNotNull(fileResource);
         }
         finally {
             repository.stop();

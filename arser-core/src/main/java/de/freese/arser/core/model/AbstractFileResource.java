@@ -4,10 +4,10 @@ package de.freese.arser.core.model;
 /**
  * @author Thomas Freese
  */
-public abstract class AbstractRequestResource implements RequestResource {
+public abstract class AbstractFileResource implements FileResource {
     private final long contentLength;
 
-    protected AbstractRequestResource(final long contentLength) {
+    protected AbstractFileResource(final long contentLength) {
         super();
 
         this.contentLength = contentLength;

@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.freese.arser.Arser;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.utils.ArserUtils;
@@ -98,14 +98,14 @@ public class JreHttpServerHandler implements HttpHandler {
         final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
         try {
-            final RequestResource requestResource = repository.getResource(resourceRequest);
+            final FileResource fileResource = repository.getResource(resourceRequest);
 
-            if (requestResource == null) {
+            if (fileResource == null) {
                 final String message = "HTTP-STATUS: %d for %s".formatted(ArserUtils.HTTP_STATUS_NOT_FOUND, resourceRequest.getResource());
                 throw new Exception(message);
             }
 
-            final long contentLength = requestResource.getContentLength();
+            final long contentLength = fileResource.getContentLength();
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), resourceRequest.getResource());
@@ -116,7 +116,7 @@ public class JreHttpServerHandler implements HttpHandler {
             exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, contentLength);
 
             try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
-                requestResource.transferTo(outputStream);
+                fileResource.transferTo(outputStream);
 
                 outputStream.flush();
             }

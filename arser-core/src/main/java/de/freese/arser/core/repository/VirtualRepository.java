@@ -8,7 +8,7 @@ import java.util.Map;
 
 import de.freese.arser.core.indexer.ArtifactIndexer;
 import de.freese.arser.core.indexer.ArtifactIndexerMemory;
-import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 
 /**
@@ -57,7 +57,7 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         final String repositoryContextRoot = artifactIndexer.findRepository(resourceRequest);
         final Repository repositoryIndexed = repositoryMap.get(repositoryContextRoot);
 
@@ -66,17 +66,17 @@ public class VirtualRepository extends AbstractRepository {
         }
 
         for (final Repository repository : repositoryMap.values()) {
-            RequestResource requestResource = null;
+            FileResource fileResource = null;
 
             try {
-                requestResource = repository.getResource(resourceRequest);
+                fileResource = repository.getResource(resourceRequest);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
-            if (requestResource != null) {
-                return requestResource;
+            if (fileResource != null) {
+                return fileResource;
             }
         }
 
