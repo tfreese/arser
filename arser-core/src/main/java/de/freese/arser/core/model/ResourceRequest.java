@@ -1,5 +1,5 @@
 // Created: 17.01.24
-package de.freese.arser.core.request;
+package de.freese.arser.core.model;
 
 import java.net.URI;
 import java.util.ArrayList;

@@ -1,5 +1,5 @@
 // Created: 06 Mai 2025
-package de.freese.arser.core.response;
+package de.freese.arser.core.model;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -11,10 +11,10 @@ import de.freese.arser.core.utils.ThrowingSupplier;
 /**
  * @author Thomas Freese
  */
-public class DefaultResourceResponse extends AbstractResourceResponse {
+public class DefaultRequestResource extends AbstractRequestResource {
     private final ThrowingSupplier<InputStream, Exception> inputStreamSupplier;
 
-    public DefaultResourceResponse(final long contentLength, final ThrowingSupplier<InputStream, Exception> inputStreamSupplier) {
+    public DefaultRequestResource(final long contentLength, final ThrowingSupplier<InputStream, Exception> inputStreamSupplier) {
         super(contentLength);
 
         this.inputStreamSupplier = Objects.requireNonNull(inputStreamSupplier, "inputStreamSupplier required");

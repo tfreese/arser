@@ -36,7 +36,7 @@ import de.freese.arser.jre.server.JreHttpServer;
  */
 class TestArserJreServer {
     private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-test-server-jre");
-    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
+    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.pom";
     private static Arser arser;
     private static HttpClient httpClient;
     private static URI localhostServer;

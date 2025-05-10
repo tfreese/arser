@@ -4,22 +4,16 @@ package de.freese.arser.spring.facade;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequest;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +24,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.freese.arser.Arser;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -46,13 +41,11 @@ public class ArserRestController {
 
     // @Resource
     private final Arser arser;
-    private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public ArserRestController(final Arser arser, final ClientHttpRequestFactory clientHttpRequestFactory) {
+    public ArserRestController(final Arser arser) {
         super();
 
         this.arser = Objects.requireNonNull(arser, "arser required");
-        this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
 
     /**
@@ -86,13 +79,13 @@ public class ArserRestController {
         }
 
         try {
-            final URI downloadUri = repository.getDownloadUri(resourceRequest);
+            final RequestResource requestResource = repository.getResource(resourceRequest);
 
-            if (downloadUri == null) {
+            if (requestResource == null) {
+                final String message = "HTTP-STATUS: %d for %s".formatted(ArserUtils.HTTP_STATUS_NOT_FOUND, resourceRequest.getResource());
                 response.setStatus(HttpStatus.NOT_FOUND.value());
 
                 try (OutputStream outputStream = response.getOutputStream()) {
-                    final String message = "HTTP-STATUS: %d for %s".formatted(HttpStatus.NOT_FOUND.value(), resourceRequest.getResource());
                     outputStream.write(message.getBytes(StandardCharsets.UTF_8));
                     outputStream.flush();
                 }
@@ -100,39 +93,13 @@ public class ArserRestController {
                 return;
             }
 
-            final ClientHttpRequest clientHttpRequest = clientHttpRequestFactory.createRequest(downloadUri, HttpMethod.GET);
-            clientHttpRequest.getHeaders().put(ArserUtils.HTTP_HEADER_USER_AGENT, List.of(ArserUtils.SERVER_NAME));
-            clientHttpRequest.getHeaders().put("Accept", List.of(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+            final long contentLength = requestResource.getContentLength();
+            response.setStatus(HttpStatus.OK.value());
+            response.setContentLengthLong(contentLength);
 
-            try (ClientHttpResponse clientHttpResponse = clientHttpRequest.execute()) {
-                final int responseCode = clientHttpResponse.getStatusCode().value();
-
-                if (responseCode != ArserUtils.HTTP_STATUS_OK) {
-                    // Drain the Body.
-                    try (InputStream inputStream = clientHttpResponse.getBody()) {
-                        inputStream.transferTo(OutputStream.nullOutputStream());
-                    }
-
-                    response.setStatus(HttpStatus.NOT_FOUND.value());
-
-                    try (OutputStream outputStream = response.getOutputStream()) {
-                        final String message = "HTTP-STATUS: %d for %s".formatted(responseCode, downloadUri.toString());
-                        outputStream.write(message.getBytes(StandardCharsets.UTF_8));
-                        outputStream.flush();
-                    }
-
-                    return;
-                }
-
-                final long contentLength = clientHttpResponse.getHeaders().getContentLength();
-                response.setStatus(HttpStatus.OK.value());
-                response.setContentLengthLong(contentLength);
-
-                try (InputStream inputStream = clientHttpResponse.getBody();
-                     OutputStream outputStream = response.getOutputStream()) {
-                    inputStream.transferTo(outputStream);
-                    outputStream.flush();
-                }
+            try (OutputStream outputStream = response.getOutputStream()) {
+                requestResource.transferTo(outputStream);
+                outputStream.flush();
             }
         }
         finally {

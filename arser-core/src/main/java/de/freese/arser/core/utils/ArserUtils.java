@@ -34,6 +34,10 @@ public final class ArserUtils {
     /**
      * io.netty.handler.codec.http.HttpHeaderNames
      */
+    public static final String HTTP_HEADER_ACCEPT = "Accept";
+    /**
+     * io.netty.handler.codec.http.HttpHeaderNames
+     */
     public static final String HTTP_HEADER_CONTENT_LENGTH = "content-length";
     /**
      * io.netty.handler.codec.http.HttpHeaderNames

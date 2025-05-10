@@ -3,8 +3,6 @@ package de.freese.arser.core.repository;
 
 import java.net.URI;
 
-import de.freese.arser.core.request.ResourceRequest;
-
 /**
  * @author Thomas Freese
  */
@@ -29,15 +27,6 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
         }
 
         return baseUri.resolve(path);
-    }
-
-    @Override
-    protected URI doGetDownloadUri(final ResourceRequest request) throws Exception {
-        if (exist(request)) {
-            return createRemoteUri(getBaseUri(), request.getResource());
-        }
-
-        return null;
     }
 
     @Override

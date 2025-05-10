@@ -1,6 +1,8 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -8,7 +10,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.DefaultRequestResource;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -23,8 +27,8 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
+    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
@@ -43,6 +47,47 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
         }
 
         return httpResponse.statusCode() == ArserUtils.HTTP_STATUS_OK;
+    }
+
+    @Override
+    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+        final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
+
+        final HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(remoteUri)
+                .GET()
+                .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+                .header(ArserUtils.HTTP_HEADER_ACCEPT, ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM)
+                .build();
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("RequestResource: {}", httpRequest);
+        }
+
+        final HttpResponse<InputStream> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("RequestResource: {}", httpResponse);
+        }
+
+        if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
+            getLogger().warn("HTTP-STATUS: {} for {}", httpResponse.statusCode(), remoteUri);
+
+            try (InputStream inputStream = httpResponse.body()) {
+                // Drain the Body.
+                inputStream.transferTo(OutputStream.nullOutputStream());
+            }
+
+            return null;
+        }
+
+        final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(-1);
+
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
+        }
+
+        return new DefaultRequestResource(contentLength, httpResponse::body);
     }
 
     @Override
@@ -75,48 +120,4 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
     protected HttpClient getHttpClient() {
         return httpClient;
     }
-
-    // @Override
-    // protected void doStreamTo(final ResourceRequest request, final ResponseHandler handler) throws Exception {
-    //     final URI remoteUri = createRemoteUri(getBaseUri(), request.getResource());
-    //
-    //     final HttpRequest httpRequest = HttpRequest.newBuilder()
-    //             .uri(remoteUri)
-    //             .GET()
-    //             .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-    //             .header("Accept", "application/octet-stream")
-    //             .build();
-    //
-    //     if (getLogger().isDebugEnabled()) {
-    //         getLogger().debug("Resource - Request: {}", httpRequest);
-    //     }
-    //
-    //     final HttpResponse<InputStream> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-    //
-    //     if (getLogger().isDebugEnabled()) {
-    //         getLogger().debug("Resource - Response: {}", httpResponse);
-    //     }
-    //
-    //     if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
-    //         try (InputStream inputStream = httpResponse.body()) {
-    //             // Drain the Body.
-    //             inputStream.transferTo(OutputStream.nullOutputStream());
-    //         }
-    //
-    //         final String message = "HTTP-STATUS: %d for %s".formatted(httpResponse.statusCode(), remoteUri.toString());
-    //         handler.onError(new IOException(message));
-    //
-    //         return;
-    //     }
-    //
-    //     final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(-1);
-    //
-    //     if (getLogger().isDebugEnabled()) {
-    //         getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
-    //     }
-    //
-    //     try (InputStream inputStream = httpResponse.body()) {
-    //         handler.onSuccess(contentLength, inputStream);
-    //     }
-    // }
 }

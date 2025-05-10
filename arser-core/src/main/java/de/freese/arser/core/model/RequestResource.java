@@ -1,12 +1,12 @@
 // Created: 06 Mai 2025
-package de.freese.arser.core.response;
+package de.freese.arser.core.model;
 
 import java.io.OutputStream;
 
 /**
  * @author Thomas Freese
  */
-public interface ResourceResponse {
+public interface RequestResource {
     long getContentLength();
 
     void transferTo(final OutputStream outputStream) throws Exception;

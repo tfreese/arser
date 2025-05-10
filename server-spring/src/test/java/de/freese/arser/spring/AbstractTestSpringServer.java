@@ -30,7 +30,7 @@ import org.springframework.web.reactive.function.BodyInserters;
  */
 @AutoConfigureWebTestClient(timeout = "10000")
 abstract class AbstractTestSpringServer {
-    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
+    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.pom";
 
     static void afterAll(final Path path) throws IOException {
         if (!Files.exists(path)) {

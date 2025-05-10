@@ -6,7 +6,8 @@ import java.util.Objects;
 
 import de.freese.arser.blobstore.api.BlobId;
 import de.freese.arser.blobstore.api.BlobStore;
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 
 /**
  * @author Thomas Freese
@@ -23,8 +24,8 @@ public class CachedRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) throws Exception {
-        final URI resource = request.getResource();
+    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
+        final URI resource = resourceRequest.getResource();
         final BlobId blobId = new BlobId(resource);
 
         final boolean exist = getBlobStore().exists(blobId);
@@ -41,39 +42,11 @@ public class CachedRepository extends AbstractRepository {
             getLogger().debug("exist - not found: {}", resource);
         }
 
-        return delegate.exist(request);
+        return delegate.exist(resourceRequest);
     }
 
     @Override
-    protected URI doGetDownloadUri(final ResourceRequest request) throws Exception {
-        final URI remoteUri = request.getResource();
-
-        if (remoteUri.getPath().endsWith("maven-metadata.xml")) {
-            // Never save these files, versions:display-dependency-updates won't work!
-            return delegate.getDownloadUri(request);
-        }
-
-        final BlobId blobId = new BlobId(remoteUri);
-
-        if (getBlobStore().exists(blobId)) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Resource - found: {}", request);
-            }
-
-            // final Blob blob = getBlobStore().get(blobId);
-
-            return blobId.getUri();
-        }
-        else {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Resource - not found: {}", request);
-            }
-
-            // final URI uri = delegate.getDownloadUri(request);
-
-            // TODO Download and save
-        }
-
+    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
         return null;
     }
 

@@ -1,7 +1,6 @@
 // Created: 21 Dez. 2024
 package de.freese.arser.core.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -16,7 +15,8 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.EnabledIfReachable;
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 
 /**
  * @author Thomas Freese
@@ -77,11 +77,9 @@ class TestJreRemoteRepository {
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
 
         try {
-            final URI uri = repository.getDownloadUri(resourceRequest);
+            final RequestResource requestResource = repository.getResource(resourceRequest);
 
-            assertNotNull(uri);
-            assertEquals("https", uri.getScheme());
-            assertEquals(uri, URI.create(REMOTE_REPO_URI + "/" + RESOURCE));
+            assertNotNull(requestResource);
         }
         finally {
             repository.stop();
@@ -99,9 +97,9 @@ class TestJreRemoteRepository {
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
 
         try {
-            final URI uri = repository.getDownloadUri(resourceRequest);
+            final RequestResource requestResource = repository.getResource(resourceRequest);
 
-            assertNull(uri);
+            assertNull(requestResource);
         }
         finally {
             repository.stop();

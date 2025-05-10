@@ -39,11 +39,20 @@ subprojects {
 
     // pluginManager.hasPlugin("java")
     pluginManager.withPlugin("java") {
+        configurations {
+            mockitoAgent
+        }
+
         dependencies {
             //implementation(platform("org.springframework.boot:spring-boot-dependencies:$version_springBoot"))
 
             testImplementation("org.awaitility:awaitility")
             testImplementation("org.junit.jupiter:junit-jupiter")
+
+            testImplementation("org.mockito:mockito-junit-jupiter")
+            mockitoAgent("org.mockito:mockito-core") {
+                transitive = false
+            }
 
             // To avoid compiler warnings about @API annotations in Log4j Code.
             // testCompileOnly("com.github.spotbugs:spotbugs-annotations")
@@ -52,6 +61,18 @@ subprojects {
             testCompileOnly("org.apiguardian:apiguardian-api")
 
             testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        }
+
+        // tasks.withType<Test> {
+        //     jvmArgs("-XX:+EnableDynamicAgentLoading")
+        // }
+        test {
+            String mockitoFiles = configurations.mockitoAgent.asPath
+
+            doFirst {
+                jvmArgs += "-javaagent:" + mockitoFiles
+                // jvmArgs += "-XX:+EnableDynamicAgentLoading"
+            }
         }
     }
 }

@@ -22,7 +22,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 
 /**
  * @author Thomas Freese
@@ -102,7 +103,7 @@ class TestFileRepository {
     }
 
     @Test
-    void testGetDownloadUri() throws Exception {
+    void testGetResource() throws Exception {
         final String contentRoot = "download-uri";
         final Path basePath = PATH_TEST.resolve(contentRoot);
 
@@ -116,16 +117,9 @@ class TestFileRepository {
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
 
         try {
-            final URI uri = repository.getDownloadUri(resourceRequest);
+            final RequestResource requestResource = repository.getResource(resourceRequest);
 
-            assertNotNull(uri);
-            assertEquals("file", uri.getScheme());
-
-            final Path uriPath = Path.of(uri);
-
-            assertTrue(Files.exists(uriPath));
-            assertTrue(Files.size(uriPath) > 0);
-            assertEquals("test", Files.readString(uriPath));
+            assertNotNull(requestResource);
         }
         finally {
             repository.stop();

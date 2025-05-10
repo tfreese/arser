@@ -2,9 +2,6 @@
 package de.freese.arser.jre.server;
 
 import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.http.HttpClient;
-import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -27,7 +24,6 @@ public class JreHttpServer extends AbstractLifecycle {
     private final ServerConfig serverConfig;
 
     private ExecutorService executorService;
-    private HttpClient httpClient;
     private HttpServer httpServer;
 
     public JreHttpServer(final Arser arser, final ServerConfig serverConfig) {
@@ -67,17 +63,9 @@ public class JreHttpServer extends AbstractLifecycle {
         //     });
         // }
 
-        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .proxy(ProxySelector.getDefault())
-                .connectTimeout(Duration.ofSeconds(30));
-
-        httpClient = httpClientBuilder.build();
-
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(executorService);
-        httpServer.createContext("/", new JreHttpServerHandler(arser, httpClient));
+        httpServer.createContext("/", new JreHttpServerHandler(arser));
 
         httpServer.start();
         // new Thread(httpServer::start, "arser").start();
@@ -87,9 +75,6 @@ public class JreHttpServer extends AbstractLifecycle {
     protected void doStop() throws Exception {
         // httpContexts.clear();
         httpServer.stop(3);
-
-        httpClient.close();
-        httpClient = null;
 
         ArserUtils.shutdown(executorService, getLogger());
     }

@@ -1,7 +1,7 @@
 // Created: 16.01.24
 package de.freese.arser.core.indexer;
 
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.ResourceRequest;
 
 /**
  * @author Thomas Freese

@@ -8,7 +8,8 @@ import java.util.Map;
 
 import de.freese.arser.core.indexer.ArtifactIndexer;
 import de.freese.arser.core.indexer.ArtifactIndexerMemory;
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 
 /**
  * @author Thomas Freese
@@ -31,8 +32,8 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) {
-        if (artifactIndexer.findRepository(request) != null) {
+    protected boolean doExist(final ResourceRequest resourceRequest) {
+        if (artifactIndexer.findRepository(resourceRequest) != null) {
             return true;
         }
 
@@ -40,14 +41,14 @@ public class VirtualRepository extends AbstractRepository {
 
         for (final Repository repository : repositoryMap.values()) {
             try {
-                exist = repository.exist(request);
+                exist = repository.exist(resourceRequest);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
             if (exist) {
-                artifactIndexer.storeRepository(request, repository.getContextRoot());
+                artifactIndexer.storeRepository(resourceRequest, repository.getContextRoot());
                 break;
             }
         }
@@ -56,26 +57,26 @@ public class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    protected URI doGetDownloadUri(final ResourceRequest request) throws Exception {
-        final String repositoryContextRoot = artifactIndexer.findRepository(request);
+    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+        final String repositoryContextRoot = artifactIndexer.findRepository(resourceRequest);
         final Repository repositoryIndexed = repositoryMap.get(repositoryContextRoot);
 
         if (repositoryIndexed != null) {
-            return repositoryIndexed.getDownloadUri(request);
+            return repositoryIndexed.getResource(resourceRequest);
         }
 
         for (final Repository repository : repositoryMap.values()) {
-            URI uri = null;
+            RequestResource requestResource = null;
 
             try {
-                uri = repository.getDownloadUri(request);
+                requestResource = repository.getResource(resourceRequest);
             }
             catch (final Exception ex) {
                 getLogger().warn("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
             }
 
-            if (uri != null) {
-                return uri;
+            if (requestResource != null) {
+                return requestResource;
             }
         }
 

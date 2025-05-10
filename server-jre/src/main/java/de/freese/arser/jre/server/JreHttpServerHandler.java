@@ -6,10 +6,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -19,8 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.freese.arser.Arser;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.request.ResourceRequest;
 import de.freese.arser.core.utils.ArserUtils;
 import de.freese.arser.core.utils.HttpMethod;
 
@@ -31,13 +28,11 @@ public class JreHttpServerHandler implements HttpHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(JreHttpServerHandler.class);
 
     private final Arser arser;
-    private final HttpClient httpClient;
 
-    JreHttpServerHandler(final Arser arser, final HttpClient httpClient) {
+    JreHttpServerHandler(final Arser arser) {
         super();
 
         this.arser = Objects.requireNonNull(arser, "arser required");
-        this.httpClient = Objects.requireNonNull(httpClient, "httpClient required");
     }
 
     @Override
@@ -52,19 +47,19 @@ public class JreHttpServerHandler implements HttpHandler {
             }
         }
 
-        final ResourceRequest request = ResourceRequest.of(exchange.getRequestURI());
+        final ResourceRequest resourceRequest = ResourceRequest.of(exchange.getRequestURI());
 
         try {
-            if (HttpMethod.GET.equals(httpMethod)) {
+            if (HttpMethod.HEAD.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
-                handleGet(exchange, request, arser);
+                handleHead(exchange, resourceRequest, arser);
             }
-            else if (HttpMethod.HEAD.equals(httpMethod)) {
+            else if (HttpMethod.GET.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
-                handleHead(exchange, request, arser);
+                handleGet(exchange, resourceRequest, arser);
             }
             else if (HttpMethod.PUT.equals(httpMethod)) {
-                handlePut(exchange, request, arser);
+                handlePut(exchange, resourceRequest, arser);
             }
             else {
                 sendError(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, String.format("unknown method: %s from %s", httpMethod, exchange.getRemoteAddress()));
@@ -81,61 +76,47 @@ public class JreHttpServerHandler implements HttpHandler {
         }
     }
 
+    protected void consumeAndClose(final InputStream inputStream) throws IOException {
+        // Drain the Body.
+        inputStream.transferTo(OutputStream.nullOutputStream());
+        inputStream.close();
+    }
+
     /**
      * See Documentation of {@link HttpExchange}.
      */
-    protected void consumeAndCloseRequestStream(final HttpExchange exchange) throws IOException {
+    protected void consumeAndCloseRequestStream(final HttpExchange exchange) {
         try (InputStream inputStream = exchange.getRequestBody()) {
-            inputStream.transferTo(OutputStream.nullOutputStream());
+            consumeAndClose(inputStream);
         }
         catch (IOException ex) {
             // Ignore
         }
     }
 
-    protected void handleGet(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
-        final Repository repository = arser.getRepository(request.getContextRoot());
+    protected void handleGet(final HttpExchange exchange, final ResourceRequest resourceRequest, final Arser arser) throws Exception {
+        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
         try {
-            final URI downloadUri = repository.getDownloadUri(request);
+            final RequestResource requestResource = repository.getResource(resourceRequest);
 
-            if (downloadUri == null) {
-                final String message = "HTTP-STATUS: %d for %s".formatted(ArserUtils.HTTP_STATUS_NOT_FOUND, request.getResource());
+            if (requestResource == null) {
+                final String message = "HTTP-STATUS: %d for %s".formatted(ArserUtils.HTTP_STATUS_NOT_FOUND, resourceRequest.getResource());
                 throw new Exception(message);
             }
 
-            final HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(downloadUri)
-                    .GET()
-                    .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                    .header("Accept", ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM)
-                    .build();
-
-            final HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-
-            if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
-                try (InputStream inputStream = httpResponse.body()) {
-                    // Drain the Body.
-                    inputStream.transferTo(OutputStream.nullOutputStream());
-                }
-
-                final String message = "HTTP-STATUS: %d for %s".formatted(httpResponse.statusCode(), downloadUri.toString());
-                throw new Exception(message);
-            }
-
-            final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(-1);
+            final long contentLength = requestResource.getContentLength();
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), downloadUri);
+                LOGGER.debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), resourceRequest.getResource());
             }
 
             exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
             exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_CONTENT_TYPE, ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM);
             exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, contentLength);
 
-            try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody());
-                 InputStream inputStream = httpResponse.body()) {
-                inputStream.transferTo(outputStream);
+            try (OutputStream outputStream = new BufferedOutputStream(exchange.getResponseBody())) {
+                requestResource.transferTo(outputStream);
 
                 outputStream.flush();
             }
@@ -154,10 +135,10 @@ public class JreHttpServerHandler implements HttpHandler {
         }
     }
 
-    protected void handleHead(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
-        final Repository repository = arser.getRepository(request.getContextRoot());
+    protected void handleHead(final HttpExchange exchange, final ResourceRequest resourceRequest, final Arser arser) throws Exception {
+        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
-        final boolean exist = repository.exist(request);
+        final boolean exist = repository.exist(resourceRequest);
 
         final int response = exist ? ArserUtils.HTTP_STATUS_OK : ArserUtils.HTTP_STATUS_NOT_FOUND;
 
@@ -168,11 +149,11 @@ public class JreHttpServerHandler implements HttpHandler {
     /**
      * Deploy
      **/
-    protected void handlePut(final HttpExchange exchange, final ResourceRequest request, final Arser arser) throws Exception {
-        final Repository repository = arser.getRepository(request.getContextRoot());
+    protected void handlePut(final HttpExchange exchange, final ResourceRequest resourceRequest, final Arser arser) throws Exception {
+        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
 
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
-            repository.write(request, inputStream);
+            repository.write(resourceRequest, inputStream);
         }
         catch (Exception ex) {
             sendError(exchange, ArserUtils.HTTP_STATUS_FORBIDDEN, ex.getMessage());

@@ -9,7 +9,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import de.freese.arser.core.request.ResourceRequest;
+import de.freese.arser.core.model.DefaultRequestResource;
+import de.freese.arser.core.model.RequestResource;
+import de.freese.arser.core.model.ResourceRequest;
 
 /**
  * @author Thomas Freese
@@ -24,8 +26,8 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest request) {
-        final Path path = toPath(request.getResource());
+    protected boolean doExist(final ResourceRequest resourceRequest) {
+        final Path path = toPath(resourceRequest.getResource());
 
         final boolean exist = Files.exists(path);
 
@@ -42,10 +44,16 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected URI doGetDownloadUri(final ResourceRequest request) {
-        final Path path = toPath(request.getResource());
+    protected RequestResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
+        final Path path = toPath(resourceRequest.getResource());
 
-        return path.toUri();
+        if (getLogger().isDebugEnabled()) {
+            getLogger().debug("RequestResource: {}", path);
+        }
+
+        final long contentLength = Files.size(path);
+
+        return new DefaultRequestResource(contentLength, () -> Files.newInputStream(path));
     }
 
     @Override
@@ -67,12 +75,12 @@ public class FileRepository extends AbstractRepository {
     }
 
     @Override
-    protected void doWrite(final ResourceRequest request, final InputStream inputStream) throws Exception {
+    protected void doWrite(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
         if (!writeable) {
             throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
         }
 
-        final Path path = toPath(request.getResource());
+        final Path path = toPath(resourceRequest.getResource());
 
         if (!Files.exists(path.getParent())) {
             Files.createDirectories(path.getParent());
