@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import de.freese.arser.config.HttpClientConfig;
+import de.freese.arser.config.ThreadPoolConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ArserUtils;
@@ -37,12 +38,14 @@ public class JreHttpClientComponent extends AbstractLifecycle {
 
     @Override
     protected void doStart() throws Exception {
-        final String threadNamePattern = httpClientConfig.getThreadNamePattern();
-        final int threadPoolCoreSize = httpClientConfig.getThreadPoolCoreSize();
-        final int threadPoolMaxSize = httpClientConfig.getThreadPoolMaxSize();
+        final ThreadPoolConfig threadPoolConfig = httpClientConfig.getThreadPoolConfig();
 
-        executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-                new ArserThreadFactory(threadNamePattern));
+        executorService = new ThreadPoolExecutor(threadPoolConfig.getCoreSize(),
+                threadPoolConfig.getMaxSize(),
+                60L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                new ArserThreadFactory(threadPoolConfig.getNamePattern()));
 
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)

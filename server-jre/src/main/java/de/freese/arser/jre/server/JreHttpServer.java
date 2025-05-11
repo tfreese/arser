@@ -10,27 +10,28 @@ import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpServer;
 
-import de.freese.arser.Arser;
 import de.freese.arser.config.ServerConfig;
+import de.freese.arser.config.ThreadPoolConfig;
 import de.freese.arser.core.lifecycle.AbstractLifecycle;
 import de.freese.arser.core.utils.ArserThreadFactory;
 import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.instance.ArserInstance;
 
 /**
  * @author Thomas Freese
  */
 public class JreHttpServer extends AbstractLifecycle {
-    private final Arser arser;
+    private final ArserInstance arserInstance;
     private final ServerConfig serverConfig;
 
     private ExecutorService executorService;
     private HttpServer httpServer;
 
-    public JreHttpServer(final Arser arser, final ServerConfig serverConfig) {
+    public JreHttpServer(final ArserInstance arserInstance) {
         super();
 
-        this.arser = Objects.requireNonNull(arser, "arser required");
-        this.serverConfig = Objects.requireNonNull(serverConfig, "serverConfig required");
+        this.arserInstance = Objects.requireNonNull(arserInstance, "arserInstance required");
+        this.serverConfig = arserInstance.getConfig().getServerConfig();
     }
 
     @Override
@@ -46,12 +47,14 @@ public class JreHttpServer extends AbstractLifecycle {
     @Override
     protected void doStart() throws Exception {
         final int port = serverConfig.getPort();
-        final String threadNamePattern = serverConfig.getThreadNamePattern();
-        final int threadPoolCoreSize = serverConfig.getThreadPoolCoreSize();
-        final int threadPoolMaxSize = serverConfig.getThreadPoolMaxSize();
+        final ThreadPoolConfig threadPoolConfig = serverConfig.getThreadPoolConfig();
 
-        executorService = new ThreadPoolExecutor(threadPoolCoreSize, threadPoolMaxSize, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
-                new ArserThreadFactory(threadNamePattern));
+        executorService = new ThreadPoolExecutor(threadPoolConfig.getCoreSize(),
+                threadPoolConfig.getMaxSize(),
+                60L,
+                TimeUnit.SECONDS,
+                new SynchronousQueue<>(),
+                new ArserThreadFactory(threadPoolConfig.getNamePattern()));
 
         // httpServer = HttpsServer.create(new InetSocketAddress(port), 0);
         // if (httpServer instanceof HttpsServer https) {
@@ -65,7 +68,7 @@ public class JreHttpServer extends AbstractLifecycle {
 
         httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         httpServer.setExecutor(executorService);
-        httpServer.createContext("/", new JreHttpServerHandler(arser));
+        httpServer.createContext("/", new JreHttpServerHandler(arserInstance));
 
         httpServer.start();
         // new Thread(httpServer::start, "arser").start();

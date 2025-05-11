@@ -1,15 +1,36 @@
 // Created: 22.07.23
 package de.freese.arser.core.repository;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author Thomas Freese
  */
 public abstract class AbstractRemoteRepository extends AbstractRepository {
+    private final Path workingDir;
 
-    protected AbstractRemoteRepository(final String contextRoot, final URI baseUri) {
+    protected AbstractRemoteRepository(final String contextRoot, final URI baseUri, final Path workingDir) {
         super(contextRoot, baseUri);
+
+        this.workingDir = Objects.requireNonNull(workingDir, "workingDir required");
+
+        if (!Files.exists(workingDir)) {
+            try {
+                Files.createDirectories(workingDir);
+            }
+            catch (IOException ex) {
+                throw new UncheckedIOException(ex);
+            }
+        }
+    }
+
+    public Path getWorkingDir() {
+        return workingDir;
     }
 
     protected URI createRemoteUri(final URI baseUri, final URI resource) {

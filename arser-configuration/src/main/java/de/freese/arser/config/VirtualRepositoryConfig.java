@@ -8,9 +8,8 @@ import java.util.List;
 /**
  * @author Thomas Freese
  */
-public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
+public final class VirtualRepositoryConfig {
     public static final class Builder {
-        // private final List<Repository> repositories = new ArrayList<>();
         private final List<String> repositoryRefs = new ArrayList<>();
         private String contextRoot;
 
@@ -21,18 +20,6 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         public VirtualRepositoryConfig build() {
             ConfigValidator.contextRoot(contextRoot);
 
-            // if (!repositories.isEmpty() && !repositoryRefs.isEmpty()) {
-            //     throw new IllegalStateException("either repositories OR repositoryRefs can be used");
-            // }
-            //
-            // if (repositories.isEmpty()) {
-            //     ConfigValidator.value(repositoryRefs, value -> !value.isEmpty(), () -> "repositoryRefs are empty");
-            // }
-            //
-            // if (repositoryRefs.isEmpty()) {
-            //     ConfigValidator.value(repositories, value -> !value.isEmpty(), () -> "repositories are empty");
-            // }
-
             return new VirtualRepositoryConfig(this);
         }
 
@@ -41,22 +28,6 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
 
             return this;
         }
-
-        // public Builder repositories(final List<Repository> repositories) {
-        //     if (repositories == null) {
-        //         return this;
-        //     }
-        //
-        //     repositories.forEach(repository -> {
-        //         if (this.repositories.contains(repository)) {
-        //             throw new IllegalArgumentException("repository already exist: " + repository.getContextRoot());
-        //         }
-        //
-        //         this.repositories.add(repository);
-        //     });
-        //
-        //     return this;
-        // }
 
         public Builder repositoryRefs(final List<String> repositoryRefs) {
             if (repositoryRefs == null) {
@@ -79,21 +50,39 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         return new Builder();
     }
 
-    // private final List<Repository> repositories;
+    private final String contextRoot;
     private final List<String> repositoryRefs;
+    private final URI uri;
 
     private VirtualRepositoryConfig(final Builder builder) {
-        super(builder.contextRoot, URI.create("virtual"));
+        super();
 
+        contextRoot = builder.contextRoot;
+        uri = URI.create("virtual");
         repositoryRefs = List.copyOf(builder.repositoryRefs);
-        // repositories = List.copyOf(builder.repositories);
     }
 
-    // public List<Repository> getRepositories() {
-    //     return repositories;
-    // }
+    public String getContextRoot() {
+        return contextRoot;
+    }
 
     public List<String> getRepositoryRefs() {
         return repositoryRefs;
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("contextRoot=").append(getContextRoot());
+        sb.append(", uri=").append(getUri());
+        sb.append(", repositoryRefs=").append(repositoryRefs);
+        sb.append(']');
+
+        return sb.toString();
     }
 }

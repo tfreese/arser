@@ -24,22 +24,23 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import de.freese.arser.Arser;
+import de.freese.arser.config.ArserConfig;
+import de.freese.arser.config.FileRepositoryConfig;
+import de.freese.arser.config.RemoteRepositoryConfig;
 import de.freese.arser.config.ServerConfig;
-import de.freese.arser.core.repository.FileRepository;
-import de.freese.arser.core.repository.RemoteRepositoryJreHttpClient;
 import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.instance.ArserInstance;
+import de.freese.arser.instance.ArserInstanceFactory;
 import de.freese.arser.jre.server.JreHttpServer;
 
 /**
  * @author Thomas Freese
  */
 class TestArserJreServer {
-    private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-test-server-jre");
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.pom";
-    private static Arser arser;
+
+    private static ArserInstance arserInstance;
     private static HttpClient httpClient;
-    private static URI localhostServer;
     private static JreHttpServer proxyServer;
 
     @AfterAll
@@ -47,23 +48,13 @@ class TestArserJreServer {
         httpClient.close();
         proxyServer.stop();
 
-        arser.forEach(repo -> {
-            try {
-                repo.stop();
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        ArserInstanceFactory.shutdownAll();
 
-        if (!Files.exists(PATH_TEST)) {
+        if (!Files.exists(arserInstance.getConfig().getWorkingDir())) {
             return;
         }
 
-        Files.walkFileTree(PATH_TEST, new SimpleFileVisitor<>() {
+        Files.walkFileTree(arserInstance.getConfig().getWorkingDir(), new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
                 Files.delete(dir);
@@ -77,37 +68,34 @@ class TestArserJreServer {
             }
         });
 
-        Files.deleteIfExists(PATH_TEST);
+        Files.deleteIfExists(arserInstance.getConfig().getWorkingDir());
     }
 
     @BeforeAll
     static void beforeAll() throws Exception {
-        arser = new Arser();
-        arser.addRepository(new RemoteRepositoryJreHttpClient("maven-central", URI.create("https://repo1.maven.org/maven2")));
-        arser.addRepository(new FileRepository("deploy-snapshots", PATH_TEST.resolve("deploy-snapshots").toUri(), true));
-        arser.forEach(repo -> {
-            try {
-                repo.start();
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-
         final int randomPort = ArserUtils.findRandomOpenPort();
 
-        localhostServer = URI.create("http://localhost:" + randomPort);
+        final Path workingPath = Path.of(System.getProperty("java.io.tmpdir"), "arser-test-server-jre");
 
-        proxyServer = new JreHttpServer(arser, ServerConfig.builder()
-                .threadNamePattern("http-server-%d")
-                .threadPoolCoreSize(2)
-                .threadPoolMaxSize(6)
-                .port(randomPort)
-                .build()
-        );
+        final ArserConfig config = ArserConfig.builder()
+                .workingDir(workingPath)
+                .addRemoteRepository(RemoteRepositoryConfig.builder()
+                        .contextRoot("maven-central")
+                        .uri(URI.create("https://repo1.maven.org/maven2"))
+                        .build())
+                .addFileRepository(FileRepositoryConfig.builder()
+                        .contextRoot("deploy-snapshots")
+                        .uri(workingPath.resolve("deploy-snapshots").toUri())
+                        .writeable(true)
+                        .build())
+                .serverConfig(ServerConfig.builder()
+                        .port(randomPort)
+                        .build())
+                .build();
+
+        arserInstance = ArserInstanceFactory.createArserInstance(config);
+
+        proxyServer = new JreHttpServer(arserInstance);
         proxyServer.start();
 
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
@@ -119,10 +107,14 @@ class TestArserJreServer {
         httpClient = httpClientBuilder.build();
     }
 
+    private static URI getServerUri() {
+        return URI.create("http://localhost:" + arserInstance.getConfig().getServerConfig().getPort());
+    }
+
     @Test
     void testExist() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(localhostServer.resolve("maven-central/" + RESOURCE))
+                .uri(getServerUri().resolve("maven-central/" + RESOURCE))
                 .HEAD()
                 .build();
 
@@ -133,7 +125,7 @@ class TestArserJreServer {
     @Test
     void testExistFail() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(localhostServer.resolve("maven-central/a" + RESOURCE))
+                .uri(getServerUri().resolve("maven-central/a" + RESOURCE))
                 .HEAD()
                 .build();
 
@@ -144,7 +136,7 @@ class TestArserJreServer {
     @Test
     void testGet() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(localhostServer.resolve("maven-central/" + RESOURCE))
+                .uri(getServerUri().resolve("maven-central/" + RESOURCE))
                 .GET()
                 .build();
 
@@ -163,7 +155,7 @@ class TestArserJreServer {
     @Test
     void testGetFail() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(localhostServer.resolve("maven-central/a" + RESOURCE))
+                .uri(getServerUri().resolve("maven-central/a" + RESOURCE))
                 .GET()
                 .build();
 
@@ -182,14 +174,14 @@ class TestArserJreServer {
     @Test
     void testWriteable() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(localhostServer.resolve("deploy-snapshots/" + RESOURCE))
+                .uri(getServerUri().resolve("deploy-snapshots/" + RESOURCE))
                 .PUT(HttpRequest.BodyPublishers.ofString("test"))
                 .build();
 
         final HttpResponse<Void> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
         assertEquals(ArserUtils.HTTP_STATUS_OK, httpResponse.statusCode());
 
-        final Path path = PATH_TEST.resolve("deploy-snapshots").resolve(RESOURCE);
+        final Path path = arserInstance.getConfig().getWorkingDir().resolve("deploy-snapshots").resolve(RESOURCE);
         assertTrue(Files.exists(path));
         assertEquals("test", Files.readString(path));
     }
@@ -197,7 +189,7 @@ class TestArserJreServer {
     @Test
     void testWriteableFail() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(localhostServer.resolve("maven-central/" + RESOURCE))
+                .uri(getServerUri().resolve("maven-central/" + RESOURCE))
                 .PUT(HttpRequest.BodyPublishers.ofString("test"))
                 .build();
 

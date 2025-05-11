@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,8 +22,6 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
 
     private final URI baseUri;
     private final String contextRoot;
-
-    private Path workingDir;
 
     protected AbstractRepository(final String contextRoot, final URI baseUri) {
         super();
@@ -95,23 +92,8 @@ public abstract class AbstractRepository extends AbstractLifecycle implements Re
         throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
     }
 
-    protected Path getWorkingDir() {
-        if (workingDir == null) {
-            workingDir = Path.of(System.getProperty("arser.workingDir"), contextRoot);
-
-            try {
-                Files.createDirectories(workingDir);
-            }
-            catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
-        }
-
-        return workingDir;
-    }
-
-    protected Path writeToTempFile(final URI uri, final InputStream inputStream) throws IOException {
-        final Path path = getWorkingDir().resolve(System.nanoTime() + ArserUtils.toFileName(uri));
+    protected Path writeToTempFile(final Path workingDir, final URI uri, final InputStream inputStream) throws IOException {
+        final Path path = workingDir.resolve(System.nanoTime() + ArserUtils.toFileName(uri));
 
         try (OutputStream outputStream = Files.newOutputStream(path);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream)) {

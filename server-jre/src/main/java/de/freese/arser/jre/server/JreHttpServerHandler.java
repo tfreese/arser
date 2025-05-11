@@ -14,12 +14,12 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.freese.arser.Arser;
 import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.utils.ArserUtils;
 import de.freese.arser.core.utils.HttpMethod;
+import de.freese.arser.instance.ArserInstance;
 
 /**
  * @author Thomas Freese
@@ -27,12 +27,12 @@ import de.freese.arser.core.utils.HttpMethod;
 public class JreHttpServerHandler implements HttpHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(JreHttpServerHandler.class);
 
-    private final Arser arser;
+    private final ArserInstance arserInstance;
 
-    JreHttpServerHandler(final Arser arser) {
+    JreHttpServerHandler(final ArserInstance arserInstance) {
         super();
 
-        this.arser = Objects.requireNonNull(arser, "arser required");
+        this.arserInstance = Objects.requireNonNull(arserInstance, "arserInstance required");
     }
 
     @Override
@@ -52,14 +52,14 @@ public class JreHttpServerHandler implements HttpHandler {
         try {
             if (HttpMethod.HEAD.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
-                handleHead(exchange, resourceRequest, arser);
+                handleHead(exchange, resourceRequest, arserInstance);
             }
             else if (HttpMethod.GET.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
-                handleGet(exchange, resourceRequest, arser);
+                handleGet(exchange, resourceRequest, arserInstance);
             }
             else if (HttpMethod.PUT.equals(httpMethod)) {
-                handlePut(exchange, resourceRequest, arser);
+                handlePut(exchange, resourceRequest, arserInstance);
             }
             else {
                 sendError(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, String.format("unknown method: %s from %s", httpMethod, exchange.getRemoteAddress()));
@@ -94,8 +94,8 @@ public class JreHttpServerHandler implements HttpHandler {
         }
     }
 
-    protected void handleGet(final HttpExchange exchange, final ResourceRequest resourceRequest, final Arser arser) throws Exception {
-        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+    protected void handleGet(final HttpExchange exchange, final ResourceRequest resourceRequest, final ArserInstance arserInstance) throws Exception {
+        final Repository repository = arserInstance.getRepository(resourceRequest.getContextRoot());
 
         try {
             final FileResource fileResource = repository.getResource(resourceRequest);
@@ -135,8 +135,8 @@ public class JreHttpServerHandler implements HttpHandler {
         }
     }
 
-    protected void handleHead(final HttpExchange exchange, final ResourceRequest resourceRequest, final Arser arser) throws Exception {
-        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+    protected void handleHead(final HttpExchange exchange, final ResourceRequest resourceRequest, final ArserInstance arserInstance) throws Exception {
+        final Repository repository = arserInstance.getRepository(resourceRequest.getContextRoot());
 
         final boolean exist = repository.exist(resourceRequest);
 
@@ -149,8 +149,8 @@ public class JreHttpServerHandler implements HttpHandler {
     /**
      * Deploy
      **/
-    protected void handlePut(final HttpExchange exchange, final ResourceRequest resourceRequest, final Arser arser) throws Exception {
-        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+    protected void handlePut(final HttpExchange exchange, final ResourceRequest resourceRequest, final ArserInstance arserInstance) throws Exception {
+        final Repository repository = arserInstance.getRepository(resourceRequest.getContextRoot());
 
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
             repository.write(resourceRequest, inputStream);

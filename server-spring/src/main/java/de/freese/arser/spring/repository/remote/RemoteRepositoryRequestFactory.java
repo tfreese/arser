@@ -28,8 +28,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
     private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public RemoteRepositoryRequestFactory(final String name, final URI baseUri, final ClientHttpRequestFactory clientHttpRequestFactory) {
-        super(name, baseUri);
+    public RemoteRepositoryRequestFactory(final String name, final URI baseUri, final Path workingDir, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        super(name, baseUri, workingDir);
 
         this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
@@ -84,7 +84,7 @@ public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
             contentLength = clientHttpResponse.getHeaders().getContentLength();
 
             try (InputStream inputStream = clientHttpResponse.getBody()) {
-                path = writeToTempFile(resourceRequest.getResource(), inputStream);
+                path = writeToTempFile(getWorkingDir(), resourceRequest.getResource(), inputStream);
             }
         }
 

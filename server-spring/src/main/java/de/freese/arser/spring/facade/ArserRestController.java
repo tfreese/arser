@@ -23,11 +23,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.freese.arser.Arser;
 import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.instance.ArserInstance;
 
 /**
  * <a href="https://dev.to/rpkr/different-ways-to-send-a-file-as-a-response-in-spring-boot-for-a-rest-api-43g7">different-ways-to-send-a-file</a>
@@ -40,12 +40,12 @@ public class ArserRestController {
     // private static final Logger LOGGER = LoggerFactory.getLogger(ArserRestController.class);
 
     // @Resource
-    private final Arser arser;
+    private final ArserInstance arserInstance;
 
-    public ArserRestController(final Arser arser) {
+    public ArserRestController(final ArserInstance arserInstance) {
         super();
 
-        this.arser = Objects.requireNonNull(arser, "arser required");
+        this.arserInstance = Objects.requireNonNull(arserInstance, "arserInstance required");
     }
 
     /**
@@ -69,7 +69,7 @@ public class ArserRestController {
         // response.setContentType("application/binary");
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+        final Repository repository = arserInstance.getRepository(resourceRequest.getContextRoot());
 
         if (repository == null) {
             response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -112,7 +112,7 @@ public class ArserRestController {
         // LOGGER.info("doHead: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
-        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+        final Repository repository = arserInstance.getRepository(resourceRequest.getContextRoot());
 
         final boolean exist = repository.exist(resourceRequest);
 
@@ -124,7 +124,7 @@ public class ArserRestController {
         // LOGGER.info("doPut: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
-        final Repository repository = arser.getRepository(resourceRequest.getContextRoot());
+        final Repository repository = arserInstance.getRepository(resourceRequest.getContextRoot());
 
         try (InputStream inputStream = new BufferedInputStream(httpServletRequest.getInputStream())) {
             repository.write(resourceRequest, inputStream);

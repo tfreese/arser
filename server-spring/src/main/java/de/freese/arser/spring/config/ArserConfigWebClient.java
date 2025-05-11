@@ -15,11 +15,13 @@ import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.http.client.reactive.JdkClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import de.freese.arser.Arser;
+import de.freese.arser.config.ArserConfig;
 import de.freese.arser.core.repository.FileRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.VirtualRepository;
 import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.instance.ArserInstance;
+import de.freese.arser.spring.SpringArserInstance;
 import de.freese.arser.spring.repository.remote.RemoteRepositoryWebClient;
 
 /**
@@ -28,35 +30,12 @@ import de.freese.arser.spring.repository.remote.RemoteRepositoryWebClient;
 @Configuration
 @Profile("web-client")
 public class ArserConfigWebClient {
-    // private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWebClient.class);
-
-    // @Value("${arser.workingDir}")
-    // private Path workingDir;
-
-    @Bean
-    Arser arser() {
-        return new Arser();
+    @Bean(destroyMethod = "shutdown")
+    ArserInstance arserInstance(@Value("${arser.workingDir}") final Path workingDir) {
+        return new SpringArserInstance("arserInstance_spring_WebClient", ArserConfig.builder()
+                .workingDir(workingDir)
+                .build());
     }
-
-    // @Bean
-    // @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
-    // Arser arser(final ApplicationContext applicationContext) {
-    //     LOGGER.info("configure arser");
-    //
-    //     final List<Repository> repositories = List.copyOf(applicationContext.getBeansOfType(Repository.class).values());
-    //
-    //     final Arser arser = new Arser();
-    //
-    //     repositories.forEach(arser::addRepository);
-    //
-    //     LOGGER.info("arser repository count: {}", arser.getRepositoryCount());
-    //
-    //     if (arser.getRepositoryCount() == 0) {
-    //         throw new IllegalStateException("arser doesn't have any registered repositories");
-    //     }
-    //
-    //     return arser;
-    // }
 
     @Bean
     ClientHttpConnector clientHttpConnector() {
@@ -83,40 +62,56 @@ public class ArserConfigWebClient {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository localDeploySnapshots(final Arser arser, @Value("${arser.workingDir}") final Path workingDir) {
-        final Repository repository = new FileRepository("deploy-snapshots", workingDir.resolve("deploy-snapshots").toUri(), true);
-        arser.addRepository(repository);
+    Repository localDeploySnapshots(final ArserInstance arserInstance) {
+        final Repository repository = new FileRepository("deploy-snapshots",
+                arserInstance.getConfig().getWorkingDir().resolve("deploy-snapshots").toUri(), true);
+        arserInstance.addRepository(repository);
 
         return repository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradlePlugins(final WebClient webclient) {
-        return new RemoteRepositoryWebClient("gradle-plugins", URI.create("https://plugins.gradle.org"), webclient);
+    Repository remoteGradlePlugins(@Value("${arser.workingDir}") final Path workingDir, final WebClient webclient) {
+        final String contextRoot = "gradle-plugins";
+
+        return new RemoteRepositoryWebClient(contextRoot,
+                URI.create("https://plugins.gradle.org"),
+                workingDir.resolve(contextRoot),
+                webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradleReleases(final WebClient webclient) {
-        return new RemoteRepositoryWebClient("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), webclient);
+    Repository remoteGradleReleases(@Value("${arser.workingDir}") final Path workingDir, final WebClient webclient) {
+        final String contextRoot = "gradle-releases";
+
+        return new RemoteRepositoryWebClient(contextRoot,
+                URI.create("https://repo.gradle.org/gradle/libs-releases"),
+                workingDir.resolve(contextRoot),
+                webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteMavenCentral(final WebClient webclient) {
-        return new RemoteRepositoryWebClient("maven-central", URI.create("https://repo1.maven.org/maven2"), webclient);
+    Repository remoteMavenCentral(@Value("${arser.workingDir}") final Path workingDir, final WebClient webclient) {
+        final String contextRoot = "maven-central";
+
+        return new RemoteRepositoryWebClient(contextRoot,
+                URI.create("https://repo1.maven.org/maven2"),
+                workingDir.resolve(contextRoot),
+                webclient);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublic(final Arser arser, final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
+    Repository virtualPublic(final ArserInstance arserInstance, final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
         final Repository repository = new VirtualRepository("public", List.of(remoteMavenCentral, remoteGradleReleases, remoteGradlePlugins));
-        arser.addRepository(repository);
+        arserInstance.addRepository(repository);
 
         return repository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublicSnapshots(final Arser arser, final Repository localDeploySnapshots) {
+    Repository virtualPublicSnapshots(final ArserInstance arserInstance, final Repository localDeploySnapshots) {
         final Repository repository = new VirtualRepository("public-snapshots", List.of(localDeploySnapshots));
-        arser.addRepository(repository);
+        arserInstance.addRepository(repository);
 
         return repository;
     }

@@ -27,8 +27,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
     private final WebClient webClient;
 
-    public RemoteRepositoryWebClient(final String name, final URI baseUri, final WebClient webClient) {
-        super(name, baseUri);
+    public RemoteRepositoryWebClient(final String name, final URI baseUri, final Path workingDir, final WebClient webClient) {
+        super(name, baseUri, workingDir);
 
         this.webClient = Objects.requireNonNull(webClient, "webClient required");
     }

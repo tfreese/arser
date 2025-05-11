@@ -20,6 +20,14 @@ public final class ConfigValidator {
         }
     }
 
+    public static <T> void notNull(final T value, final Supplier<String> messageSupplier) {
+        if (value == null) {
+            final String message = messageSupplier.get();
+
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     public static void string(final String value, final Supplier<String> messageSupplier) {
         value(value,
                 v -> v != null

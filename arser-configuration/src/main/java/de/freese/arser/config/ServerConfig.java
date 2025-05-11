@@ -1,15 +1,18 @@
 // Created: 31 Okt. 2024
 package de.freese.arser.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Thomas Freese
  */
 public final class ServerConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
+
     public static final class Builder {
         private int port;
-        private String threadNamePattern;
-        private int threadPoolCoreSize;
-        private int threadPoolMaxSize;
+        private ThreadPoolConfig threadPoolConfig;
 
         private Builder() {
             super();
@@ -17,12 +20,11 @@ public final class ServerConfig {
 
         public ServerConfig build() {
             ConfigValidator.value(port, value -> value >= 1025 && value <= 65534, () -> "port not in range 1025-65534: %d".formatted(port));
-            ConfigValidator.string(threadNamePattern, () -> "threadNamePattern required: '%s'".formatted(threadNamePattern));
-            ConfigValidator.value(threadPoolCoreSize, value -> value > 0, () -> "ThreadPoolCoreSize is <= 0: %d".formatted(threadPoolCoreSize));
-            ConfigValidator.value(threadPoolMaxSize, value -> value > 0, () -> "ThreadPoolMaxSize is <= 0: %d".formatted(threadPoolMaxSize));
 
-            if (threadPoolCoreSize > threadPoolMaxSize) {
-                throw new IllegalArgumentException("ThreadPoolCoreSize bigger than ThreadPoolMaxSize: %d > %d".formatted(threadPoolCoreSize, threadPoolMaxSize));
+            if (threadPoolConfig == null) {
+                threadPoolConfig = ThreadPoolConfig.builderServerDefault().build();
+
+                LOGGER.info("threadPoolConfig not set, using default: {}", threadPoolConfig);
             }
 
             return new ServerConfig(this);
@@ -38,28 +40,8 @@ public final class ServerConfig {
             return this;
         }
 
-        public Builder threadNamePattern(final String threadNamePattern) {
-            this.threadNamePattern = threadNamePattern;
-
-            return this;
-        }
-
-        public Builder threadPoolCoreSize(final Integer threadPoolCoreSize) {
-            if (threadPoolCoreSize == null) {
-                return this;
-            }
-
-            this.threadPoolCoreSize = threadPoolCoreSize;
-
-            return this;
-        }
-
-        public Builder threadPoolMaxSize(final Integer threadPoolMaxSize) {
-            if (threadPoolMaxSize == null) {
-                return this;
-            }
-
-            this.threadPoolMaxSize = threadPoolMaxSize;
+        public Builder threadPoolConfig(final ThreadPoolConfig threadPoolConfig) {
+            this.threadPoolConfig = threadPoolConfig;
 
             return this;
         }
@@ -70,32 +52,20 @@ public final class ServerConfig {
     }
 
     private final int port;
-    private final String threadNamePattern;
-    private final int threadPoolCoreSize;
-    private final int threadPoolMaxSize;
+    private final ThreadPoolConfig threadPoolConfig;
 
     private ServerConfig(final Builder builder) {
         super();
 
         port = builder.port;
-        threadNamePattern = builder.threadNamePattern;
-        threadPoolCoreSize = builder.threadPoolCoreSize;
-        threadPoolMaxSize = builder.threadPoolMaxSize;
+        threadPoolConfig = builder.threadPoolConfig;
     }
 
     public int getPort() {
         return port;
     }
 
-    public String getThreadNamePattern() {
-        return threadNamePattern;
-    }
-
-    public int getThreadPoolCoreSize() {
-        return threadPoolCoreSize;
-    }
-
-    public int getThreadPoolMaxSize() {
-        return threadPoolMaxSize;
+    public ThreadPoolConfig getThreadPoolConfig() {
+        return threadPoolConfig;
     }
 }

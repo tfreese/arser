@@ -20,6 +20,7 @@ import jakarta.annotation.Resource;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -29,6 +30,7 @@ import org.springframework.web.reactive.function.BodyInserters;
  * @author Thomas Freese
  */
 @AutoConfigureWebTestClient(timeout = "10000")
+@Import(DefaultTestConfig.class)
 abstract class AbstractTestSpringServer {
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.pom";
 
@@ -56,7 +58,6 @@ abstract class AbstractTestSpringServer {
 
     // @LocalServerPort
     // private int localServerPort;
-
     @Resource
     private WebTestClient webTestClient;
 

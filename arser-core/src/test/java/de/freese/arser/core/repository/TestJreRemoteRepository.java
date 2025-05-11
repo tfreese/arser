@@ -8,10 +8,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import de.freese.arser.EnabledIfReachable;
@@ -22,16 +29,40 @@ import de.freese.arser.core.model.ResourceRequest;
  * @author Thomas Freese
  */
 class TestJreRemoteRepository {
+    private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-test-remote");
     private static final String REMOTE_REPO = "https://repo1.maven.org/maven2";
     private static final URI REMOTE_REPO_URI = URI.create(REMOTE_REPO);
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
+
+    @AfterAll
+    static void afterAll() throws IOException {
+        if (!Files.exists(PATH_TEST)) {
+            return;
+        }
+
+        Files.walkFileTree(PATH_TEST, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        Files.deleteIfExists(PATH_TEST);
+    }
 
     @Test
     @EnabledIfReachable(uri = REMOTE_REPO, timeoutMillis = 1000)
     void testExist() throws Exception {
         final String contentRoot = "exist";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI, PATH_TEST);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -51,7 +82,7 @@ class TestJreRemoteRepository {
     void testExistFail() throws Exception {
         final String contentRoot = "exist-fail";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI, PATH_TEST);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
@@ -71,7 +102,7 @@ class TestJreRemoteRepository {
     void testGetDownloadUri() throws Exception {
         final String contentRoot = "download-uri";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI, PATH_TEST);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -91,7 +122,7 @@ class TestJreRemoteRepository {
     void testGetDownloadUriFail() throws Exception {
         final String contentRoot = "download-uri-fail";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI);
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, REMOTE_REPO_URI, PATH_TEST);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/a" + RESOURCE));
@@ -111,7 +142,7 @@ class TestJreRemoteRepository {
     void testWriteableFail() throws Exception {
         final String contentRoot = "writeable-fail";
 
-        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, URI.create("https://something"));
+        final Repository repository = new RemoteRepositoryJreHttpClient(contentRoot, URI.create("https://something"), PATH_TEST);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));

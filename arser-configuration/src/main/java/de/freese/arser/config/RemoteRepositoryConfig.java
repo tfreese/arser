@@ -6,10 +6,9 @@ import java.net.URI;
 /**
  * @author Thomas Freese
  */
-public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
+public final class RemoteRepositoryConfig {
     public static final class Builder {
         private String contextRoot;
-        private StoreConfig storeConfig;
         private URI uri;
 
         private Builder() {
@@ -19,19 +18,12 @@ public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
         public RemoteRepositoryConfig build() {
             ConfigValidator.contextRoot(contextRoot);
             ConfigValidator.uri(uri);
-            // ConfigValidator.value(storeConfig, Objects::nonNull, () -> "storeConfig required");
 
             return new RemoteRepositoryConfig(this);
         }
 
         public Builder contextRoot(final String contextRoot) {
             this.contextRoot = contextRoot;
-
-            return this;
-        }
-
-        public Builder storeConfig(final StoreConfig storeConfig) {
-            this.storeConfig = storeConfig;
 
             return this;
         }
@@ -47,15 +39,32 @@ public final class RemoteRepositoryConfig extends AbstractRepositoryConfig {
         return new Builder();
     }
 
-    private final StoreConfig storeConfig;
+    private final String contextRoot;
+    private final URI uri;
 
     private RemoteRepositoryConfig(final Builder builder) {
-        super(builder.contextRoot, builder.uri);
+        super();
 
-        storeConfig = builder.storeConfig;
+        contextRoot = builder.contextRoot;
+        uri = builder.uri;
     }
 
-    public StoreConfig getStoreConfig() {
-        return storeConfig;
+    public String getContextRoot() {
+        return contextRoot;
+    }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("contextRoot=").append(getContextRoot());
+        sb.append(", uri=").append(getUri());
+        sb.append(']');
+
+        return sb.toString();
     }
 }

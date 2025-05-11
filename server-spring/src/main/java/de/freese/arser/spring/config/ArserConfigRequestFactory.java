@@ -12,10 +12,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 
-import de.freese.arser.Arser;
+import de.freese.arser.config.ArserConfig;
 import de.freese.arser.core.repository.FileRepository;
 import de.freese.arser.core.repository.Repository;
 import de.freese.arser.core.repository.VirtualRepository;
+import de.freese.arser.instance.ArserInstance;
+import de.freese.arser.spring.SpringArserInstance;
 import de.freese.arser.spring.repository.remote.RemoteRepositoryRequestFactory;
 
 /**
@@ -24,34 +26,31 @@ import de.freese.arser.spring.repository.remote.RemoteRepositoryRequestFactory;
 @Configuration
 @Profile("request-factory")
 public class ArserConfigRequestFactory {
-    // private static final Logger LOGGER = LoggerFactory.getLogger(ArserConfigWeb.class);
-
-    // @Value("${arser.workingDir}")
-    // private Path workingDir;
-
-    @Bean
-    Arser arser() {
-        return new Arser();
+    @Bean(destroyMethod = "shutdown")
+    ArserInstance arserInstance(@Value("${arser.workingDir}") final Path workingDir) {
+        return new SpringArserInstance("arserInstance_spring_RequestFactory", ArserConfig.builder()
+                .workingDir(workingDir)
+                .build());
     }
 
     // @Bean
     // @DependsOn({"virtualPublic", "virtualPublicSnapshots"})
-    // Arser arser(final ApplicationContext applicationContext) {
+    // ArserInstance arser(final ApplicationContext applicationContext) {
     //     LOGGER.info("configure arser");
     //
     //     final List<Repository> repositories = List.copyOf(applicationContext.getBeansOfType(Repository.class).values());
     //
-    //     final Arser arser = new Arser();
+    //     final ArserInstance arserInstance = new SpringArserInstance();
     //
     //     repositories.forEach(arser::addRepository);
     //
-    //     LOGGER.info("arser repository count: {}", arser.getRepositoryCount());
+    //     LOGGER.info("arser repository count: {}", ArserInstance.getRepositoryCount());
     //
-    //     if (arser.getRepositoryCount() == 0) {
-    //         throw new IllegalStateException("arser doesn't have any registered repositories");
+    //     if (ArserInstance.getRepositoryCount() == 0) {
+    //         throw new IllegalStateException("ArserInstance doesn't have any registered repositories");
     //     }
     //
-    //     return arser;
+    //     return ArserInstance;
     // }
 
     @Bean
@@ -60,40 +59,56 @@ public class ArserConfigRequestFactory {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository localDeploySnapshots(final Arser arser, @Value("${arser.workingDir}") final Path workingDir) {
-        final Repository repository = new FileRepository("deploy-snapshots", workingDir.resolve("deploy-snapshots").toUri(), true);
-        arser.addRepository(repository);
+    Repository localDeploySnapshots(final ArserInstance arserInstance) {
+        final Repository repository = new FileRepository("deploy-snapshots",
+                arserInstance.getConfig().getWorkingDir().resolve("deploy-snapshots").toUri(), true);
+        arserInstance.addRepository(repository);
 
         return repository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradlePlugins(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new RemoteRepositoryRequestFactory("gradle-plugins", URI.create("https://plugins.gradle.org"), clientHttpRequestFactory);
+    Repository remoteGradlePlugins(@Value("${arser.workingDir}") final Path workingDir, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        final String contextRoot = "gradle-plugins";
+
+        return new RemoteRepositoryRequestFactory(contextRoot,
+                URI.create("https://plugins.gradle.org"),
+                workingDir.resolve(contextRoot),
+                clientHttpRequestFactory);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradleReleases(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new RemoteRepositoryRequestFactory("gradle-releases", URI.create("https://repo.gradle.org/gradle/libs-releases"), clientHttpRequestFactory);
+    Repository remoteGradleReleases(@Value("${arser.workingDir}") final Path workingDir, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        final String contextRoot = "gradle-releases";
+
+        return new RemoteRepositoryRequestFactory(contextRoot,
+                URI.create("https://repo.gradle.org/gradle/libs-releases"),
+                workingDir.resolve(contextRoot),
+                clientHttpRequestFactory);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteMavenCentral(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return new RemoteRepositoryRequestFactory("maven-central", URI.create("https://repo1.maven.org/maven2"), clientHttpRequestFactory);
+    Repository remoteMavenCentral(@Value("${arser.workingDir}") final Path workingDir, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        final String contextRoot = "maven-central";
+
+        return new RemoteRepositoryRequestFactory(contextRoot,
+                URI.create("https://repo1.maven.org/maven2"),
+                workingDir.resolve(contextRoot),
+                clientHttpRequestFactory);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublic(final Arser arser, final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
+    Repository virtualPublic(final ArserInstance arserInstance, final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
         final Repository repository = new VirtualRepository("public", List.of(remoteMavenCentral, remoteGradleReleases, remoteGradlePlugins));
-        arser.addRepository(repository);
+        arserInstance.addRepository(repository);
 
         return repository;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublicSnapshots(final Arser arser, final Repository localDeploySnapshots) {
+    Repository virtualPublicSnapshots(final ArserInstance arserInstance, final Repository localDeploySnapshots) {
         final Repository repository = new VirtualRepository("public-snapshots", List.of(localDeploySnapshots));
-        arser.addRepository(repository);
+        arserInstance.addRepository(repository);
 
         return repository;
     }

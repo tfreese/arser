@@ -6,7 +6,7 @@ import java.net.URI;
 /**
  * @author Thomas Freese
  */
-public final class DatabaseStoreConfig implements StoreConfig {
+public final class DatabaseStoreConfig {
     public static final class Builder {
         private String driverClassName;
         private String password;
@@ -130,7 +130,6 @@ public final class DatabaseStoreConfig implements StoreConfig {
         return poolName;
     }
 
-    @Override
     public URI getUri() {
         return uri;
     }

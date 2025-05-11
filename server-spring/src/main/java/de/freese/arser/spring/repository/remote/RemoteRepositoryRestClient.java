@@ -24,8 +24,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
     private final RestClient restClient;
 
-    public RemoteRepositoryRestClient(final String name, final URI baseUri, final RestClient restClient) {
-        super(name, baseUri);
+    public RemoteRepositoryRestClient(final String name, final URI baseUri, final Path workingDir, final RestClient restClient) {
+        super(name, baseUri, workingDir);
 
         this.restClient = Objects.requireNonNull(restClient, "restClient required");
     }
@@ -81,7 +81,7 @@ public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
                     final Path path;
 
                     try (InputStream inputStream = clientResponse.getBody()) {
-                        path = writeToTempFile(resourceRequest.getResource(), inputStream);
+                        path = writeToTempFile(getWorkingDir(), resourceRequest.getResource(), inputStream);
                     }
 
                     return new DefaultFileResource(contentLength, () ->

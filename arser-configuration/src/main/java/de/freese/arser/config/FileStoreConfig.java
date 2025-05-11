@@ -6,7 +6,7 @@ import java.net.URI;
 /**
  * @author Thomas Freese
  */
-public final class FileStoreConfig implements StoreConfig {
+public final class FileStoreConfig {
     public static final class Builder {
         private URI uri;
 
@@ -39,7 +39,6 @@ public final class FileStoreConfig implements StoreConfig {
         uri = builder.uri;
     }
 
-    @Override
     public URI getUri() {
         return uri;
     }

@@ -6,7 +6,7 @@ import java.net.URI;
 /**
  * @author Thomas Freese
  */
-public final class FileRepositoryConfig extends AbstractRepositoryConfig {
+public final class FileRepositoryConfig {
     public static final class Builder {
         private String contextRoot;
         private URI uri;
@@ -46,15 +46,39 @@ public final class FileRepositoryConfig extends AbstractRepositoryConfig {
         return new Builder();
     }
 
+    private final String contextRoot;
+    private final URI uri;
     private final boolean writeable;
 
     private FileRepositoryConfig(final Builder builder) {
-        super(builder.contextRoot, builder.uri);
+        super();
 
+        contextRoot = builder.contextRoot;
+        uri = builder.uri;
         writeable = builder.writeable;
+    }
+
+    public String getContextRoot() {
+        return contextRoot;
+    }
+
+    public URI getUri() {
+        return uri;
     }
 
     public boolean isWriteable() {
         return writeable;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("contextRoot=").append(getContextRoot());
+        sb.append(", uri=").append(getUri());
+        sb.append(", writeable=").append(writeable);
+        sb.append(']');
+
+        return sb.toString();
     }
 }

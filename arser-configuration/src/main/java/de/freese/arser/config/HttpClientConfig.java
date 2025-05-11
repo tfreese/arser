@@ -1,53 +1,34 @@
 // Created: 31 Okt. 2024
 package de.freese.arser.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Thomas Freese
  */
 public final class HttpClientConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientConfig.class);
+
     public static final class Builder {
-        private String threadNamePattern;
-        private int threadPoolCoreSize;
-        private int threadPoolMaxSize;
+        private ThreadPoolConfig threadPoolConfig;
 
         private Builder() {
             super();
         }
 
         public HttpClientConfig build() {
-            ConfigValidator.string(threadNamePattern, () -> "threadNamePattern required: '%s'".formatted(threadNamePattern));
-            ConfigValidator.value(threadPoolCoreSize, value -> value > 0, () -> "ThreadPoolCoreSize is <= 0: %d".formatted(threadPoolCoreSize));
-            ConfigValidator.value(threadPoolMaxSize, value -> value > 0, () -> "ThreadPoolMaxSize is <= 0: %d".formatted(threadPoolMaxSize));
+            if (threadPoolConfig == null) {
+                threadPoolConfig = ThreadPoolConfig.builderClientDefault().build();
 
-            if (threadPoolCoreSize > threadPoolMaxSize) {
-                throw new IllegalArgumentException("ThreadPoolCoreSize bigger than ThreadPoolMaxSize: %d > %d".formatted(threadPoolCoreSize, threadPoolMaxSize));
+                LOGGER.info("threadPoolConfig not set, using default: {}", threadPoolConfig);
             }
 
             return new HttpClientConfig(this);
         }
 
-        public Builder threadNamePattern(final String threadNamePattern) {
-            this.threadNamePattern = threadNamePattern;
-
-            return this;
-        }
-
-        public Builder threadPoolCoreSize(final Integer threadPoolCoreSize) {
-            if (threadPoolCoreSize == null) {
-                return this;
-            }
-
-            this.threadPoolCoreSize = threadPoolCoreSize;
-
-            return this;
-        }
-
-        public Builder threadPoolMaxSize(final Integer threadPoolMaxSize) {
-            if (threadPoolMaxSize == null) {
-                return this;
-            }
-
-            this.threadPoolMaxSize = threadPoolMaxSize;
+        public HttpClientConfig.Builder threadPoolConfig(final ThreadPoolConfig threadPoolConfig) {
+            this.threadPoolConfig = threadPoolConfig;
 
             return this;
         }
@@ -57,27 +38,15 @@ public final class HttpClientConfig {
         return new Builder();
     }
 
-    private final String threadNamePattern;
-    private final int threadPoolCoreSize;
-    private final int threadPoolMaxSize;
+    private final ThreadPoolConfig threadPoolConfig;
 
     private HttpClientConfig(final Builder builder) {
         super();
 
-        threadNamePattern = builder.threadNamePattern;
-        threadPoolCoreSize = builder.threadPoolCoreSize;
-        threadPoolMaxSize = builder.threadPoolMaxSize;
+        threadPoolConfig = builder.threadPoolConfig;
     }
 
-    public String getThreadNamePattern() {
-        return threadNamePattern;
-    }
-
-    public int getThreadPoolCoreSize() {
-        return threadPoolCoreSize;
-    }
-
-    public int getThreadPoolMaxSize() {
-        return threadPoolMaxSize;
+    public ThreadPoolConfig getThreadPoolConfig() {
+        return threadPoolConfig;
     }
 }
