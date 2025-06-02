@@ -8,19 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.CleanupMode;
+import org.junit.jupiter.api.io.TempDir;
 
 import de.freese.arser.core.model.FileResource;
 import de.freese.arser.core.model.ResourceRequest;
@@ -29,42 +25,49 @@ import de.freese.arser.core.model.ResourceRequest;
  * @author Thomas Freese
  */
 class TestFileRepository {
-    private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-test-file");
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
+    // private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-test-file");
 
-    @AfterAll
-    static void afterAll() throws IOException {
-        if (!Files.exists(PATH_TEST)) {
-            return;
-        }
+    @TempDir(cleanup = CleanupMode.ALWAYS)
+    private static Path pathTest;
 
-        Files.walkFileTree(PATH_TEST, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
+    // @AfterAll
+    // static void afterAll() throws IOException {
+    //     if (!Files.exists(PATH_TEST)) {
+    //         return;
+    //     }
+    //
+    //     Files.walkFileTree(PATH_TEST, new SimpleFileVisitor<>() {
+    //         @Override
+    //         public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+    //             Files.delete(dir);
+    //             return FileVisitResult.CONTINUE;
+    //         }
+    //
+    //         @Override
+    //         public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+    //             Files.delete(file);
+    //             return FileVisitResult.CONTINUE;
+    //         }
+    //     });
+    //
+    //     Files.deleteIfExists(PATH_TEST);
+    // }
 
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+    // @BeforeAll
+    // static void beforeAll() throws IOException {
+    //     Files.createDirectories(getPathTest());
+    // }
 
-        Files.deleteIfExists(PATH_TEST);
-    }
-
-    @BeforeAll
-    static void beforeAll() throws IOException {
-        Files.createDirectories(PATH_TEST);
+    private static Path getPathTest() {
+        return pathTest;
     }
 
     @Test
     void testExist() throws Exception {
         final String contentRoot = "exist";
 
-        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
+        final Repository repository = new FileRepository(contentRoot, getPathTest().resolve(contentRoot).toUri(), false);
         repository.start();
 
         final Path path = Path.of(repository.getBaseUri()).resolve(RESOURCE);
@@ -87,7 +90,7 @@ class TestFileRepository {
     void testExistFail() throws Exception {
         final String contentRoot = "exist-fail";
 
-        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
+        final Repository repository = new FileRepository(contentRoot, getPathTest().resolve(contentRoot).toUri(), false);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -105,7 +108,7 @@ class TestFileRepository {
     @Test
     void testGetResource() throws Exception {
         final String contentRoot = "download-uri";
-        final Path basePath = PATH_TEST.resolve(contentRoot);
+        final Path basePath = getPathTest().resolve(contentRoot);
 
         final Repository repository = new FileRepository(contentRoot, basePath.toUri(), false);
         repository.start();
@@ -130,7 +133,7 @@ class TestFileRepository {
     void testWriteable() throws Exception {
         final String contentRoot = "writeable";
 
-        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), true);
+        final Repository repository = new FileRepository(contentRoot, getPathTest().resolve(contentRoot).toUri(), true);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
@@ -152,7 +155,7 @@ class TestFileRepository {
     void testWriteableFail() throws Exception {
         final String contentRoot = "writeable-fail";
 
-        final Repository repository = new FileRepository(contentRoot, PATH_TEST.resolve(contentRoot).toUri(), false);
+        final Repository repository = new FileRepository(contentRoot, getPathTest().resolve(contentRoot).toUri(), false);
         repository.start();
 
         final ResourceRequest resourceRequest = ResourceRequest.of(URI.create("/" + contentRoot + "/" + RESOURCE));
