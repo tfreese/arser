@@ -79,7 +79,7 @@ public class FileBlobStore extends AbstractBlobStore {
 
     @Override
     public URI getUri() {
-        return this.uri;
+        return uri;
     }
 
     Path toContentPath(final BlobId id) {
@@ -105,7 +105,7 @@ public class FileBlobStore extends AbstractBlobStore {
         //        final byte[] digest = getMessageDigest().digest(uriBytes);
         //        final String hex = HexFormat.of().withUpperCase().formatHex(uriBytes);
         //
-        //        Path path = this.basePath;
+        //        Path path = basePath;
         //
         //        // Build Structure in the Cache-Directory.
         //        for (int i = 0; i < 3; i++)
@@ -113,6 +113,6 @@ public class FileBlobStore extends AbstractBlobStore {
         //            path = path.resolve(hex.substring(i * 2, (i * 2) + 2));
         //        }
         //
-        //        return this.basePath.resolve(hex);
+        //        return basePath.resolve(hex);
     }
 }

@@ -27,7 +27,7 @@ public class BlobId implements Serializable, Comparable<BlobId> {
 
     @Override
     public int compareTo(final BlobId o) {
-        return this.uri.compareTo(o.uri);
+        return uri.compareTo(o.uri);
     }
 
     @Override
@@ -42,20 +42,20 @@ public class BlobId implements Serializable, Comparable<BlobId> {
 
         final BlobId blobId = (BlobId) o;
 
-        return this.uri.equals(blobId.uri);
+        return uri.equals(blobId.uri);
     }
 
     public URI getUri() {
-        return this.uri;
+        return uri;
     }
 
     @Override
     public int hashCode() {
-        return this.uri.hashCode();
+        return uri.hashCode();
     }
 
     @Override
     public String toString() {
-        return this.uri.toString();
+        return uri.toString();
     }
 }

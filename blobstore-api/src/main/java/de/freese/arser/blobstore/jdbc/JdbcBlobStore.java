@@ -237,17 +237,17 @@ public class JdbcBlobStore extends AbstractBlobStore {
 
     @Override
     public URI getUri() {
-        if (this.uri == null) {
+        if (uri == null) {
             final DataSource dataSource = getDataSource();
 
             if (dataSource == null) {
                 return URI.create("jdbc");
             }
 
-            this.uri = getUri(dataSource);
+            uri = getUri(dataSource);
         }
 
-        return this.uri;
+        return uri;
     }
 
     void consume(final BlobId id, final ThrowingConsumer<InputStream, Exception> consumer) throws Exception {

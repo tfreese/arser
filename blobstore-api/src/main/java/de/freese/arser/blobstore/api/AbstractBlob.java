@@ -16,13 +16,13 @@ public abstract class AbstractBlob implements Blob {
 
     protected AbstractBlob(final BlobId id) {
         super();
-        
+
         this.id = Objects.requireNonNull(id, "id required");
     }
 
     @Override
     public final BlobId getId() {
-        return this.id;
+        return id;
     }
 
     @Override
@@ -31,6 +31,6 @@ public abstract class AbstractBlob implements Blob {
     }
 
     protected Logger getLogger() {
-        return this.logger;
+        return logger;
     }
 }

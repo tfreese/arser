@@ -31,7 +31,8 @@ public class JreHttpServer extends AbstractLifecycle {
         super();
 
         this.arserInstance = Objects.requireNonNull(arserInstance, "arserInstance required");
-        this.serverConfig = arserInstance.getConfig().getServerConfig();
+
+        serverConfig = arserInstance.getConfig().getServerConfig();
     }
 
     @Override

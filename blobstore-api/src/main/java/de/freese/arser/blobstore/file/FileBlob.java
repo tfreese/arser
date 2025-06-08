@@ -19,7 +19,8 @@ final class FileBlob extends AbstractBlob {
         super(id);
 
         this.absolutePath = absolutePath;
-        this.exist = Files.exists(absolutePath);
+
+        exist = Files.exists(absolutePath);
     }
 
     @Override

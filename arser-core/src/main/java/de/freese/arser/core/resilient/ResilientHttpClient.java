@@ -83,11 +83,11 @@ public class ResilientHttpClient extends HttpClient {
         public ResilientHttpClientBuilder httpClientBuilder(final HttpClient.Builder httpClientBuilder) {
             Objects.requireNonNull(httpClientBuilder, "httpClientBuilder required");
 
-            if (this.httpClient != null) {
-                this.httpClient.close();
+            if (httpClient != null) {
+                httpClient.close();
             }
 
-            this.httpClient = httpClientBuilder.build();
+            httpClient = httpClientBuilder.build();
 
             return this;
         }
@@ -188,7 +188,7 @@ public class ResilientHttpClient extends HttpClient {
 
     @Override
     public <T> HttpResponse<T> send(final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler) throws IOException, InterruptedException {
-        if (this.failsafeExecutor == null) {
+        if (failsafeExecutor == null) {
             return httpClient.send(request, responseBodyHandler);
         }
 
@@ -202,7 +202,7 @@ public class ResilientHttpClient extends HttpClient {
             return response;
         };
 
-        return this.failsafeExecutor.get(checkedSupplier);
+        return failsafeExecutor.get(checkedSupplier);
     }
 
     @Override
@@ -213,7 +213,7 @@ public class ResilientHttpClient extends HttpClient {
     @Override
     public <T> CompletableFuture<HttpResponse<T>> sendAsync(final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler,
                                                             final HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
-        if (this.failsafeExecutor == null) {
+        if (failsafeExecutor == null) {
             return httpClient.sendAsync(request, responseBodyHandler, pushPromiseHandler);
         }
 
