@@ -64,7 +64,7 @@ public final class EnabledIfReachableCondition implements ExecutionCondition {
             //
             // return httpResponse.statusCode() == HttpsURLConnection.HTTP_OK;
         }
-        catch (Exception ex) {
+        catch (Exception _) {
             return false;
         }
     }

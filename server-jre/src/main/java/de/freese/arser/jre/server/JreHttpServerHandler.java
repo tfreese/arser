@@ -89,7 +89,7 @@ public class JreHttpServerHandler implements HttpHandler {
         try (InputStream inputStream = exchange.getRequestBody()) {
             consumeAndClose(inputStream);
         }
-        catch (IOException ex) {
+        catch (IOException _) {
             // Ignore
         }
     }

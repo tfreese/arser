@@ -98,7 +98,7 @@ public final class ArserUtils {
         try {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
-        catch (Exception ex) {
+        catch (Exception _) {
             // Cannot access thread context ClassLoader - falling back...
         }
 
@@ -107,7 +107,7 @@ public final class ArserUtils {
             try {
                 classLoader = ArserUtils.class.getClassLoader();
             }
-            catch (Exception ex) {
+            catch (Exception _) {
                 // Cannot access class loader of this class.
             }
         }
@@ -117,7 +117,7 @@ public final class ArserUtils {
             try {
                 classLoader = ClassLoader.getSystemClassLoader();
             }
-            catch (Exception ex) {
+            catch (Exception _) {
                 // Cannot access system ClassLoader - oh well, maybe the caller can live with null...
             }
         }
@@ -236,7 +236,7 @@ public final class ArserUtils {
                 logger.info("ExecutorService terminated");
             }
         }
-        catch (InterruptedException iex) {
+        catch (InterruptedException _) {
             logger.warn("Interrupted while waiting for ExecutorService");
 
             // (Re-)Cancel if current thread also interrupted.

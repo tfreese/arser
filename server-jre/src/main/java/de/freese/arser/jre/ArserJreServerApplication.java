@@ -17,7 +17,7 @@ import de.freese.arser.jre.server.JreHttpServer;
 public final class ArserJreServerApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArserJreServerApplication.class);
 
-    public static void main(final String[] args) {
+    static void main() {
         // if (LOGGER.isInfoEnabled()) {
         //     LOGGER.info("Working Directory: {}", System.getProperty("user.dir"));
         //     LOGGER.info("Process User: {}", System.getProperty("user.name"));

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 public final class CalculatorMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(CalculatorMain.class);
 
-    public static void main(final String[] args) {
+    static void main() {
         final Calculator calculator = new DefaultCalculator();
 
         LOGGER.info("1 + 1 = {}", calculator.add(1, 1));

@@ -16,7 +16,7 @@ import de.freese.arser.core.utils.ArserUtils;
 public final class Misc {
     private static final Logger LOGGER = LoggerFactory.getLogger(Misc.class);
 
-    public static void main(final String[] args) {
+    static void main() {
         testUrl();
         removeSnapshotTimestamp();
     }

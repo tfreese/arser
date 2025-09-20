@@ -24,7 +24,7 @@ subprojects {
             // targetCompatibility = JavaVersion.VERSION_25
 
             toolchain {
-                languageVersion = JavaLanguageVersion.of(24)
+                languageVersion = JavaLanguageVersion.of(25)
             }
         }
 

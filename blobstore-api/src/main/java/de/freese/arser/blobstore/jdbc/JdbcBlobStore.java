@@ -39,7 +39,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
 
             return URI.create(url);
         }
-        catch (SQLException ex) {
+        catch (SQLException _) {
             // Ignore
         }
 
