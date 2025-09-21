@@ -9,7 +9,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
  * @author Thomas Freese
  */
 @SpringBootApplication
-public class ArserSpringServerApplication {
+public final class ArserSpringServerApplication {
     static void main(final String[] args) {
         // SpringApplication.run(ArserSpringServerApplication.class, args);
         //
@@ -17,7 +17,7 @@ public class ArserSpringServerApplication {
                 // .properties("spring.config.name:application-Server")
                 .headless(true) // Default true
                 .registerShutdownHook(true) // Default true
-                // .profiles("web")
+                // .profiles("request-factory")
                 // .profiles("rest-client")
                 // .profiles("web-client")
                 //.banner(new MyBanner())
@@ -52,4 +52,8 @@ public class ArserSpringServerApplication {
     // void openShutdownFrame(final ApplicationReadyEvent event) {
     //     showShutdownFrame(event.getApplicationContext());
     // }
+
+    private ArserSpringServerApplication() {
+        super();
+    }
 }

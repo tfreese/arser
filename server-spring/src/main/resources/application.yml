@@ -32,6 +32,8 @@ spring:
     output:
         ansi:
             enabled: DETECT
+    profiles:
+        active: default, request-factory
     servlet:
         encoding:
             enabled: true
