@@ -9,11 +9,13 @@ dependencies {
     api("com.zaxxer:HikariCP")
     api("org.slf4j:jul-to-slf4j")
 
-    implementation("dev.failsafe:failsafe")
-//    implementation("org.apache.ivy:ivy:2.5.2")
+    api("dev.failsafe:failsafe")
+//    api("org.apache.ivy:ivy:2.5.2")
 
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime")
     runtimeOnly("org.hsqldb:hsqldb")
 
     testRuntimeOnly("org.slf4j:slf4j-simple")
 }
+
+// compileJava.dependsOn(":arser-configuration:build")

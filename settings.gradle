@@ -10,9 +10,9 @@ pluginManagement {
 // Without rootProject.name the Name of the Projekt-Directory is used.
 //rootProject.name = "base"
 
-include "blobstore-api"
-include "arser-configuration"
-include "arser-core"
-include "server-jre"
-include "server-spring"
-include "arser-application"
+include("blobstore-api")
+include("arser-configuration")
+include("arser-core")
+include("server-jre")
+include("server-spring")
+include("arser-application")
