@@ -2,12 +2,12 @@ plugins {
 }
 
 allprojects {
-    apply plugin: "base"
+    apply(plugin: "base")
 
     ext["version_slf4j"] = "2.0.17"
-    ext["version_gradleToolingApi"] = "8.14"
-    ext["version_junitJupiter"] = "5.12.2"
-    ext["version_junitPlatform"] = "1.12.2"
+    ext["version_gradleToolingApi"] = "9.2.0.14"
+    ext["version_junitJupiter"] = "6.0.1"
+    ext["version_junitPlatform"] = "6.0.1"
 }
 
 subprojects {
