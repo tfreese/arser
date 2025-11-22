@@ -5,10 +5,11 @@ plugins {
 dependencies {
     implementation(project(":arser-core"))
 
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
     // testImplementation(project(path: ":server-jre", configuration: "testRuntime"))
 
     // testRuntimeOnly("org.slf4j:slf4j-simple")
