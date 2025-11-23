@@ -21,7 +21,7 @@ dependencies {
     api("org.slf4j:slf4j-api")
 }
 
-def destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
+Directory destDir = layout.buildDirectory.get().dir("generated").dir("jaxb")
 
 sourceSets {
     main {
@@ -32,7 +32,7 @@ sourceSets {
 }
 
 tasks.register("genJaxb") {
-    group = "Arser"
+    group = "arser"
 
     def resourcesDir = layout.projectDirectory.dir("src").dir("main").dir("resources").dir("xsd")
     def schema = resourcesDir.file("arser-config.xsd")
@@ -42,17 +42,20 @@ tasks.register("genJaxb") {
 
     outputs.dir(destDir)
 
-    // doLast {
     mkdir(destDir)
 
-    ant {
-        taskdef(name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: configurations.jaxb.asPath)
+    String xjcToolsClasspath = configurations.jaxb.asPath
+    String xjcToolsEncoding = compileJava.options.encoding
 
-        xjc(destdir: destDir,
+    doLast {
+        // ant {
+        ant.taskdef(name: "xjc", classname: "com.sun.tools.xjc.XJCTask", classpath: xjcToolsClasspath)
+
+        ant.xjc(destdir: destDir,
                 schema: schema,
                 binding: binding,
                 package: "de.freese.arser.config.xml",
-                encoding: compileJava.options.encoding,
+                encoding: xjcToolsEncoding,
                 extension: true,
                 removeOldOutput: true) {
             arg(value: "-npa")
@@ -78,8 +81,8 @@ tasks.register("genJaxb") {
 //                    verbose: false) {
 //                //schema(file: "CustomSchema.xsd", namespace: "")
 //            }
+//         }
     }
-    // }
 }
 compileJava.dependsOn("genJaxb")
 // classes.dependsOn("genJaxb")

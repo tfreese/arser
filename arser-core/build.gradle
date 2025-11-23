@@ -18,4 +18,5 @@ dependencies {
     testRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
+// Trigger JAXB generation.
 // compileJava.dependsOn(":arser-configuration:build")

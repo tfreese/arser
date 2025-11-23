@@ -31,7 +31,7 @@ test {
 }
 
 tasks.register("buildApp", Copy) {
-    group = "Arser"
+    group = "arser"
     description = "build the app"
 
     dependsOn(":arser-test:build")
@@ -63,7 +63,7 @@ tasks.register("buildApp", Copy) {
 
 // No verbose-Mode
 tasks.register("deployApp", Sync) {
-    group = "Arser"
+    group = "arser"
     description = "deploy the app"
 
     dependsOn("buildApp")
@@ -115,7 +115,7 @@ tasks.register("deployApp", Sync) {
 }
 
 //tasks.register("deployApp") {
-//    group = "Arser"
+//    group = "arser"
 //
 //    doLast {
 //        logger.lifecycle("deploy {}", project.name)
@@ -151,7 +151,7 @@ tasks.register("deployApp", Sync) {
 //}
 
 //tasks.register("buildDeploy") {
-//    group = "Arser"
+//    group = "arser"
 //
 //    doLast {
 //        tasks.buildApp.execute()
@@ -160,7 +160,7 @@ tasks.register("deployApp", Sync) {
 
 //tasks.register("deleteAppFolder", Delete) {
 //    description = "Delete app-Folder."
-//    group = "Maintenance"
+//    group = "arser"
 //
 //    logger.lifecycle("delete app-Folder: {}/app", ${projectDir})
 //
@@ -171,7 +171,7 @@ tasks.register("deployApp", Sync) {
 //clean.finalizedBy("deleteAppFolder")
 
 // tasks.register("backup") {
-//     group = "MyTasks"
+//     group = "arser"
 //
 //     doLast {
 //         ant.sync(todir: layout.projectDirectory.dir("root").dir("dst"), overwrite: true, verbose: true) {
@@ -245,7 +245,7 @@ tasks.register("deployApp", Sync) {
 // //buildHelp.dependsOn("ant-buildHelp")
 
 // tasks.register("buildApp") {
-//    group = "Arser"
+//    group = "arser"
 //
 //     doLast {
 //        logger.lifecycle("build {}", project.name)
