@@ -13,14 +13,11 @@ import java.util.Objects;
  *
  * @author Thomas Freese
  */
-public class BlobId implements Serializable, Comparable<BlobId> {
+public record BlobId(URI uri) implements Serializable, Comparable<BlobId> {
     @Serial
     private static final long serialVersionUID = -5581749917166864024L;
 
-    private final URI uri;
-
     public BlobId(final URI uri) {
-        super();
 
         this.uri = Objects.requireNonNull(uri, "uri required");
     }
@@ -31,27 +28,18 @@ public class BlobId implements Serializable, Comparable<BlobId> {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object obj) {
+        if (this == obj) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        final BlobId blobId = (BlobId) o;
+        final BlobId blobId = (BlobId) obj;
 
         return uri.equals(blobId.uri);
-    }
-
-    public URI getUri() {
-        return uri;
-    }
-
-    @Override
-    public int hashCode() {
-        return uri.hashCode();
     }
 
     @Override

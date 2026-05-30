@@ -30,35 +30,35 @@ public final class MultiplexOutputStream extends OutputStream {
             return;
         }
 
-        for (OutputStream outputStream : outputStreams) {
+        for (final OutputStream outputStream : outputStreams) {
             outputStream.close();
         }
     }
 
     @Override
     public void flush() throws IOException {
-        for (OutputStream outputStream : outputStreams) {
+        for (final OutputStream outputStream : outputStreams) {
             outputStream.flush();
         }
     }
 
     @Override
     public void write(final int b) throws IOException {
-        for (OutputStream outputStream : outputStreams) {
+        for (final OutputStream outputStream : outputStreams) {
             outputStream.write(b);
         }
     }
 
     @Override
     public void write(final byte[] b) throws IOException {
-        for (OutputStream outputStream : outputStreams) {
+        for (final OutputStream outputStream : outputStreams) {
             outputStream.write(b);
         }
     }
 
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
-        for (OutputStream outputStream : outputStreams) {
+        for (final OutputStream outputStream : outputStreams) {
             outputStream.write(b, off, len);
         }
     }

@@ -4,6 +4,7 @@ package de.freese.arser.core.lifecycle;
 /**
  * @author Thomas Freese
  */
+@FunctionalInterface
 public interface LifecycleAware {
     Lifecycle getLifecycle();
 }

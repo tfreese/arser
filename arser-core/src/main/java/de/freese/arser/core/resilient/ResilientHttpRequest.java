@@ -67,7 +67,7 @@ class ResilientHttpRequest extends HttpRequest {
         try {
             return new URI(uri.getScheme(), uri.getUserInfo(), hostName, uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
         }
-        catch (URISyntaxException ex) {
+        catch (final URISyntaxException ex) {
             throw new IllegalStateException("Can not build uri " + uri + "with address " + hostName, ex);
         }
     }

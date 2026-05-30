@@ -45,7 +45,7 @@ public abstract class AbstractLifecycle implements Lifecycle {
                 currentState = State.STARTED;
                 getLogger().info("Started: {}", this);
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 doFailed("start", ex);
             }
         }
@@ -76,7 +76,7 @@ public abstract class AbstractLifecycle implements Lifecycle {
 
                 getLogger().info("Stopped {}", this);
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 doFailed("stop", ex);
             }
         }
@@ -90,10 +90,9 @@ public abstract class AbstractLifecycle implements Lifecycle {
 
         currentState = State.FAILED;
 
-        if (ex instanceof RuntimeException rex) {
+        if (ex instanceof final RuntimeException rex) {
             throw rex;
-        }
-        else {
+        } else {
             throw new RuntimeException(ex);
         }
     }
@@ -119,7 +118,7 @@ public abstract class AbstractLifecycle implements Lifecycle {
     }
 
     private void ensure(final Set<State> allowed) {
-        for (State allow : allowed) {
+        for (final State allow : allowed) {
             if (is(allow)) {
                 return;
             }

@@ -74,19 +74,19 @@ public class JdbcBlobStore extends AbstractBlobStore {
             }
 
             try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
-                prepareStatement.setString(1, id.getUri().toString());
+                prepareStatement.setString(1, id.uri().toString());
                 prepareStatement.setBlob(2, blob);
                 prepareStatement.executeUpdate();
 
                 connection.commit();
             }
-            catch (SQLException ex) {
+            catch (final SQLException ex) {
                 exception = ex;
 
                 try {
                     connection.rollback();
                 }
-                catch (SQLException ex1) {
+                catch (final SQLException ex1) {
                     exception = ex1;
                 }
             }
@@ -94,11 +94,11 @@ public class JdbcBlobStore extends AbstractBlobStore {
             try {
                 blob.free();
             }
-            catch (SQLException ex) {
+            catch (final SQLException ex) {
                 exception = ex;
             }
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             exception = ex;
         }
 
@@ -118,14 +118,14 @@ public class JdbcBlobStore extends AbstractBlobStore {
             connection.setAutoCommit(false);
 
             try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
-                prepareStatement.setString(1, id.getUri().toString());
+                prepareStatement.setString(1, id.uri().toString());
                 // prepareStatement.setBlob(2, inputStream);
                 prepareStatement.setBinaryStream(2, inputStream);
                 prepareStatement.executeUpdate();
 
                 connection.commit();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 connection.rollback();
 
                 throw ex;
@@ -199,12 +199,12 @@ public class JdbcBlobStore extends AbstractBlobStore {
             connection.setAutoCommit(false);
 
             try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
-                prepareStatement.setString(1, id.getUri().toString());
+                prepareStatement.setString(1, id.uri().toString());
                 prepareStatement.executeUpdate();
 
                 connection.commit();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 connection.rollback();
 
                 throw ex;
@@ -218,7 +218,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
 
         try (Connection connection = getDataSource().getConnection();
              PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
-            prepareStatement.setString(1, id.getUri().toString());
+            prepareStatement.setString(1, id.uri().toString());
 
             try (ResultSet resultSet = prepareStatement.executeQuery()) {
                 resultSet.next();
@@ -255,15 +255,14 @@ public class JdbcBlobStore extends AbstractBlobStore {
 
         try (Connection connection = getDataSource().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, id.getUri().toString());
+            preparedStatement.setString(1, id.uri().toString());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (!resultSet.next()) {
                     try (InputStream inputStream = InputStream.nullInputStream()) {
                         consumer.accept(inputStream);
                     }
-                }
-                else {
+                } else {
                     try (InputStream inputStream = resultSet.getBinaryStream("BLOB")) {
                         consumer.accept(inputStream);
                     }
@@ -278,7 +277,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
         final Connection connection = getDataSource().getConnection();
 
         final PreparedStatement preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setString(1, id.getUri().toString());
+        preparedStatement.setString(1, id.uri().toString());
 
         final ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -307,7 +306,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
                 try {
                     resultSet.close();
                 }
-                catch (SQLException ex) {
+                catch (final SQLException ex) {
                     getLogger().error("ResultSet.close: %s".formatted(ex.getMessage()), ex);
                     exception = ex;
                 }
@@ -315,7 +314,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
                 try {
                     preparedStatement.close();
                 }
-                catch (SQLException ex) {
+                catch (final SQLException ex) {
                     getLogger().error("PreparedStatement.close: %s".formatted(ex.getMessage()), ex);
                     exception = ex;
                 }
@@ -323,7 +322,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
                 try {
                     connection.close();
                 }
-                catch (SQLException ex) {
+                catch (final SQLException ex) {
                     getLogger().error("Connection.close: %s".formatted(ex.getMessage()), ex);
                     exception = ex;
                 }
@@ -340,7 +339,7 @@ public class JdbcBlobStore extends AbstractBlobStore {
 
         try (Connection connection = getDataSource().getConnection();
              PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
-            prepareStatement.setString(1, id.getUri().toString());
+            prepareStatement.setString(1, id.uri().toString());
 
             try (ResultSet resultSet = prepareStatement.executeQuery()) {
                 if (resultSet.next()) {

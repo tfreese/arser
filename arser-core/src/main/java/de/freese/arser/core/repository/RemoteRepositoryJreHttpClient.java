@@ -99,7 +99,7 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
                 .version(HttpClient.Version.HTTP_2)
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .proxy(ProxySelector.getDefault())
-                .connectTimeout(Duration.ofSeconds(30));
+                .connectTimeout(Duration.ofSeconds(30L));
 
         httpClient = httpClientBuilder.build();
 

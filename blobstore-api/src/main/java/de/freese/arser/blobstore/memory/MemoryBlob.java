@@ -19,7 +19,7 @@ class MemoryBlob extends AbstractBlob {
     }
 
     @Override
-    public InputStream createInputStream() throws Exception {
+    public InputStream createInputStream() {
         if (bytes == null) {
             return InputStream.nullInputStream();
         }
@@ -28,7 +28,7 @@ class MemoryBlob extends AbstractBlob {
     }
 
     @Override
-    public long getLength() throws Exception {
+    public long getLength() {
         if (bytes == null) {
             return -1L;
         }

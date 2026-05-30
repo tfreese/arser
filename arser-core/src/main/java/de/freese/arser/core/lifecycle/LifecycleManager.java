@@ -70,11 +70,11 @@ public class LifecycleManager extends AbstractLifecycle {
 
         final List<Exception> exceptions = new ArrayList<>(count);
 
-        for (Lifecycle component : components) {
+        for (final Lifecycle component : components) {
             try {
                 component.start();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 getLogger().error("Failed to start component: %s".formatted(component), ex);
                 exceptions.add(ex);
             }
@@ -91,11 +91,11 @@ public class LifecycleManager extends AbstractLifecycle {
 
         final List<Exception> exceptions = new ArrayList<>(count);
 
-        for (Lifecycle component : components.reversed()) {
+        for (final Lifecycle component : components.reversed()) {
             try {
                 component.stop();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 getLogger().error("Failed to stop component: %s".formatted(component), ex);
                 exceptions.add(ex);
             }

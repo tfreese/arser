@@ -19,7 +19,7 @@ public enum HttpMethod {
     PUT;
 
     public static HttpMethod get(final String method) {
-        for (HttpMethod httpMethod : values()) {
+        for (final HttpMethod httpMethod : values()) {
             if (httpMethod.name().equalsIgnoreCase(method)) {
                 return httpMethod;
             }

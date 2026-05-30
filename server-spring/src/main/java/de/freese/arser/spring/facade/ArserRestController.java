@@ -120,7 +120,7 @@ public class ArserRestController {
     }
 
     @PutMapping
-    public ResponseEntity<String> doPut(final HttpServletRequest httpServletRequest) throws Exception {
+    public ResponseEntity<String> doPut(final HttpServletRequest httpServletRequest) {
         // LOGGER.info("doPut: {}", httpServletRequest.getRequestURI());
 
         final ResourceRequest resourceRequest = ResourceRequest.of(httpServletRequest.getRequestURI());
@@ -131,7 +131,7 @@ public class ArserRestController {
 
             return ResponseEntity.ok().build();
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
         }
     }

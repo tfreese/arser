@@ -22,7 +22,7 @@ public class VirtualRepository extends AbstractRepository {
     public VirtualRepository(final String contextRoot, final List<Repository> repositories) {
         super(contextRoot, URI.create("virtual"));
 
-        for (Repository repository : repositories) {
+        for (final Repository repository : repositories) {
             if (repositoryMap.containsKey(repository.getContextRoot())) {
                 throw new IllegalStateException("repository already exist: " + repository.getContextRoot());
             }

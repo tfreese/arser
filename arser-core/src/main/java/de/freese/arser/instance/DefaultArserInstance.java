@@ -25,7 +25,7 @@ final class DefaultArserInstance extends AbstractArserInstance {
         try {
             lifecycleManager.stop();
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             getLogger().error(ex.getMessage(), ex);
         }
     }

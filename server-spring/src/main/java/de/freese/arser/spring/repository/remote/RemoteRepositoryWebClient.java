@@ -27,8 +27,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
     private final WebClient webClient;
 
-    public RemoteRepositoryWebClient(final String name, final URI baseUri, final Path workingDir, final WebClient webClient) {
-        super(name, baseUri, workingDir);
+    public RemoteRepositoryWebClient(final String contextRoot, final URI baseUri, final Path workingDir, final WebClient webClient) {
+        super(contextRoot, baseUri, workingDir);
 
         this.webClient = Objects.requireNonNull(webClient, "webClient required");
     }
@@ -85,7 +85,7 @@ public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
                         //     inputStream.transferTo(OutputStream.nullOutputStream());
                         // }
 
-                        return null;
+                        return Mono.empty();
                     }
 
                     final long contentLength = clientResponse.headers().contentLength().orElse(-1L);
@@ -105,7 +105,7 @@ public class RemoteRepositoryWebClient extends AbstractRemoteRepository {
                                     try {
                                         Files.delete(path);
                                     }
-                                    catch (IOException ex) {
+                                    catch (final IOException ex) {
                                         getLogger().error(ex.getMessage(), ex);
                                     }
                                 }

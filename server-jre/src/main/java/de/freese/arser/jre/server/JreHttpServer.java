@@ -37,12 +37,10 @@ public class JreHttpServer extends AbstractLifecycle {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("port=").append(serverConfig.getPort());
-        sb.append(']');
-
-        return sb.toString();
+        return getClass().getSimpleName()
+                + " ["
+                + "port=" + serverConfig.getPort()
+                + ']';
     }
 
     @Override

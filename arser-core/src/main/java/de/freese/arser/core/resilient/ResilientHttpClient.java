@@ -43,7 +43,7 @@ public class ResilientHttpClient extends HttpClient {
         private Supplier<String> loadBalancer = () -> null;
         private Set<Integer> noRetryOnStatus = Set.of(HttpURLConnection.HTTP_OK);
         private int retries;
-        private Duration retryDuration = Duration.ofSeconds(1);
+        private Duration retryDuration = Duration.ofSeconds(1L);
 
         public HttpClient build() {
             Objects.requireNonNull(httpClient, "httpClient required");
@@ -57,13 +57,11 @@ public class ResilientHttpClient extends HttpClient {
                         .withDelay(retryDuration).onRetry(event -> {
                             final Throwable lastException = event.getLastException();
 
-                            if (lastException instanceof HttpRetryException httpRetryException) {
+                            if (lastException instanceof final HttpRetryException httpRetryException) {
                                 LOGGER.warn("Retry: {} - HTTP {} - {}", event.getExecutionCount(), httpRetryException.responseCode(), httpRetryException.getMessage());
-                            }
-                            else if (lastException != null) {
+                            } else if (lastException != null) {
                                 LOGGER.warn("Retry: {} - - {}", event.getExecutionCount(), lastException.getMessage());
-                            }
-                            else {
+                            } else {
                                 LOGGER.warn("Retry: {}", event.getExecutionCount());
                             }
                         }).build();
@@ -221,16 +219,16 @@ public class ResilientHttpClient extends HttpClient {
             try {
                 return send(request, responseBodyHandler);
             }
-            catch (InterruptedException ex) {
+            catch (final InterruptedException ex) {
                 // Restore interrupted state.
                 Thread.currentThread().interrupt();
 
                 throw new RuntimeException(ex);
             }
-            catch (RuntimeException ex) {
+            catch (final RuntimeException ex) {
                 throw ex; // Also avoids double wrapping CompletionExceptions below.
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 throw new CompletionException(ex);
             }
         };

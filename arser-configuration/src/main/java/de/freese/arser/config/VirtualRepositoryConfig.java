@@ -76,13 +76,11 @@ public final class VirtualRepositoryConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("contextRoot=").append(getContextRoot());
-        sb.append(", uri=").append(getUri());
-        sb.append(", repositoryRefs=").append(repositoryRefs);
-        sb.append(']');
-
-        return sb.toString();
+        return getClass().getSimpleName()
+                + " ["
+                + "contextRoot=" + getContextRoot()
+                + ", uri=" + getUri()
+                + ", repositoryRefs=" + repositoryRefs
+                + ']';
     }
 }

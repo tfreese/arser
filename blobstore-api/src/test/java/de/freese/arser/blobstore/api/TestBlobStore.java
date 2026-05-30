@@ -69,7 +69,7 @@ class TestBlobStore {
         });
 
         for (final DataSource dataSource : List.of(dataSourceH2, dataSourceHsqldb, dataSourceDerby)) {
-            if (dataSource instanceof AutoCloseable ac) {
+            if (dataSource instanceof final AutoCloseable ac) {
                 ac.close();
             }
             //            else if (dataSource instanceof DisposableBean db) {
@@ -153,7 +153,7 @@ class TestBlobStore {
 
         final Blob blob = blobStore.get(blobId);
         assertNotNull(blob);
-        assertEquals("empty", blob.getId().getUri().toString());
+        assertEquals("empty", blob.getId().uri().toString());
         assertEquals(-1, blob.getLength());
 
         try (InputStream inputStream = blob.createInputStream()) {
@@ -172,7 +172,7 @@ class TestBlobStore {
     @ParameterizedTest(name = "{index} -> {0}")
     @MethodSource("createArgumentes")
     void testInputStream(final String name, final BlobStore blobStore) throws Exception {
-        if (blobStore instanceof JdbcBlobStore dsBs) {
+        if (blobStore instanceof final JdbcBlobStore dsBs) {
             dsBs.createDatabaseIfNotExist();
         }
 
@@ -196,7 +196,7 @@ class TestBlobStore {
     @ParameterizedTest(name = "{index} -> {0}")
     @MethodSource("createArgumentes")
     void testNotExistingUri(final String name, final BlobStore blobStore) throws Exception {
-        if (blobStore instanceof JdbcBlobStore dsBs) {
+        if (blobStore instanceof final JdbcBlobStore dsBs) {
             dsBs.createDatabaseIfNotExist();
         }
 
@@ -208,7 +208,7 @@ class TestBlobStore {
         final Blob blob = blobStore.get(blobId);
         assertNotNull(blob);
         assertEquals(-1, blob.getLength());
-        assertEquals(uri, blob.getId().getUri());
+        assertEquals(uri, blob.getId().uri());
         assertArrayEquals(new byte[0], blob.getAllBytes());
 
         // Delete
@@ -219,7 +219,7 @@ class TestBlobStore {
     @ParameterizedTest(name = "{index} -> {0}")
     @MethodSource("createArgumentes")
     void testOutputStream(final String name, final BlobStore blobStore) throws Exception {
-        if (blobStore instanceof JdbcBlobStore jdbcBlobStore) {
+        if (blobStore instanceof final JdbcBlobStore jdbcBlobStore) {
             jdbcBlobStore.createDatabaseIfNotExist();
         }
 
@@ -247,7 +247,7 @@ class TestBlobStore {
         final Blob blob = blobStore.get(blobId);
         assertNotNull(blob);
         assertEquals(fileSize, blob.getLength());
-        assertEquals(uri, blob.getId().getUri());
+        assertEquals(uri, blob.getId().uri());
         assertArrayEquals(bytes, blob.getAllBytes());
 
         blob.consume(inputStream -> {

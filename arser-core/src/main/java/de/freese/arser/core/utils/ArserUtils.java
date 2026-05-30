@@ -195,7 +195,7 @@ public final class ArserUtils {
 
                 ((HttpURLConnection) connection).disconnect();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 LOGGER.error(ex.getMessage(), ex);
             }
         }
@@ -218,21 +218,19 @@ public final class ArserUtils {
                 logger.warn("Timed out while waiting for ExecutorService");
 
                 // Cancel currently executing tasks.
-                for (Runnable remainingTask : executorService.shutdownNow()) {
-                    if (remainingTask instanceof Future<?> f) {
+                for (final Runnable remainingTask : executorService.shutdownNow()) {
+                    if (remainingTask instanceof final Future<?> f) {
                         f.cancel(true);
                     }
                 }
 
-                // Wait a while for tasks to respond to being cancelled.
-                if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                // Wait a while for tasks to respond to being canceled.
+                if (!executorService.awaitTermination(5L, TimeUnit.SECONDS)) {
                     logger.error("ExecutorService did not terminate");
-                }
-                else {
+                } else {
                     logger.info("ExecutorService terminated");
                 }
-            }
-            else {
+            } else {
                 logger.info("ExecutorService terminated");
             }
         }
@@ -265,24 +263,21 @@ public final class ArserUtils {
         final double value = Math.abs(size);
         final String result;
 
-        // result = switch (value) {
-        //     case double v when v < 1024D -> size + " B";
-        //     case double v when v < 1_048_576D -> String.format("%.1f %s", value / 1024D, "KB");
-        //     case double v when v < 1_073_741_824D -> String.format("%.1f %s", value / 1024D / 1024D, "MB");
-        //     default -> String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
-        // };
-        if (value < 1024D) {
-            result = size + " B";
-        }
-        else if (value < 1_048_576D) {
-            result = String.format("%.1f %s", value / 1024D, "KB");
-        }
-        else if (value < 1_073_741_824D) {
-            result = String.format("%.1f %s", value / 1024D / 1024D, "MB");
-        }
-        else {
-            result = String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
-        }
+        result = switch (value) {
+            case final double v when v < 1024D -> size + " B";
+            case final double v when v < 1_048_576D -> String.format("%.1f %s", value / 1024D, "KB");
+            case final double v when v < 1_073_741_824D -> String.format("%.1f %s", value / 1024D / 1024D, "MB");
+            default -> String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
+        };
+        // if (value < 1024D) {
+        //     result = size + " B";
+        // } else if (value < 1_048_576D) {
+        //     result = String.format("%.1f %s", value / 1024D, "KB");
+        // } else if (value < 1_073_741_824D) {
+        //     result = String.format("%.1f %s", value / 1024D / 1024D, "MB");
+        // } else {
+        //     result = String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
+        // }
 
         // final CharacterIterator ci = new StringCharacterIterator("KMGTPE");
         //
@@ -308,7 +303,7 @@ public final class ArserUtils {
         int read;
 
         while ((read = inputStream.read(buffer, 0, DEFAULT_BUFFER_SIZE)) >= 0) {
-            for (OutputStream outputStream : outputStreams) {
+            for (final OutputStream outputStream : outputStreams) {
                 outputStream.write(buffer, 0, read);
             }
 

@@ -16,12 +16,12 @@ class EmptyBlob extends AbstractBlob {
     }
 
     @Override
-    public InputStream createInputStream() throws Exception {
+    public InputStream createInputStream() {
         return InputStream.nullInputStream();
     }
 
     @Override
-    public long getLength() throws Exception {
+    public long getLength() {
         return -1;
     }
 }

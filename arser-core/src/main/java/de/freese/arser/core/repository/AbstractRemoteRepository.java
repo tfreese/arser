@@ -23,7 +23,7 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
             try {
                 Files.createDirectories(workingDir);
             }
-            catch (IOException ex) {
+            catch (final IOException ex) {
                 throw new UncheckedIOException(ex);
             }
         }
@@ -39,11 +39,9 @@ public abstract class AbstractRemoteRepository extends AbstractRepository {
 
         if (path.endsWith("/") && pathResource.startsWith("/")) {
             path += pathResource.substring(1);
-        }
-        else if (path.endsWith("/") && !pathResource.startsWith("/")) {
+        } else if (path.endsWith("/") && !pathResource.startsWith("/")) {
             path += pathResource;
-        }
-        else if (!path.endsWith("/") && pathResource.startsWith("/")) {
+        } else if (!path.endsWith("/") && pathResource.startsWith("/")) {
             path += pathResource;
         }
 

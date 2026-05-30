@@ -53,15 +53,12 @@ public class JreHttpServerHandler implements HttpHandler {
             if (HttpMethod.HEAD.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
                 handleHead(exchange, resourceRequest, arserInstance);
-            }
-            else if (HttpMethod.GET.equals(httpMethod)) {
+            } else if (HttpMethod.GET.equals(httpMethod)) {
                 consumeAndCloseRequestStream(exchange);
                 handleGet(exchange, resourceRequest, arserInstance);
-            }
-            else if (HttpMethod.PUT.equals(httpMethod)) {
+            } else if (HttpMethod.PUT.equals(httpMethod)) {
                 handlePut(exchange, resourceRequest, arserInstance);
-            }
-            else {
+            } else {
                 sendError(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, String.format("unknown method: %s from %s", httpMethod, exchange.getRemoteAddress()));
             }
         }
@@ -121,7 +118,7 @@ public class JreHttpServerHandler implements HttpHandler {
                 outputStream.flush();
             }
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             final byte[] bytes = ex.getMessage().getBytes(StandardCharsets.UTF_8);
 
             exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
@@ -155,7 +152,7 @@ public class JreHttpServerHandler implements HttpHandler {
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
             repository.write(resourceRequest, inputStream);
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             sendError(exchange, ArserUtils.HTTP_STATUS_FORBIDDEN, ex.getMessage());
 
             return;

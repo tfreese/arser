@@ -28,8 +28,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
     private final ClientHttpRequestFactory clientHttpRequestFactory;
 
-    public RemoteRepositoryRequestFactory(final String name, final URI baseUri, final Path workingDir, final ClientHttpRequestFactory clientHttpRequestFactory) {
-        super(name, baseUri, workingDir);
+    public RemoteRepositoryRequestFactory(final String contextRoot, final URI baseUri, final Path workingDir, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        super(contextRoot, baseUri, workingDir);
 
         this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
@@ -98,7 +98,7 @@ public class RemoteRepositoryRequestFactory extends AbstractRemoteRepository {
                         try {
                             Files.delete(path);
                         }
-                        catch (IOException ex) {
+                        catch (final IOException ex) {
                             getLogger().error(ex.getMessage(), ex);
                         }
                     }

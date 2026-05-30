@@ -24,8 +24,8 @@ import de.freese.arser.core.utils.ArserUtils;
 public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
     private final RestClient restClient;
 
-    public RemoteRepositoryRestClient(final String name, final URI baseUri, final Path workingDir, final RestClient restClient) {
-        super(name, baseUri, workingDir);
+    public RemoteRepositoryRestClient(final String contextRoot, final URI baseUri, final Path workingDir, final RestClient restClient) {
+        super(contextRoot, baseUri, workingDir);
 
         this.restClient = Objects.requireNonNull(restClient, "restClient required");
     }
@@ -94,7 +94,7 @@ public class RemoteRepositoryRestClient extends AbstractRemoteRepository {
                                     try {
                                         Files.delete(path);
                                     }
-                                    catch (IOException ex) {
+                                    catch (final IOException ex) {
                                         getLogger().error(ex.getMessage(), ex);
                                     }
                                 }

@@ -72,13 +72,11 @@ public final class FileRepositoryConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("contextRoot=").append(getContextRoot());
-        sb.append(", uri=").append(getUri());
-        sb.append(", writeable=").append(writeable);
-        sb.append(']');
-
-        return sb.toString();
+        return getClass().getSimpleName()
+                + " ["
+                + "contextRoot=" + getContextRoot()
+                + ", uri=" + getUri()
+                + ", writeable=" + writeable
+                + ']';
     }
 }

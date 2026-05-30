@@ -59,12 +59,10 @@ public final class RemoteRepositoryConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("contextRoot=").append(getContextRoot());
-        sb.append(", uri=").append(getUri());
-        sb.append(']');
-
-        return sb.toString();
+        return getClass().getSimpleName()
+                + " ["
+                + "contextRoot=" + getContextRoot()
+                + ", uri=" + getUri()
+                + ']';
     }
 }

@@ -35,12 +35,10 @@ public class DatasourceComponent extends AbstractLifecycle {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("uri=").append(storeConfig.getUri());
-        sb.append(']');
-
-        return sb.toString();
+        return getClass().getSimpleName()
+                + " ["
+                + "uri=" + storeConfig.getUri()
+                + ']';
     }
 
     @Override
@@ -72,10 +70,9 @@ public class DatasourceComponent extends AbstractLifecycle {
             }
         }
 
-        if (dataSource instanceof Closeable c) {
+        if (dataSource instanceof final Closeable c) {
             c.close();
-        }
-        else if (dataSource instanceof AutoCloseable ac) {
+        } else if (dataSource instanceof final AutoCloseable ac) {
             ac.close();
         }
     }

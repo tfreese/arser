@@ -99,13 +99,11 @@ public final class ThreadPoolConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("namePattern='").append(namePattern).append('\'');
-        sb.append(", coreSize=").append(coreSize);
-        sb.append(", maxSize=").append(maxSize);
-        sb.append(']');
-
-        return sb.toString();
+        return getClass().getSimpleName()
+                + " ["
+                + "namePattern='" + namePattern + '\''
+                + ", coreSize=" + coreSize
+                + ", maxSize=" + maxSize
+                + ']';
     }
 }

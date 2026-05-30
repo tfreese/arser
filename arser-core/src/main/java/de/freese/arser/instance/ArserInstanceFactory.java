@@ -63,7 +63,7 @@ public final class ArserInstanceFactory {
         try {
             Files.createDirectories(config.getWorkingDir());
         }
-        catch (IOException ex) {
+        catch (final IOException ex) {
             throw new UncheckedIOException(ex);
         }
 
@@ -100,10 +100,10 @@ public final class ArserInstanceFactory {
 
             lifecycleManager.start();
         }
-        catch (RuntimeException ex) {
+        catch (final RuntimeException ex) {
             throw ex;
         }
-        catch (Exception ex) {
+        catch (final Exception ex) {
             throw new RuntimeException(ex);
         }
 
@@ -187,11 +187,11 @@ public final class ArserInstanceFactory {
 
         INSTANCE_MAP.clear();
 
-        for (ArserInstance instance : instances) {
+        for (final ArserInstance instance : instances) {
             try {
                 instance.shutdown();
             }
-            catch (Exception ex) {
+            catch (final Exception ex) {
                 LOGGER.error(ex.getMessage(), ex);
             }
         }
