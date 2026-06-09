@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<arser-settings>
+
+    <workingDir>file:///opt/jvmapps/arser</workingDir>
+
+    <server-setting>
+        <port>7999</port>
+        <thread-pool-core-size>2</thread-pool-core-size>
+        <thread-pool-max-size>6</thread-pool-max-size>
+        <thread-name-pattern>http-server-%d</thread-name-pattern>
+    </server-setting>
+
+    <http-client-setting>
+        <thread-pool-core-size>2</thread-pool-core-size>
+        <thread-pool-max-size>6</thread-pool-max-size>
+        <thread-name-pattern>http-client-%d</thread-name-pattern>
+    </http-client-setting>
+
+    <repositories>
+        <repository>
+            <type>http</type>
+            <name>maven-central</name>
+            <uri>https://repo1.maven.org/maven2</uri>
+            <credentials>
+                <user>...</user>
+                <token>...</token>
+            </credentials>
+            <http-client>
+                <connect-timeout>60</connect-timeout>
+                <read-timeout>60</read-timeout>
+                <retries>2</retries>
+                <retry-intervall>1000</retry-intervall>
+            </http-client>
+            <cache>
+                <type>file</type>
+                <uri>file:///opt/jvmapps/arser/maven-central</uri>
+            </cache>
+        </repository>
+        <repository>
+            <type>file</type>
+            <name>third-party</name>
+            <uri>file:///home/tommy/.m2/third-party</uri>
+            <cache>
+                <type>jdbc</type>
+                <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/third-party;shutdown=true</uri>
+                <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName>
+                <user>sa</user>
+                <password />
+                <pool-core-size>2</pool-core-size>
+                <pool-max-size>6</pool-max-size>
+            </cache>
+        </repository>
+        <repository>
+            <type>virtual</type>
+            <name>public</name>
+            <repository-ref>maven-central</repository-ref>
+        </repository>
+    </repositories>
+
+</arser-settings>

@@ -2,6 +2,7 @@ package de.freese.arser.core.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +13,7 @@ import java.nio.file.Path;
 /**
  * @author Thomas Freese
  */
-public class DataContainer implements AutoCloseable {
+public class DataContainer implements Closeable {
     // 10 MB
     private static final int MEMORY_THRESHOLD = 10 * 1024 * 1024;
 
@@ -49,7 +50,7 @@ public class DataContainer implements AutoCloseable {
         }
     }
 
-    void readFrom(final InputStream inputStream) throws IOException {
+    public void readFrom(final InputStream inputStream) throws IOException {
         final byte[] buffer = new byte[8192];
         int bytesRead;
         long totalBytes = 0;
@@ -65,7 +66,7 @@ public class DataContainer implements AutoCloseable {
 
                 currentOutputStream.write(buffer, 0, bytesRead);
             }
-            
+
             currentOutputStream.flush();
         }
     }
