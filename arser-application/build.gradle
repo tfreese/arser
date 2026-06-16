@@ -3,17 +3,7 @@ plugins {
 }
 
 clean {
-    Directory projectDir = layout.projectDirectory
-
-    doFirst {
-        Directory dirApp = projectDir.dir("app")
-
-        if (dirApp.getAsFile().exists()) {
-            logger.lifecycle("delete {}", dirApp)
-//        delete(fileTree(dirApp).include("**/*"))
-            delete(dirApp)
-        }
-    }
+    delete(layout.projectDirectory.dir("app"))
 }
 
 dependencies {
@@ -34,14 +24,15 @@ tasks.register("buildApp", Copy) {
     group = "arser"
     description = "build the app"
 
-    dependsOn(":arser-test:build")
+    // dependsOn(":arser-test:build")
+    def appDir = layout.projectDirectory.dir("app")
 
-    doLast {
-        logger.lifecycle("build {}", project.name)
+    into(appDir)
+
+    // destinationDir = into(...)
+    doFirst {
+        logger.lifecycle("buildApp: {}", destinationDir)
     }
-
-    // Create Root-Dir
-    into layout.projectDirectory.dir("app")
 
     into("bin") {
         from(layout.projectDirectory.dir("service").file("arser.sh"))
@@ -55,194 +46,94 @@ tasks.register("buildApp", Copy) {
         from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
             include("log4j2.xml")
             include("arser-config.xml")
+            // exclude("other*")
         }
     }
 
-//    eachFile { println(it.name) }
+    // eachFile { println(it.name) }
 }
 
-// No verbose-Mode
 tasks.register("deployApp", Sync) {
     group = "arser"
     description = "deploy the app"
 
     dependsOn("buildApp")
 
-    doLast {
-        logger.lifecycle("deploy {}", project.name)
+    def deployDir = file("/tmp/arser")
+
+    // into("/tmp/arser")
+    // from(layout.projectDirectory.dir("app"))
+    // preserve {
+    //     include("extraDir/**")
+    //     include("dir1/**")
+    //     exclude("dir1/extra.txt")
+    // }
+    //
+    // // Global Permissions.
+    // filePermissions {
+    //     user { read = true; write = true; execute = false }
+    //     group { read = false; write = false; execute = false }
+    //     other { read = false; write = false; execute = false }
+    // }
+    // dirPermissions {
+    //     user { read = true; write = true; execute = true }
+    //     group { read = false; write = false; execute = false }
+    //     other { read = false; write = false; execute = false }
+    // }
+
+    // Alternative
+    destinationDir = deployDir
+
+    // destinationDir = into(...)
+    doFirst {
+        logger.lifecycle("deployApp: {}", destinationDir)
     }
 
-    Directory appFolder = layout.projectDirectory.dir("app")
-    String remoteFolder = "/opt/jvmapps/arser"
-
-    // Create Root-Dir
-    into(remoteFolder)
-
     into("bin") {
-        from(appFolder.dir("bin"))
+        from(layout.projectDirectory.dir("app").dir("bin"))
         filePermissions {
-            user {
-                read = true
-                execute = true
-            }
-            other.execute = false
+            user { read = true; write = true; execute = true }
+            group { read = false; write = false; execute = false }
+            other { read = false; write = false; execute = false }
+        }
+        dirPermissions {
+            user { read = true; write = true; execute = true }
+            group { read = false; write = false; execute = false }
+            other { read = false; write = false; execute = false }
         }
     }
 
     into("libs") {
-        from(appFolder.dir("libs"))
+        from(layout.projectDirectory.dir("app").dir("libs"))
         filePermissions {
-            user {
-                read = true
-                execute = false
-            }
-            other.execute = false
+            user { read = true; write = true; execute = false }
+            group { read = false; write = false; execute = false }
+            other { read = false; write = false; execute = false }
+        }
+        dirPermissions {
+            user { read = true; write = true; execute = true }
+            group { read = false; write = false; execute = false }
+            other { read = false; write = false; execute = false }
         }
     }
 
     into("resources") {
-        from(appFolder.dir("resources"))
+        from(layout.projectDirectory.dir("app").dir("resources"))
         filePermissions {
-            user {
-                read = true
-                execute = false
-            }
-            other.execute = false
+            user { read = true; write = true; execute = false }
+            group { read = false; write = false; execute = false }
+            other { read = false; write = false; execute = false }
+        }
+        dirPermissions {
+            user { read = true; write = true; execute = true }
+            group { read = false; write = false; execute = false }
+            other { read = false; write = false; execute = false }
         }
     }
 
-//    eachFile { println(it.name) }
+    // eachFile { println(it.name) }
 }
 
-//tasks.register("deployApp") {
-//    group = "arser"
-//
-//    doLast {
-//        logger.lifecycle("deploy {}", project.name)
-//
-//        Directory appFolder = layout.projectDirectory.dir("app")
-//        String remoteFolder = "/opt/jvmapps/arser"
-//
-//        ant.mkdir(dir: remoteFolder + "/logs")
-//
-//        ant.sync(todir: remoteFolder + "/bin", overwrite: true, verbose: true) {
-//            fileset(dir: appFolder.dir("bin"))
-//        }
-//
-//        ant.sync(todir: remoteFolder + "/libs", overwrite: true, verbose: true) {
-//            fileset(dir: appFolder.dir("libs"))
-//        }
-//
-//        ant.sync(todir: remoteFolder + "/resources", overwrite: true, verbose: true) {
-//            fileset(dir: appFolder.dir("resources"))
-//        }
-//
-//        // Funktioniert nicht, wegen Fehler: "Could not find method from() for arguments ..."
-////        sync {
-////            from(appFolder.dir("resources"))
-////            into(remoteFolder + "/resources")
-////            preserve {
-////                include("extraDir/**")
-////                include("dir1/**")
-////                exclude("dir1/extra.txt")
-////            }
-////        }
-//    }
-//}
-
-//tasks.register("buildDeploy") {
-//    group = "arser"
-//
-//    doLast {
-//        tasks.buildApp.execute()
-//    }
-//}
-
-//tasks.register("deleteAppFolder", Delete) {
-//    description = "Delete app-Folder."
-//    group = "arser"
-//
-//    logger.lifecycle("delete app-Folder: {}/app", ${projectDir})
-//
-//    delete(fileTree("app")) {
-//        include("**/*.*")
-//    }
-//}
-//clean.finalizedBy("deleteAppFolder")
-
-// tasks.register("backup") {
-//     group = "arser"
-//
-//     doLast {
-//         ant.sync(todir: layout.projectDirectory.dir("root").dir("dst"), overwrite: true, verbose: true) {
-//             fileset(dir: "src") {
-//                 include(name: "**/*.gradle")
-//                 include(name: "**/gradle.properties")
-//             }
-//         }
-//
-//         // delete(layout.projectDirectory.dir("root ").dir("dst"))
-//         //
-//         // copy {
-//         //     from("src")
-//         //     into(layout.projectDirectory.dir("root").dir("dst"))
-//         //     include("**/*.gradle")
-//         //     include("**/gradle.properties")
-//         //     includeEmptyDirs = false
-//         // }
-//
-//         // CopySpec gradleSpec = copySpec {
-//         //     from("src") {
-//         //         include("**/*.gradle")
-//         //         include("**/gradle.properties")
-//         //         includeEmptyDirs = false
-//         //     }
-//         //     into("dst")
-//         // }
-//         //
-//         // copy {
-//         //     into(layout.projectDirectory.dir("root"))
-//         //     with(gradleSpec)
-//         // }
-//     }
-// }
-
-// myMethod(layout.buildDirectory)
-//
-// def myMethod(Provider<Directory> dir) {
-//     println(dir.get())
-// }
-//
-// Syntax for own File.
-// ext.myMethod = { Provider<Directory> dir ->
-//     println(dir.get())
-// }
-
-// dependsOn(":parent:build")
-// build.finalizedBy("copy")
-//
-//// Register ANT-Tasks as Gradle-Tasks with Prefix "ant-" in Group "other".
-//ant.importBuild("ant_build.xml") { antTargetName -> "ant-" + antTargetName }
-//
-//// Set group property for all Ant tasks.
-//tasks.matching { task -> task.name.startsWith("ant-") }.configureEach{ group = "Ant" }
-//
-// // Target "buildHelp" in ant-hilfe.xml
-// "ant-buildHelp" {
-//     // Use Build-Cache: Tasks in depends="..." will be executed before.
-//     inputs.dir(layout.projectDirectory.dir("src").dir("main").dir("resources"))
-//     outputs.dir(layout.projectDirectory.dir("dist"))
-//
-//     // doLast {
-//     //     println("copy help")
-//     //     copy {
-//     //         from(layout.projectDirectory.dir("dist"))
-//     //         into(layout.projectDirectory.dir("..").dir("hilfe"))
-//     //     }
-//     // }
-// }
-// build.finalizedBy("ant-buildHelp")
-// //buildHelp.dependsOn("ant-buildHelp")
 
 // tasks.register("buildApp") {
 //    group = "arser"
