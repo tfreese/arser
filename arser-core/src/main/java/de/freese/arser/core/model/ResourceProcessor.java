@@ -5,5 +5,5 @@ package de.freese.arser.core.model;
  */
 @FunctionalInterface
 public interface ResourceProcessor {
-    void process(DataContainer dataContainer) throws Exception;
+    void process(BlobValue blobValue) throws Exception;
 }

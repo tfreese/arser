@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,28 +14,29 @@ import java.nio.file.Path;
 /**
  * @author Thomas Freese
  */
-public final class DataContainer implements Closeable {
+public final class BlobValue implements AutoCloseable {
     // 10 MB
     private static final int DEFAULT_MEMORY_THRESHOLD = 10 * 1024 * 1024;
 
-    public static DataContainer of(final InputStream inputStream) throws IOException {
+    public static BlobValue of(final InputStream inputStream) throws IOException {
         return of(DEFAULT_MEMORY_THRESHOLD, inputStream);
     }
 
-    public static DataContainer of(final int memoryThreshold, final InputStream inputStream) throws IOException {
-        final DataContainer dataContainer = new DataContainer(memoryThreshold);
-        dataContainer.readFrom(inputStream);
+    public static BlobValue of(final int memoryThreshold, final InputStream inputStream) throws IOException {
+        final BlobValue blobValue = new BlobValue(memoryThreshold);
+        blobValue.readFrom(inputStream);
 
-        return dataContainer;
+        return blobValue;
     }
 
     private final int memoryThreshold;
+
     private OutputStream currentOutputStream;
     private boolean isInMemory = true;
     private ByteArrayOutputStream memoryBuffer;
     private Path tempFile;
 
-    private DataContainer(final int memoryThreshold) {
+    private BlobValue(final int memoryThreshold) {
         super();
 
         this.memoryThreshold = memoryThreshold;
@@ -86,6 +86,7 @@ public final class DataContainer implements Closeable {
 
     private void switchToDisk() throws IOException {
         isInMemory = false;
+        
         tempFile = Files.createTempFile("dataContainer_", ".tmp");
         final OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile.toFile()));
 
