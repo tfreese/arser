@@ -6,23 +6,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.freese.arser.core.utils.ArserUtils;
-
 /**
  * @author Thomas Freese
  */
-public final class ResourceRequest {
+public final class ArserRequest {
     /**
      * /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
      */
-    public static ResourceRequest of(final URI requestUri) {
+    public static ArserRequest of(final URI requestUri) {
         return of(requestUri.getPath());
     }
 
     /**
      * /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
      */
-    public static ResourceRequest of(final String requestPath) {
+    public static ArserRequest of(final String requestPath) {
         String path = requestPath;
 
         // Strip Leading '/'.
@@ -51,19 +49,17 @@ public final class ResourceRequest {
         final String artifactId = splits.removeLast();
         final String groupId = String.join(".", splits);
 
-        return new ResourceRequest(contextRoot, resource, groupId, artifactId, version);
+        return new ArserRequest(resource, groupId, artifactId, version);
     }
 
     private final String artifactId;
-    private final String contextRoot;
     private final String groupId;
     private final URI resource;
     private final String version;
 
-    private ResourceRequest(final String contextRoot, final URI resource, final String groupId, final String artifactId, final String version) {
+    private ArserRequest(final URI resource, final String groupId, final String artifactId, final String version) {
         super();
 
-        this.contextRoot = contextRoot;
         this.resource = resource;
         this.groupId = groupId;
         this.artifactId = artifactId;
@@ -72,14 +68,6 @@ public final class ResourceRequest {
 
     public String getArtifactId() {
         return artifactId;
-    }
-
-    public String getContextRoot() {
-        return contextRoot;
-    }
-
-    public String getFileName() {
-        return ArserUtils.toFileName(getResource());
     }
 
     public String getGroupId() {

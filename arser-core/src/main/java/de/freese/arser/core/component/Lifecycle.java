@@ -1,5 +1,5 @@
 // Created: 22.07.23
-package de.freese.arser.core.lifecycle;
+package de.freese.arser.core.component;
 
 /**
  * @author Thomas Freese

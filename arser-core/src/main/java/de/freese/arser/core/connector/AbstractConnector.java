@@ -1,4 +1,4 @@
-package de.freese.arser.core.repository;
+package de.freese.arser.core.connector;
 
 import java.net.URI;
 import java.util.Objects;
@@ -8,10 +8,10 @@ import de.freese.arser.core.component.AbstractComponent;
 /**
  * @author Thomas Freese
  */
-public abstract class AbstractRepository extends AbstractComponent implements Repository {
+public abstract class AbstractConnector extends AbstractComponent implements Connector {
     private final URI uri;
 
-    protected AbstractRepository(final URI uri) {
+    protected AbstractConnector(final URI uri) {
         super();
 
         this.uri = Objects.requireNonNull(uri, "URI required");

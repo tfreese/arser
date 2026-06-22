@@ -1,35 +1,33 @@
-// Created: 22.07.23
-package de.freese.arser.core.repository;
+package de.freese.arser.core.connector.http;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Path;
-import java.time.Duration;
+import java.util.Objects;
 
-import de.freese.arser.core.model.DefaultFileResource;
-import de.freese.arser.core.model.FileResource;
-import de.freese.arser.core.model.ResourceRequest;
+import de.freese.arser.core.connector.AbstractConnector;
+import de.freese.arser.core.model.ArserRequest;
+import de.freese.arser.core.model.BlobValue;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  */
-public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
-
+public class JreHttpClientConnector extends AbstractConnector {
     private HttpClient httpClient;
 
-    public RemoteRepositoryJreHttpClient(final String contextRoot, final URI baseUri, final Path workingDir) {
-        super(contextRoot, baseUri, workingDir);
+    public JreHttpClientConnector(final URI uri, final HttpClient httpClient) {
+        super(uri);
+
+        this.httpClient = Objects.requireNonNull(httpClient, "httpClient required");
     }
 
     @Override
-    protected boolean doExist(final ResourceRequest resourceRequest) throws Exception {
-        final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
+    public boolean exist(final ArserRequest arserRequest) throws Exception {
+        final URI remoteUri = createRemoteUri(getUri(), arserRequest.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
@@ -41,7 +39,7 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
             getLogger().debug("exist - Request: {}", httpRequest);
         }
 
-        final HttpResponse<Void> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.discarding());
+        final HttpResponse<Void> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("exist - Response: {}", httpResponse);
@@ -51,8 +49,8 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
     }
 
     @Override
-    protected FileResource doGetResource(final ResourceRequest resourceRequest) throws Exception {
-        final URI remoteUri = createRemoteUri(getBaseUri(), resourceRequest.getResource());
+    public BlobValue getResource(final ArserRequest arserRequest) throws Exception {
+        final URI remoteUri = createRemoteUri(getUri(), arserRequest.getResource());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
@@ -65,7 +63,7 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
             getLogger().debug("RequestResource: {}", httpRequest);
         }
 
-        final HttpResponse<InputStream> httpResponse = getHttpClient().send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
+        final HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
 
         if (getLogger().isDebugEnabled()) {
             getLogger().debug("RequestResource: {}", httpResponse);
@@ -88,37 +86,32 @@ public class RemoteRepositoryJreHttpClient extends AbstractRemoteRepository {
             getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
         }
 
-        return new DefaultFileResource(contentLength, httpResponse::body);
+        return BlobValue.of(httpResponse.body());
     }
 
     @Override
     protected void doStart() throws Exception {
-        super.doStart();
-
-        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .followRedirects(HttpClient.Redirect.NEVER)
-                .proxy(ProxySelector.getDefault())
-                .connectTimeout(Duration.ofSeconds(30L));
-
-        httpClient = httpClientBuilder.build();
-
-        // final ResilientHttpClient.ResilientHttpClientBuilder resilientHttpClientBuilder = ResilientHttpClient.newBuilder(httpClient)
-        //         .retries(2)
-        //         .retryDuration(Duration.ofMillis(750));
-        //
-        // httpClient = resilientHttpClientBuilder.build();
+        // Empty
     }
 
     @Override
     protected void doStop() throws Exception {
-        super.doStop();
-
         httpClient.close();
         httpClient = null;
     }
 
-    protected HttpClient getHttpClient() {
-        return httpClient;
+    private URI createRemoteUri(final URI baseUri, final URI resource) {
+        String path = baseUri.getPath();
+        final String pathResource = resource.getPath();
+
+        if (path.endsWith("/") && pathResource.startsWith("/")) {
+            path += pathResource.substring(1);
+        } else if (path.endsWith("/") && !pathResource.startsWith("/")) {
+            path += pathResource;
+        } else if (!path.endsWith("/") && pathResource.startsWith("/")) {
+            path += pathResource;
+        }
+
+        return baseUri.resolve(path);
     }
 }

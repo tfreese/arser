@@ -19,37 +19,42 @@
 
     <repositories>
         <repository>
-            <type>http</type>
             <name>maven-central</name>
-            <uri>https://repo1.maven.org/maven2</uri>
-            <credentials>
-                <user>...</user>
-                <token>...</token>
-            </credentials>
-            <http-client>
-                <connect-timeout>60</connect-timeout>
-                <read-timeout>60</read-timeout>
-                <retries>2</retries>
-                <retry-intervall>1000</retry-intervall>
-            </http-client>
+            <connector>
+                <type>http</type>
+                <uri>https://repo1.maven.org/maven2</uri>
+                <credentials>
+                    <user>...</user>
+                    <token>...</token>
+                </credentials>
+                <http-client>
+                    <connect-timeout>60</connect-timeout>
+                    <read-timeout>60</read-timeout>
+                    <retries>2</retries>
+                    <retry-intervall>1000</retry-intervall>
+                </http-client>
+            </connector>
             <cache>
                 <type>file</type>
                 <uri>file:///opt/jvmapps/arser/maven-central</uri>
             </cache>
         </repository>
         <repository>
-            <type>file</type>
             <name>third-party</name>
-            <uri>file:///home/tommy/.m2/third-party</uri>
-            <cache>
-                <type>jdbc</type>
-                <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/third-party;shutdown=true</uri>
-                <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName>
-                <user>sa</user>
-                <password />
-                <pool-core-size>2</pool-core-size>
-                <pool-max-size>6</pool-max-size>
-            </cache>
+            <connector>
+                <type>file</type>
+                <uri>file:///home/tommy/.m2/third-party</uri>
+                <writable>true</writable>
+            </connector>
+            <!-- <cache> -->
+            <!--     <type>jdbc</type> -->
+            <!--     <uri>jdbc:hsqldb:file:/opt/jvmapps/arser/database/third-party;shutdown=true</uri> -->
+            <!--     <driverClassName>org.hsqldb.jdbc.JDBCDriver</driverClassName> -->
+            <!--     <user>sa</user> -->
+            <!--     <password /> -->
+            <!--     <pool-core-size>2</pool-core-size> -->
+            <!--     <pool-max-size>6</pool-max-size> -->
+            <!-- </cache> -->
         </repository>
         <repository>
             <type>virtual</type>

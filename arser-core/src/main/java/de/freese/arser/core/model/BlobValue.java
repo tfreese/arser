@@ -18,6 +18,18 @@ public final class BlobValue implements AutoCloseable {
     // 10 MB
     private static final int DEFAULT_MEMORY_THRESHOLD = 10 * 1024 * 1024;
 
+    public static BlobValue of(final int memoryThreshold, final byte[] blob) throws IOException {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(blob)) {
+            return of(memoryThreshold, bais);
+        }
+    }
+
+    public static BlobValue of(final byte[] blob) throws IOException {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(blob)) {
+            return of(bais);
+        }
+    }
+
     public static BlobValue of(final InputStream inputStream) throws IOException {
         return of(DEFAULT_MEMORY_THRESHOLD, inputStream);
     }
@@ -55,6 +67,14 @@ public final class BlobValue implements AutoCloseable {
         }
     }
 
+    public long getContentLength() throws Exception {
+        if (isInMemory) {
+            return memoryBuffer.size();
+        } else {
+            return Files.size(tempFile);
+        }
+    }
+
     public InputStream getInputStream() throws Exception {
         if (isInMemory) {
             return new ByteArrayInputStream(memoryBuffer.toByteArray());
@@ -86,8 +106,8 @@ public final class BlobValue implements AutoCloseable {
 
     private void switchToDisk() throws IOException {
         isInMemory = false;
-        
-        tempFile = Files.createTempFile("dataContainer_", ".tmp");
+
+        tempFile = Files.createTempFile("blobValue", ".tmp");
         final OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(tempFile.toFile()));
 
         // Bereits gelesene Bytes aus dem RAM in die Datei schreiben.

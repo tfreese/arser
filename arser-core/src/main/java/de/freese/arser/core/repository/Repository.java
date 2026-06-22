@@ -1,27 +1,18 @@
 // Created: 19.07.23
 package de.freese.arser.core.repository;
 
-import java.io.InputStream;
-import java.net.URI;
-
-import de.freese.arser.core.lifecycle.Lifecycle;
-import de.freese.arser.core.model.FileResource;
-import de.freese.arser.core.model.ResourceRequest;
+import de.freese.arser.core.component.Lifecycle;
+import de.freese.arser.core.model.ArserRequest;
+import de.freese.arser.core.model.ArserResult;
 
 /**
  * @author Thomas Freese
  */
 public interface Repository extends Lifecycle {
 
-    boolean exist(ResourceRequest resourceRequest) throws Exception;
+    boolean exist(ArserRequest arserRequest) throws Exception;
 
-    URI getBaseUri();
+    String getName();
 
-    String getContextRoot();
-
-    FileResource getResource(ResourceRequest resourceRequest) throws Exception;
-
-    default void write(final ResourceRequest resourceRequest, final InputStream inputStream) throws Exception {
-        throw new UnsupportedOperationException("read only repository: " + getContextRoot() + " - " + getBaseUri());
-    }
+    <R> ArserResult<R> getResource(ArserRequest arserRequest) throws Exception;
 }
