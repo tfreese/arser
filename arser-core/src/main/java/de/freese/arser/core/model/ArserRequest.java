@@ -2,36 +2,29 @@
 package de.freese.arser.core.model;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Thomas Freese
  */
-public final class ArserRequest {
+public class ArserRequest {
     /**
-     * /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
+     * org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
      */
-    public static ArserRequest of(final URI requestUri) {
-        return of(requestUri.getPath());
-    }
+    public static ArserRequest of(final String resourcePath) {
+        Objects.requireNonNull(resourcePath, "resourcePath required");
 
-    /**
-     * /public/org/apache/maven/plugins/maven-clean-plugin/3.2.0/maven-clean-plugin-3.2.0.pom
-     */
-    public static ArserRequest of(final String requestPath) {
-        String path = requestPath;
+        final URI resource;
 
-        // Strip Leading '/'.
-        path = path.substring(1);
-
-        // Get the first Element.
-        final String contextRoot = path.substring(0, path.indexOf('/'));
-
-        // Rest of the Path.
-        final String resourcePath = path.substring(contextRoot.length());
-        final URI resource = URI.create(resourcePath);
+        if (resourcePath.startsWith("/")) {
+            resource = URI.create(resourcePath.substring(1));
+        } else {
+            resource = URI.create(resourcePath);
+        }
 
         final List<String> splits = new ArrayList<>(Arrays.asList(resourcePath.split("/")));
 
@@ -52,18 +45,29 @@ public final class ArserRequest {
         return new ArserRequest(resource, groupId, artifactId, version);
     }
 
+    private static Path toRelativePath(final URI uri) {
+        String uriPath = uri.getPath();
+        uriPath = uriPath.replace(' ', '_');
+
+        if (uriPath.startsWith("/")) {
+            uriPath = uriPath.substring(1);
+        }
+
+        return Path.of(uriPath);
+    }
+
     private final String artifactId;
     private final String groupId;
     private final URI resource;
     private final String version;
 
-    private ArserRequest(final URI resource, final String groupId, final String artifactId, final String version) {
+    public ArserRequest(final URI resource, final String groupId, final String artifactId, final String version) {
         super();
 
-        this.resource = resource;
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
+        this.resource = Objects.requireNonNull(resource, "resource required");
+        this.groupId = Objects.requireNonNull(groupId, "groupId required");
+        this.artifactId = Objects.requireNonNull(artifactId, "artifactId required");
+        this.version = Objects.requireNonNull(version, "version required");
     }
 
     public String getArtifactId() {
@@ -89,8 +93,29 @@ public final class ArserRequest {
         return version;
     }
 
+    public Path toLocalPath(final URI baseUri) {
+        final Path relativePath = toRelativePath(resource);
+
+        return Path.of(baseUri).resolve(relativePath);
+    }
+
+    public URI toRemoteUri(final URI baseUri) {
+        String path = baseUri.getPath();
+        final String pathResource = getResource().getPath();
+
+        if (path.endsWith("/") && pathResource.startsWith("/")) {
+            path += pathResource.substring(1);
+        } else if (path.endsWith("/") && !pathResource.startsWith("/")) {
+            path += pathResource;
+        } else if (!path.endsWith("/") && pathResource.startsWith("/")) {
+            path += pathResource;
+        }
+
+        return baseUri.resolve(path);
+    }
+
     @Override
     public String toString() {
-        return getResource().getPath();
+        return getResource().toString();
     }
 }

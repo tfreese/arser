@@ -27,7 +27,7 @@ public class JreHttpClientConnector extends AbstractConnector {
 
     @Override
     public boolean exist(final ArserRequest arserRequest) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), arserRequest.getResource());
+        final URI remoteUri = arserRequest.toRemoteUri(getUri());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
@@ -50,7 +50,7 @@ public class JreHttpClientConnector extends AbstractConnector {
 
     @Override
     public BlobValue getResource(final ArserRequest arserRequest) throws Exception {
-        final URI remoteUri = createRemoteUri(getUri(), arserRequest.getResource());
+        final URI remoteUri = arserRequest.toRemoteUri(getUri());
 
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(remoteUri)
@@ -98,20 +98,5 @@ public class JreHttpClientConnector extends AbstractConnector {
     protected void doStop() throws Exception {
         httpClient.close();
         httpClient = null;
-    }
-
-    private URI createRemoteUri(final URI baseUri, final URI resource) {
-        String path = baseUri.getPath();
-        final String pathResource = resource.getPath();
-
-        if (path.endsWith("/") && pathResource.startsWith("/")) {
-            path += pathResource.substring(1);
-        } else if (path.endsWith("/") && !pathResource.startsWith("/")) {
-            path += pathResource;
-        } else if (!path.endsWith("/") && pathResource.startsWith("/")) {
-            path += pathResource;
-        }
-
-        return baseUri.resolve(path);
     }
 }
