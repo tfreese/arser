@@ -15,7 +15,7 @@ public abstract class AbstractRepository extends AbstractComponent implements Re
     protected AbstractRepository(final URI uri, final String name) {
         super();
 
-        this.uri = Objects.requireNonNull(uri, "uri required");
+        this.uri = Objects.requireNonNull(uri, "uri required").normalize();
         this.name = Objects.requireNonNull(name, "name required");
     }
 
