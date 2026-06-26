@@ -13,7 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 @Disabled("todo")
 class TestFileRepository {
     // private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-test", "file");
-    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.16/slf4j-api-2.0.16.pom";
+    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom";
 
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path pathTest;
