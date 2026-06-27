@@ -33,6 +33,15 @@ public final class ConnectorResponse<R> {
         return timestamp;
     }
 
+    @Override
+    public String toString() {
+        return "ConnectorResponse{"
+                + "value=" + value
+                + ", metadata=" + metadata
+                + ", timestamp=" + timestamp
+                + '}';
+    }
+
     public R value() {
         return value;
     }

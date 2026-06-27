@@ -77,11 +77,11 @@ public final class ConnectorRegistry implements AutoCloseable {
         final long start = System.nanoTime();
 
         try (var span = tracer.start(request)) {
-            final ConnectorResponse<R> resp = select(request).execute(request);
-            span.setAttribute("statusCode", resp.meta().get("statusCode"));
+            final ConnectorResponse<R> response = select(request).execute(request);
+            span.setAttribute("statusCode", response.meta().get("statusCode"));
             metrics.record(request, Duration.ofNanos(System.nanoTime() - start), "success");
 
-            return resp;
+            return response;
         }
         catch (final RuntimeException ex) {
             metrics.record(request, Duration.ofNanos(System.nanoTime() - start), "failure");
@@ -105,7 +105,7 @@ public final class ConnectorRegistry implements AutoCloseable {
         try {
             return new Result.Success<>(execute(request));
         }
-        catch (final NotFoundException ex) {
+        catch (NotFoundException _) {
             return new Result.NotFound<>(request.uri());
         }
         catch (final Throwable th) {
@@ -121,7 +121,7 @@ public final class ConnectorRegistry implements AutoCloseable {
         }
 
         return connectors.stream()
-                .filter(c -> c.supports(scheme, request.operation().name()))
+                .filter(c -> c.supports(scheme, request.operation()))
                 .findFirst()
                 .orElseThrow(() -> new UnsupportedOperationForSchemeException(request.operation().name(), scheme));
     }

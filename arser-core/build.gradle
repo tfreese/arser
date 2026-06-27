@@ -6,14 +6,20 @@ dependencies {
     // api(project(":blobstore-api"))
     // api(project(":arser-configuration"))
 
-    api("com.zaxxer:HikariCP")
-    api("org.slf4j:jul-to-slf4j")
+    api("org.slf4j:slf4j-api")
 
     api("dev.failsafe:failsafe")
 //    api("org.apache.ivy:ivy:2.5.2")
 
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime")
-    runtimeOnly("org.hsqldb:hsqldb")
+    // runtimeOnly("org.hsqldb:hsqldb")
+
+
+    testImplementation("com.h2database:h2")
+    testImplementation("com.zaxxer:HikariCP")
+    testImplementation("org.apache.derby:derby")
+    testImplementation("org.hsqldb:hsqldb")
+    testImplementation("org.slf4j:jul-to-slf4j")
 
     testRuntimeOnly("org.slf4j:slf4j-simple")
 }

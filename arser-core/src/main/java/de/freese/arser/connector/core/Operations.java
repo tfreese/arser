@@ -1,10 +1,10 @@
 package de.freese.arser.connector.core;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.connector.api.AttributeKey;
 import de.freese.arser.connector.api.Operation;
 
@@ -13,8 +13,7 @@ import de.freese.arser.connector.api.Operation;
  */
 public final class Operations {
     public static final Operation<Void> DELETE = new SimpleOp<>("delete", Void.class, true, false, Set.of());
-    public static final Operation<byte[]> DOWNLOAD = readOnly("download", byte[].class);
-    public static final Operation<InputStream> DOWNLOAD_STREAM = readOnly("download.stream", InputStream.class);
+    public static final Operation<BlobValue> DOWNLOAD = readOnly("download", BlobValue.class);
     public static final Operation<Boolean> EXISTS = readOnly("exists", Boolean.class);
     @SuppressWarnings({"rawtypes"})
     public static final Operation<Map> HEAD = readOnly("head", Map.class);

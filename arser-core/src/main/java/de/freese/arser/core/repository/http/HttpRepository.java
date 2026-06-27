@@ -9,9 +9,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
+import de.freese.arser.blobvalue.DefaultBlobValue;
 import de.freese.arser.core.model.ArserRequest;
 import de.freese.arser.core.model.ArserResult;
-import de.freese.arser.core.model.BlobValue;
 import de.freese.arser.core.repository.AbstractRepository;
 import de.freese.arser.core.utils.ArserUtils;
 
@@ -94,7 +94,7 @@ public class HttpRepository extends AbstractRepository {
                 getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
             }
 
-            return new ArserResult.Resource<>(BlobValue.of(httpResponse.body()));
+            return new ArserResult.Resource<>(DefaultBlobValue.of(httpResponse.body()));
         }
         catch (final IOException | InterruptedException ex) {
             return new ArserResult.Failure<>(ex);

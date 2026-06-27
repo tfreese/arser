@@ -10,12 +10,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import de.freese.arser.blobvalue.FileBlobValue;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Attributes;
 import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.security.UriGuard;
-import de.freese.arser.connector.spi.Connector;
+import de.freese.arser.connector.spi.AbstractConnector;
 import de.freese.arser.connector.spi.ConnectorException;
 import de.freese.arser.connector.spi.NotFoundException;
 import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
@@ -23,7 +24,7 @@ import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
 /**
  * @author Thomas Freese
  */
-public final class FileConnector implements Connector {
+public final class FileConnector extends AbstractConnector {
     private final UriGuard uriGuard;
 
     public FileConnector() {
@@ -31,7 +32,12 @@ public final class FileConnector implements Connector {
     }
 
     public FileConnector(final UriGuard uriGuard) {
-        super();
+        super(Set.of("file"), Set.of(
+                Operations.DELETE,
+                Operations.DOWNLOAD,
+                Operations.EXISTS,
+                Operations.LIST,
+                Operations.UPLOAD));
 
         this.uriGuard = Objects.requireNonNull(uriGuard, "uriGuard required");
     }
@@ -40,69 +46,50 @@ public final class FileConnector implements Connector {
     @SuppressWarnings("unchecked")
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> request) {
         if (!uriGuard.test(request.uri())) {
-            throw new ConnectorException("Pfad blockiert: " + request.uri());
+            throw new ConnectorException("Blocked by UriGuard: " + request.uri());
         }
 
         final Path path = Path.of(request.uri().normalize());
 
         try {
-            return (ConnectorResponse<R>) switch (request.operation().name()) {
-                case "exists" -> new ConnectorResponse<>(Files.isRegularFile(path), Map.of());
-                case "download" -> {
-                    if (!Files.exists(path)) {
-                        throw new NotFoundException("Nicht gefunden: " + path);
-                    }
+            final ConnectorResponse<?> response;
 
-                    yield new ConnectorResponse<>(Files.readAllBytes(path), Map.of("size", Files.size(path)));
-                }
-                case "download.stream" -> {
-                    if (!Files.exists(path)) {
-                        throw new NotFoundException("Nicht gefunden: " + path);
-                    }
+            if (Operations.DELETE.equals(request.operation())) {
+                final boolean removed = Files.deleteIfExists(path);
 
-                    yield new ConnectorResponse<>(Files.newInputStream(path), Map.of("size", Files.size(path)));
+                response = new ConnectorResponse<>(null, Map.of("removed", removed));
+            } else if (Operations.DOWNLOAD.equals(request.operation())) {
+                if (!Files.exists(path)) {
+                    throw new NotFoundException("Nicht gefunden: " + path);
                 }
-                case "upload" -> {
-                    final byte[] body = request.attribute(Attributes.BODY).orElseThrow();
 
-                    if (path.getParent() != null) {
-                        Files.createDirectories(path.getParent());
-                    }
+                response = new ConnectorResponse<>(new FileBlobValue(path), Map.of("size", Files.size(path)));
+            } else if (Operations.EXISTS.equals(request.operation())) {
+                response = new ConnectorResponse<>(Files.isRegularFile(path), Map.of());
+            } else if (Operations.LIST.equals(request.operation())) {
+                try (Stream<Path> stream = Files.list(path)) {
+                    final List<String> names = stream.map(Path::toString).toList();
 
-                    Files.write(path, body, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+                    response = new ConnectorResponse<>(names, Map.of("count", names.size()));
+                }
+            } else if (Operations.UPLOAD.equals(request.operation())) {
+                final byte[] body = request.attribute(Attributes.BODY).orElseThrow();
 
-                    yield new ConnectorResponse<>(null, Map.of("size", body.length));
+                if (path.getParent() != null) {
+                    Files.createDirectories(path.getParent());
                 }
-                case "delete" -> {
-                    final boolean removed = Files.deleteIfExists(path);
-                    yield new ConnectorResponse<>(null, Map.of("removed", removed));
-                }
-                case "list" -> {
-                    try (Stream<Path> stream = Files.list(path)) {
-                        final List<String> names = stream.map(Path::toString).toList();
-                        yield new ConnectorResponse<>(names, Map.of("count", names.size()));
-                    }
-                }
-                default -> throw new UnsupportedOperationForSchemeException(request.operation().name(), "file");
-            };
+
+                Files.write(path, body, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+                response = new ConnectorResponse<>(null, Map.of("size", body.length));
+            } else {
+                throw new UnsupportedOperationForSchemeException(request.operation().name(), request.uri().getScheme());
+            }
+
+            return (ConnectorResponse<R>) response;
         }
         catch (final IOException ex) {
             throw new ConnectorException("File-Exception:  " + path, ex);
         }
-    }
-
-    @Override
-    public Set<String> supportedOperations() {
-        return Set.of(Operations.EXISTS.name(),
-                Operations.DOWNLOAD.name(),
-                Operations.DOWNLOAD_STREAM.name(),
-                Operations.UPLOAD.name(),
-                Operations.DELETE.name(),
-                Operations.LIST.name());
-    }
-
-    @Override
-    public Set<String> supportedSchemes() {
-        return Set.of("file");
     }
 }

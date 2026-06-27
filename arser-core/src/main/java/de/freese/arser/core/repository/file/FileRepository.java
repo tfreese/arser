@@ -9,9 +9,9 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import de.freese.arser.blobvalue.FileBlobValue;
 import de.freese.arser.core.model.ArserRequest;
 import de.freese.arser.core.model.ArserResult;
-import de.freese.arser.core.model.BlobValue;
 import de.freese.arser.core.repository.AbstractRepository;
 
 /**
@@ -51,14 +51,7 @@ public class FileRepository extends AbstractRepository {
             getLogger().debug("RequestResource: {}", path);
         }
 
-        try {
-            // final long contentLength = Files.size(path);
-
-            return new ArserResult.Resource<>(BlobValue.of(Files.newInputStream(path)));
-        }
-        catch (final IOException ex) {
-            return new ArserResult.Failure<>(ex);
-        }
+        return new ArserResult.Resource<>(new FileBlobValue(path));
     }
 
     @Override

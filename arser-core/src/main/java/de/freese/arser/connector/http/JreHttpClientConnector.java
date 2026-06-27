@@ -8,9 +8,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Objects;
 
+import de.freese.arser.blobvalue.BlobValue;
+import de.freese.arser.blobvalue.DefaultBlobValue;
 import de.freese.arser.connector.AbstractConnector;
 import de.freese.arser.core.model.ArserRequest;
-import de.freese.arser.core.model.BlobValue;
 import de.freese.arser.core.utils.ArserUtils;
 
 /**
@@ -86,7 +87,7 @@ public class JreHttpClientConnector extends AbstractConnector {
             getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
         }
 
-        return BlobValue.of(httpResponse.body());
+        return DefaultBlobValue.of(httpResponse.body());
     }
 
     @Override

@@ -8,59 +8,61 @@ import java.util.concurrent.ConcurrentHashMap;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Attributes;
-import de.freese.arser.connector.spi.Connector;
+import de.freese.arser.connector.core.Operations;
+import de.freese.arser.connector.spi.AbstractConnector;
 import de.freese.arser.connector.spi.NotFoundException;
 import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
 
 /**
  * @author Thomas Freese
  */
-public final class InMemoryConnector implements Connector {
+public final class InMemoryConnector extends AbstractConnector {
     private final Map<URI, byte[]> store = new ConcurrentHashMap<>();
+
+    public InMemoryConnector() {
+        super(Set.of("mem"), Set.of(
+                Operations.DELETE,
+                Operations.DOWNLOAD,
+                Operations.EXISTS,
+                Operations.UPLOAD
+        ));
+    }
 
     @Override
     @SuppressWarnings("unchecked")
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> request) {
         final URI uri = request.uri();
 
-        return (ConnectorResponse<R>) switch (request.operation().name()) {
-            case "exists" -> new ConnectorResponse<>(store.containsKey(uri), Map.of());
-            case "download" -> {
-                final byte[] data = store.get(uri);
+        final ConnectorResponse<?> response;
 
-                if (data == null) {
-                    throw new NotFoundException("mem: " + uri);
-                }
+        if (Operations.DELETE.equals(request.operation())) {
+            final boolean removed = store.remove(uri) != null;
 
-                yield new ConnectorResponse<>(data.clone(), Map.of("size", data.length));
+            response = new ConnectorResponse<>(null, Map.of("removed", removed));
+        } else if (Operations.DOWNLOAD.equals(request.operation())) {
+            final byte[] data = store.get(uri);
+
+            if (data == null) {
+                throw new NotFoundException("mem: " + uri);
             }
-            case "upload" -> {
-                store.put(uri, request.attribute(Attributes.BODY).orElseThrow().clone());
 
-                yield new ConnectorResponse<>(null, Map.of());
-            }
-            case "delete" -> {
-                final boolean removed = store.remove(uri) != null;
+            response = new ConnectorResponse<>(data.clone(), Map.of("size", data.length));
+        } else if (Operations.EXISTS.equals(request.operation())) {
+            response = new ConnectorResponse<>(store.containsKey(uri), Map.of());
+        } else if (Operations.UPLOAD.equals(request.operation())) {
+            store.put(uri, request.attribute(Attributes.BODY).orElseThrow().clone());
 
-                yield new ConnectorResponse<>(null, Map.of("removed", removed));
-            }
-            default -> throw new UnsupportedOperationForSchemeException(request.operation().name(), "mem");
-        };
+            response = new ConnectorResponse<>(null, Map.of());
+        } else {
+            throw new UnsupportedOperationForSchemeException(request.operation().name(), request.uri().getScheme());
+        }
+
+        return (ConnectorResponse<R>) response;
     }
 
     public InMemoryConnector put(final URI uri, final byte[] data) {
         store.put(uri.normalize(), data.clone());
 
         return this;
-    }
-
-    @Override
-    public Set<String> supportedOperations() {
-        return Set.of("exists", "download", "upload", "delete");
-    }
-
-    @Override
-    public Set<String> supportedSchemes() {
-        return Set.of("mem");
     }
 }

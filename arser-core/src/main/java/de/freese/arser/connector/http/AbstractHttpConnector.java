@@ -1,34 +1,36 @@
 package de.freese.arser.connector.http;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.security.CredentialsProvider;
 import de.freese.arser.connector.security.UriGuard;
-import de.freese.arser.connector.spi.Connector;
+import de.freese.arser.connector.spi.AbstractConnector;
 import de.freese.arser.connector.spi.ConnectorException;
 import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
 
 /**
  * @author Thomas Freese
  */
-public abstract class AbstractHttpConnector implements Connector {
+public abstract class AbstractHttpConnector extends AbstractConnector {
     private final CredentialsProvider credentialsProvider;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UriGuard uriGuard;
 
     protected AbstractHttpConnector(final UriGuard uriGuard, final CredentialsProvider credentialsProvider) {
-        super();
+        super(Set.of("http", "https"), Set.of(
+                Operations.DELETE,
+                Operations.DOWNLOAD,
+                Operations.EXISTS,
+                Operations.UPLOAD,
+                Operations.UPLOAD_STREAM
+        ));
 
         this.uriGuard = Objects.requireNonNull(uriGuard, "uriGuard required");
         this.credentialsProvider = Objects.requireNonNull(credentialsProvider, "credentialsProvider required");
@@ -39,45 +41,36 @@ public abstract class AbstractHttpConnector implements Connector {
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> request) {
         checkGuard(request.uri());
 
-        return (ConnectorResponse<R>) switch (request.operation().name()) {
-            case "exists" -> doExists(request);
-            case "head" -> doHead(request);
-            case "download" -> doDownload(request);
-            case "download.stream" -> doDownloadStream(request);
-            case "upload" -> doUpload(request);
-            case "upload.stream" -> doUploadStream(request);
-            case "delete" -> doDelete(request);
-            default -> throw new UnsupportedOperationForSchemeException(request.operation().name(), request.uri().getScheme());
-        };
-    }
+        final ConnectorResponse<?> response;
 
-    @Override
-    public Set<String> supportedOperations() {
-        return Set.of(Operations.EXISTS.name(),
-                Operations.HEAD.name(),
-                Operations.DOWNLOAD.name(),
-                Operations.DOWNLOAD_STREAM.name(),
-                Operations.UPLOAD.name(),
-                Operations.UPLOAD_STREAM.name(),
-                Operations.DELETE.name());
-    }
+        if (Operations.DELETE.equals(request.operation())) {
+            response = doDelete(request);
+        } else if (Operations.DOWNLOAD.equals(request.operation())) {
+            response = doDownload(request);
+        } else if (Operations.EXISTS.equals(request.operation())) {
+            response = doExists(request);
+        } else if (Operations.HEAD.equals(request.operation())) {
+            response = doHead(request);
+        } else if (Operations.UPLOAD.equals(request.operation())) {
+            response = doUpload(request);
+        } else if (Operations.UPLOAD_STREAM.equals(request.operation())) {
+            response = doUploadStream(request);
+        } else {
+            throw new UnsupportedOperationForSchemeException(request.operation().name(), request.uri().getScheme());
+        }
 
-    @Override
-    public Set<String> supportedSchemes() {
-        return Set.of("http", "https");
+        return (ConnectorResponse<R>) response;
     }
 
     protected void checkGuard(final URI uri) {
         if (!uriGuard.test(uri)) {
-            throw new ConnectorException("URI blocked by UriGuard: " + uri);
+            throw new ConnectorException("Blocked by UriGuard: " + uri);
         }
     }
 
     protected abstract ConnectorResponse<Void> doDelete(ConnectorRequest<?> request);
 
-    protected abstract ConnectorResponse<byte[]> doDownload(ConnectorRequest<?> request);
-
-    protected abstract ConnectorResponse<InputStream> doDownloadStream(ConnectorRequest<?> request);
+    protected abstract ConnectorResponse<BlobValue> doDownload(ConnectorRequest<?> request);
 
     protected abstract ConnectorResponse<Boolean> doExists(ConnectorRequest<?> request);
 
@@ -89,9 +82,5 @@ public abstract class AbstractHttpConnector implements Connector {
 
     protected CredentialsProvider getCredentialsProvider() {
         return credentialsProvider;
-    }
-
-    protected Logger getLogger() {
-        return logger;
     }
 }

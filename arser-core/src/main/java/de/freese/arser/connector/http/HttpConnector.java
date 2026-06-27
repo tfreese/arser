@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import de.freese.arser.blobvalue.BlobValue;
+import de.freese.arser.blobvalue.DefaultBlobValue;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Attributes;
@@ -33,7 +35,9 @@ public final class HttpConnector extends AbstractHttpConnector {
                 builder.header("Authorization", "Basic " + enc);
             }
             case final Credentials.Bearer bearer -> builder.header("Authorization", "Bearer " + bearer.token());
-            case final Credentials.MTLS mtls -> { // Set in HttpClient.sslContext }
+            case final Credentials.MTLS mtls -> {
+                // Set in HttpClient.sslContext
+                Objects.requireNonNull(mtls, "mtls required");
             }
         }
     }
@@ -65,45 +69,45 @@ public final class HttpConnector extends AbstractHttpConnector {
 
     @Override
     protected ConnectorResponse<Void> doDelete(final ConnectorRequest<?> request) {
-        final int sc = sendDiscard(baseBuilder(request).DELETE().build());
+        final HttpResponse<Void> httpResponse = sendDiscard(baseBuilder(request).DELETE().build());
 
-        if (sc == 404) {
+        if (httpResponse.statusCode() == 404) {
             throw new NotFoundException("404: " + request.uri());
         }
 
-        ensure2xx(sc, request.uri());
+        ensure2xx(httpResponse.statusCode(), request.uri());
 
-        return new ConnectorResponse<>(null, Map.of("statusCode", sc));
+        return new ConnectorResponse<>(null, Map.of("statusCode", httpResponse.statusCode()));
     }
 
     @Override
-    protected ConnectorResponse<byte[]> doDownload(final ConnectorRequest<?> request) {
-        final HttpResponse<byte[]> response = send(buildGet(request), HttpResponse.BodyHandlers.ofByteArray());
+    protected ConnectorResponse<BlobValue> doDownload(final ConnectorRequest<?> request) {
+        final HttpResponse<InputStream> httpResponse = send(buildGet(request), HttpResponse.BodyHandlers.ofInputStream());
 
-        return toByteArrayResponse(response);
-    }
-
-    @Override
-    protected ConnectorResponse<InputStream> doDownloadStream(final ConnectorRequest<?> request) {
-        final HttpResponse<InputStream> response = send(buildGet(request), HttpResponse.BodyHandlers.ofInputStream());
-
-        if (response.statusCode() == 404) {
+        if (httpResponse.statusCode() == 404) {
             throw new NotFoundException("404: " + request.uri());
         }
 
-        ensure2xx(response.statusCode(), request.uri());
+        ensure2xx(httpResponse.statusCode(), httpResponse.uri());
 
-        return new ConnectorResponse<>(response.body(), Map.of("statusCode", response.statusCode(), "headers", response.headers().map()));
+        try {
+            return new ConnectorResponse<>(DefaultBlobValue.of(httpResponse.body()), Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
+        }
+        catch (final IOException ex) {
+            throw new ConnectorException("HTTP-IO-Error: " + request.uri(), ex);
+        }
     }
 
     @Override
     protected ConnectorResponse<Boolean> doExists(final ConnectorRequest<?> request) {
-        int statusCode = sendDiscard(buildHead(request));
+        HttpResponse<Void> httpResponse = sendDiscard(buildHead(request));
+        int statusCode = httpResponse.statusCode();
 
         // 405 Not Allowed
         // 501 Not Implemented
         if (statusCode == 405 || statusCode == 501) {
-            statusCode = sendDiscard(buildGet(request));
+            httpResponse = sendDiscard(buildGet(request));
+            statusCode = httpResponse.statusCode();
         }
 
         // 404 Not Found
@@ -140,11 +144,11 @@ public final class HttpConnector extends AbstractHttpConnector {
                 .method(method, HttpRequest.BodyPublishers.ofByteArray(body))
                 .build();
 
-        final int sc = sendDiscard(httpRequest);
+        final HttpResponse<Void> httpResponse = sendDiscard(httpRequest);
 
-        ensure2xx(sc, request.uri());
+        ensure2xx(httpResponse.statusCode(), request.uri());
 
-        return new ConnectorResponse<>(null, Map.of("statusCode", sc));
+        return new ConnectorResponse<>(null, Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
     }
 
     @Override
@@ -157,11 +161,11 @@ public final class HttpConnector extends AbstractHttpConnector {
                 .method(method, HttpRequest.BodyPublishers.ofInputStream(supplier))
                 .build();
 
-        final int sc = sendDiscard(httpRequest);
+        final HttpResponse<Void> httpResponse = sendDiscard(httpRequest);
 
-        ensure2xx(sc, request.uri());
+        ensure2xx(httpResponse.statusCode(), request.uri());
 
-        return new ConnectorResponse<>(-1L, Map.of("statusCode", sc));
+        return new ConnectorResponse<>(-1L, Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
     }
 
     private HttpRequest.Builder baseBuilder(final ConnectorRequest<?> request) {
@@ -180,7 +184,7 @@ public final class HttpConnector extends AbstractHttpConnector {
     }
 
     private HttpRequest buildHead(final ConnectorRequest<?> request) {
-        return baseBuilder(request).method("HEAD", HttpRequest.BodyPublishers.noBody()).build();
+        return baseBuilder(request).HEAD().build();
     }
 
     private <T> HttpResponse<T> send(final HttpRequest httpRequest, final HttpResponse.BodyHandler<T> bodyHandler) {
@@ -188,26 +192,16 @@ public final class HttpConnector extends AbstractHttpConnector {
             return httpClient.send(httpRequest, bodyHandler);
         }
         catch (final IOException ex) {
-            throw new ConnectorException("HTTP-IO-Fehler: " + httpRequest.uri(), ex);
+            throw new ConnectorException("HTTP-IO-Error: " + httpRequest.uri(), ex);
         }
         catch (final InterruptedException ex) {
             Thread.currentThread().interrupt();
 
-            throw new ConnectorException("Unterbrochen: " + httpRequest.uri(), ex);
+            throw new ConnectorException("Interrupted: " + httpRequest.uri(), ex);
         }
     }
 
-    private int sendDiscard(final HttpRequest httpRequest) {
-        return send(httpRequest, HttpResponse.BodyHandlers.discarding()).statusCode();
-    }
-
-    private ConnectorResponse<byte[]> toByteArrayResponse(final HttpResponse<byte[]> httpResponse) {
-        if (httpResponse.statusCode() == 404) {
-            throw new NotFoundException("404: " + httpResponse.uri());
-        }
-
-        ensure2xx(httpResponse.statusCode(), httpResponse.uri());
-
-        return new ConnectorResponse<>(httpResponse.body(), Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
+    private HttpResponse<Void> sendDiscard(final HttpRequest httpRequest) {
+        return send(httpRequest, HttpResponse.BodyHandlers.discarding());
     }
 }

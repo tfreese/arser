@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
+import de.freese.arser.connector.api.Operation;
 import de.freese.arser.connector.spi.Connector;
 
 /**
@@ -43,7 +44,7 @@ public abstract class AbstractConnectorDecorator implements Connector {
     }
 
     @Override
-    public Set<String> supportedOperations() {
+    public Set<Operation<?>> supportedOperations() {
         return getDelegate().supportedOperations();
     }
 

@@ -1,8 +1,8 @@
 package de.freese.arser.connector;
 
+import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.core.component.Lifecycle;
 import de.freese.arser.core.model.ArserRequest;
-import de.freese.arser.core.model.BlobValue;
 
 /**
  * For HTTP, File and JDBC.

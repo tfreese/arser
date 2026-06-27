@@ -43,6 +43,15 @@ public final class ConnectorRequest<R> {
         return operation;
     }
 
+    @Override
+    public String toString() {
+        return "ConnectorRequest{"
+                + "operation=" + operation
+                + ", uri=" + uri
+                + ", attributes=" + attributes
+                + '}';
+    }
+
     public URI uri() {
         return uri;
     }

@@ -2,6 +2,8 @@ package de.freese.arser.core.model;
 
 import java.net.URI;
 
+import de.freese.arser.blobvalue.BlobValue;
+
 /**
  * @author Thomas Freese
  */

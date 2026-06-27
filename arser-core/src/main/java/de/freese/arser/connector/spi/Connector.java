@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
+import de.freese.arser.connector.api.Operation;
 import de.freese.arser.connector.api.Result;
 
 /**
@@ -34,11 +35,11 @@ public interface Connector extends AutoCloseable {
         }
     }
 
-    Set<String> supportedOperations();
+    Set<Operation<?>> supportedOperations();
 
     Set<String> supportedSchemes();
 
-    default boolean supports(final String scheme, final String operation) {
+    default boolean supports(final String scheme, final Operation<?> operation) {
         return supportedSchemes().contains(scheme.toLowerCase()) && supportedOperations().contains(operation);
     }
 }
