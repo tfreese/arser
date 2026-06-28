@@ -14,11 +14,11 @@ import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.freese.arser.core.model.FileResource;
-import de.freese.arser.core.model.ResourceRequest;
-import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.utils.ArserUtils;
-import de.freese.arser.core.utils.HttpMethod;
+import de.freese.arser.config.model.FileResource;
+import de.freese.arser.config.model.ResourceRequest;
+import de.freese.arser.config.repository.Repository;
+import de.freese.arser.config.utils.ArserUtils;
+import de.freese.arser.config.utils.HttpMethod;
 import de.freese.arser.instance.ArserInstance;
 
 /**

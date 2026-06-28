@@ -30,7 +30,7 @@ public final class RetryingConnector extends AbstractConnectorDecorator {
                     final Throwable lastException = event.getLastException();
 
                     if (lastException instanceof final HttpRetryException httpRetryException) {
-                        getDelegateLogger().warn("Retry: {} - HTTP {} - {} - {}",
+                        getLogger().warn("Retry: {} - HTTP {} - {} - {}",
                                 event.getExecutionCount(),
                                 httpRetryException.responseCode(),
                                 httpRetryException.getMessage(),
@@ -38,18 +38,18 @@ public final class RetryingConnector extends AbstractConnectorDecorator {
                         );
                     } else if (lastException != null) {
                         final String error = Optional.ofNullable(lastException.getMessage()).orElse(lastException.getClass().getSimpleName());
-                        getDelegateLogger().warn("retry: {} - {}", event.getExecutionCount(), error);
+                        getLogger().warn("retry: {} - {}", event.getExecutionCount(), error);
                     } else {
-                        getDelegateLogger().warn("retry: {}", event.getExecutionCount());
+                        getLogger().warn("retry: {}", event.getExecutionCount());
                     }
                 })
                 .onFailure(event -> {
                     final Throwable throwable = event.getException();
 
                     if (throwable != null) {
-                        getDelegateLogger().error(throwable.getMessage(), throwable);
+                        getLogger().error(throwable.getMessage(), throwable);
                     } else {
-                        getDelegateLogger().error(event.toString());
+                        getLogger().error(event.toString());
                     }
                 })
                 .build();

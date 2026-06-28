@@ -1,0 +1,65 @@
+// Created: 25 Okt. 2024
+package de.freese.arser.utils;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * @author Thomas Freese
+ */
+public final class MultiplexOutputStream extends OutputStream {
+    private final boolean doClose;
+    private final List<OutputStream> outputStreams;
+
+    public MultiplexOutputStream(final List<OutputStream> outputStreams) {
+        this(outputStreams, true);
+    }
+
+    public MultiplexOutputStream(final List<OutputStream> outputStreams, final boolean doClose) {
+        super();
+
+        this.outputStreams = Objects.requireNonNull(outputStreams, "outputStreams required");
+        this.doClose = doClose;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (!doClose) {
+            return;
+        }
+
+        for (final OutputStream outputStream : outputStreams) {
+            outputStream.close();
+        }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        for (final OutputStream outputStream : outputStreams) {
+            outputStream.flush();
+        }
+    }
+
+    @Override
+    public void write(final int b) throws IOException {
+        for (final OutputStream outputStream : outputStreams) {
+            outputStream.write(b);
+        }
+    }
+
+    @Override
+    public void write(final byte[] b) throws IOException {
+        for (final OutputStream outputStream : outputStreams) {
+            outputStream.write(b);
+        }
+    }
+
+    @Override
+    public void write(final byte[] b, final int off, final int len) throws IOException {
+        for (final OutputStream outputStream : outputStreams) {
+            outputStream.write(b, off, len);
+        }
+    }
+}

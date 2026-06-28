@@ -19,7 +19,7 @@ public final class Operations {
     public static final Operation<Map> HEAD = readOnly("head", Map.class);
     @SuppressWarnings({"rawtypes"})
     public static final Operation<List> LIST = readOnly("list", List.class);
-    public static final Operation<Void> UPLOAD = new SimpleOp<>("upload", Void.class, true, false, Set.of(Attributes.BODY));
+    public static final Operation<Long> UPLOAD = new SimpleOp<>("upload", Long.class, true, false, Set.of(Attributes.BODY));
     public static final Operation<Long> UPLOAD_STREAM = new SimpleOp<>("upload.stream", Long.class, true, false, Set.of(Attributes.BODY_STREAM));
 
     private record SimpleOp<R>(String name, Class<R> resultType, boolean isIdempotent, boolean isReadOnly, Set<AttributeKey<?>> requiredAttributes) implements Operation<R> {

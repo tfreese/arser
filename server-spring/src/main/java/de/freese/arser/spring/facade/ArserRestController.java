@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.freese.arser.core.model.FileResource;
-import de.freese.arser.core.model.ResourceRequest;
-import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.config.model.FileResource;
+import de.freese.arser.config.model.ResourceRequest;
+import de.freese.arser.config.repository.Repository;
+import de.freese.arser.config.utils.ArserUtils;
 import de.freese.arser.instance.ArserInstance;
 
 /**

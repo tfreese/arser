@@ -13,9 +13,9 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 import de.freese.arser.config.ArserConfig;
-import de.freese.arser.core.repository.FileRepository;
-import de.freese.arser.core.repository.Repository;
-import de.freese.arser.core.repository.VirtualRepository;
+import de.freese.arser.config.repository.FileRepository;
+import de.freese.arser.config.repository.Repository;
+import de.freese.arser.config.repository.VirtualRepository;
 import de.freese.arser.instance.ArserInstance;
 import de.freese.arser.spring.SpringArserInstance;
 import de.freese.arser.spring.repository.remote.RemoteRepositoryRequestFactory;

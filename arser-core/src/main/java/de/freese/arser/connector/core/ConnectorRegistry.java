@@ -2,8 +2,6 @@ package de.freese.arser.connector.core;
 
 import java.net.URI;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.ServiceLoader;
@@ -24,7 +22,7 @@ import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
 /**
  * @author Thomas Freese
  */
-public final class ConnectorRegistry implements AutoCloseable {
+public final class ConnectorRegistry {
     public static ConnectorRegistry autoDiscover() {
         final ConnectorRegistry registry = new ConnectorRegistry();
 
@@ -50,25 +48,6 @@ public final class ConnectorRegistry implements AutoCloseable {
 
     public <R> R call(final URI uri, final Operation<R> operation) {
         return execute(ConnectorRequest.of(uri, operation)).value();
-    }
-
-    @Override
-    public void close() {
-        final List<Connector> copy = new ArrayList<>(connectors);
-        connectors.clear();
-
-        Collections.reverse(copy);
-
-        for (final Connector connector : copy) {
-            try {
-                connector.close();
-            }
-            catch (Exception _) {
-                // Empty
-            }
-        }
-
-        copy.clear();
     }
 
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> request) {

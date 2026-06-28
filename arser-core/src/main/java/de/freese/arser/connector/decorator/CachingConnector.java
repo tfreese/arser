@@ -32,6 +32,7 @@ public final class CachingConnector extends AbstractConnectorDecorator {
         final String key = "%s: %s".formatted(request.operation().name(), request.uri());
 
         if (!request.operation().isReadOnly()) {
+            getLogger().debug("{} - remove cache entry for readOnly Operation: {}", getClass().getSimpleName(), request);
             cache.remove(key);
 
             return super.execute(request);
@@ -40,10 +41,14 @@ public final class CachingConnector extends AbstractConnectorDecorator {
         final Entry entry = cache.get(key);
 
         if (entry != null && entry.expiresAt().isAfter(Instant.now())) {
+            getLogger().debug("{} - use cached entry for: {}", getClass().getSimpleName(), request);
+
             return (ConnectorResponse<R>) entry.response();
         }
 
         final ConnectorResponse<R> response = super.execute(request);
+
+        getLogger().debug("{} - add cache entry for: {}", getClass().getSimpleName(), request);
 
         cache.put(key, new Entry(response, Instant.now().plus(ttl)));
 

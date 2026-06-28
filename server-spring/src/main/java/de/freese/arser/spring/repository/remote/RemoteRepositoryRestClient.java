@@ -12,11 +12,11 @@ import java.util.Objects;
 
 import org.springframework.web.client.RestClient;
 
-import de.freese.arser.core.model.DefaultFileResource;
-import de.freese.arser.core.model.FileResource;
-import de.freese.arser.core.model.ResourceRequest;
-import de.freese.arser.core.repository.AbstractRemoteRepository;
-import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.config.model.DefaultFileResource;
+import de.freese.arser.config.model.FileResource;
+import de.freese.arser.config.model.ResourceRequest;
+import de.freese.arser.config.repository.AbstractRemoteRepository;
+import de.freese.arser.config.utils.ArserUtils;
 
 /**
  * @author Thomas Freese

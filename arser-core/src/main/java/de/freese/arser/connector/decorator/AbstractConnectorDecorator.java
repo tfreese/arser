@@ -25,11 +25,6 @@ public abstract class AbstractConnectorDecorator implements Connector {
     }
 
     @Override
-    public void close() {
-        getDelegate().close();
-    }
-
-    @Override
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> req) {
         return getDelegate().execute(req);
     }
@@ -44,6 +39,16 @@ public abstract class AbstractConnectorDecorator implements Connector {
     }
 
     @Override
+    public void start() throws Exception {
+        getDelegate().start();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        getDelegate().stop();
+    }
+
+    @Override
     public Set<Operation<?>> supportedOperations() {
         return getDelegate().supportedOperations();
     }
@@ -53,9 +58,9 @@ public abstract class AbstractConnectorDecorator implements Connector {
         return getDelegate().supportedSchemes();
     }
 
-    protected Logger getDelegateLogger() {
+    protected Logger getLogger() {
         if (delegate instanceof final AbstractConnectorDecorator acd) {
-            return acd.getDelegateLogger();
+            return acd.getLogger();
         }
 
         return LoggerFactory.getLogger(getDelegate().getClass());

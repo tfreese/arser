@@ -39,8 +39,8 @@ class TestFileConnector {
     private static Path pathTest;
 
     @AfterAll
-    static void afterAll() {
-        connector.close();
+    static void afterAll() throws Exception {
+        connector.stop();
     }
 
     @BeforeAll
@@ -96,12 +96,13 @@ class TestFileConnector {
         assertNotNull(exception);
 
         // Upload
-        final ConnectorRequest<Void> requestUpload = ConnectorRequest.of(path.toUri(), Operations.UPLOAD)
+        final ConnectorRequest<Long> requestUpload = ConnectorRequest.of(path.toUri(), Operations.UPLOAD)
                 .with(Attributes.BODY, "Hello World".getBytes(StandardCharsets.UTF_8));
 
-        final ConnectorResponse<Void> responseUpload = connector.execute(requestUpload);
+        final ConnectorResponse<Long> responseUpload = connector.execute(requestUpload);
         assertNotNull(responseUpload);
-        assertNotNull(responseUpload.meta().get("size"));
+        assertNotNull(responseUpload.value());
+        assertTrue(responseUpload.value() > 0L);
 
         final ConnectorResponse<Boolean> responseUploadExist = connector.execute(requestExist);
         assertNotNull(responseUploadExist);

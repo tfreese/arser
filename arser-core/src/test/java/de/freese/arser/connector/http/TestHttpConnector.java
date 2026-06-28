@@ -39,13 +39,13 @@ class TestHttpConnector {
     private static Connector connector;
 
     @AfterAll
-    static void afterAll() {
-        connector.close();
+    static void afterAll() throws Exception {
+        connector.stop();
     }
 
     @BeforeAll
     static void beforeAll() {
-        connector = new HttpConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
+        connector = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
     }
 
     @Test

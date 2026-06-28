@@ -28,7 +28,7 @@ import de.freese.arser.config.ArserConfig;
 import de.freese.arser.config.FileRepositoryConfig;
 import de.freese.arser.config.RemoteRepositoryConfig;
 import de.freese.arser.config.ServerConfig;
-import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.config.utils.ArserUtils;
 import de.freese.arser.instance.ArserInstance;
 import de.freese.arser.instance.ArserInstanceFactory;
 import de.freese.arser.jre.server.JreHttpServer;

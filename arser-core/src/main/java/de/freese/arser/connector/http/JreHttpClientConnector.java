@@ -1,103 +1,207 @@
 package de.freese.arser.connector.http;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.blobvalue.DefaultBlobValue;
-import de.freese.arser.connector.AbstractConnector;
-import de.freese.arser.core.model.ArserRequest;
-import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.connector.api.ConnectorRequest;
+import de.freese.arser.connector.api.ConnectorResponse;
+import de.freese.arser.connector.core.Attributes;
+import de.freese.arser.connector.security.Credentials;
+import de.freese.arser.connector.security.CredentialsProvider;
+import de.freese.arser.connector.security.UriGuard;
+import de.freese.arser.connector.spi.ConnectorException;
+import de.freese.arser.connector.spi.NotFoundException;
 
 /**
  * @author Thomas Freese
  */
-public class JreHttpClientConnector extends AbstractConnector {
-    private HttpClient httpClient;
+public final class JreHttpClientConnector extends AbstractHttpConnector {
+    private static void applyAuth(final HttpRequest.Builder builder, final Credentials credentials) {
+        switch (credentials) {
+            case final Credentials.Basic basic -> {
+                final String enc = Base64.getEncoder().encodeToString((basic.user() + ":" + basic.password()).getBytes());
+                builder.header("Authorization", "Basic " + enc);
+            }
+            case final Credentials.Bearer bearer -> builder.header("Authorization", "Bearer " + bearer.token());
+            case final Credentials.MTLS mtls -> {
+                // Set in HttpClient.sslContext
+                Objects.requireNonNull(mtls, "mtls required");
+            }
+        }
+    }
 
-    public JreHttpClientConnector(final URI uri, final HttpClient httpClient) {
-        super(uri);
+    private static void ensure2xx(final int sc, final URI uri) {
+        if (sc < 200 || sc >= 300) {
+            throw new ConnectorException("Unexpected Status " + sc + " for " + uri);
+        }
+    }
+
+    private final HttpClient httpClient;
+
+    public JreHttpClientConnector(final HttpClient httpClient) {
+        this(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, httpClient);
+    }
+
+    public JreHttpClientConnector(final UriGuard uriGuard, final CredentialsProvider credentialsProvider, final HttpClient httpClient) {
+        super(uriGuard, credentialsProvider);
 
         this.httpClient = Objects.requireNonNull(httpClient, "httpClient required");
     }
 
     @Override
-    public boolean exist(final ArserRequest arserRequest) throws Exception {
-        final URI remoteUri = arserRequest.toRemoteUri(getUri());
+    public void stop() throws Exception {
+        super.stop();
 
-        final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(remoteUri)
-                .HEAD()
-                .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .build();
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("exist - Request: {}", httpRequest);
-        }
-
-        final HttpResponse<Void> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("exist - Response: {}", httpResponse);
-        }
-
-        return httpResponse.statusCode() == ArserUtils.HTTP_STATUS_OK;
-    }
-
-    @Override
-    public BlobValue getResource(final ArserRequest arserRequest) throws Exception {
-        final URI remoteUri = arserRequest.toRemoteUri(getUri());
-
-        final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(remoteUri)
-                .GET()
-                .header(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .header(ArserUtils.HTTP_HEADER_ACCEPT, ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM)
-                .build();
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("RequestResource: {}", httpRequest);
-        }
-
-        final HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("RequestResource: {}", httpResponse);
-        }
-
-        if (httpResponse.statusCode() != ArserUtils.HTTP_STATUS_OK) {
-            getLogger().warn("HTTP-STATUS: {} for {}", httpResponse.statusCode(), remoteUri);
-
-            try (InputStream inputStream = httpResponse.body()) {
-                // Drain the Body.
-                inputStream.transferTo(OutputStream.nullOutputStream());
-            }
-
-            return null;
-        }
-
-        final long contentLength = httpResponse.headers().firstValueAsLong(ArserUtils.HTTP_HEADER_CONTENT_LENGTH).orElse(-1);
-
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Download {} Bytes [{}]: {} ", contentLength, ArserUtils.toHumanReadable(contentLength), remoteUri);
-        }
-
-        return DefaultBlobValue.of(httpResponse.body());
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-        // Empty
-    }
-
-    @Override
-    protected void doStop() throws Exception {
         httpClient.close();
-        httpClient = null;
+    }
+
+    @Override
+    protected ConnectorResponse<Void> doDelete(final ConnectorRequest<?> request) {
+        final HttpResponse<Void> httpResponse = sendDiscard(baseBuilder(request).DELETE().build());
+
+        if (httpResponse.statusCode() == 404) {
+            throw new NotFoundException("404: " + request.uri());
+        }
+
+        ensure2xx(httpResponse.statusCode(), request.uri());
+
+        return new ConnectorResponse<>(null, Map.of("statusCode", httpResponse.statusCode()));
+    }
+
+    @Override
+    protected ConnectorResponse<BlobValue> doDownload(final ConnectorRequest<?> request) {
+        final HttpResponse<InputStream> httpResponse = send(buildGet(request), HttpResponse.BodyHandlers.ofInputStream());
+
+        if (httpResponse.statusCode() == 404) {
+            throw new NotFoundException("404: " + request.uri());
+        }
+
+        ensure2xx(httpResponse.statusCode(), httpResponse.uri());
+
+        try {
+            return new ConnectorResponse<>(DefaultBlobValue.of(httpResponse.body()), Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
+        }
+        catch (final IOException ex) {
+            throw new ConnectorException("HTTP-IO-Error: " + request.uri(), ex);
+        }
+    }
+
+    @Override
+    protected ConnectorResponse<Boolean> doExists(final ConnectorRequest<?> request) {
+        HttpResponse<Void> httpResponse = sendDiscard(buildHead(request));
+        int statusCode = httpResponse.statusCode();
+
+        // 405 Not Allowed
+        // 501 Not Implemented
+        if (statusCode == 405 || statusCode == 501) {
+            httpResponse = sendDiscard(buildGet(request));
+            statusCode = httpResponse.statusCode();
+        }
+
+        // 404 Not Found
+        // 410 Gone
+        if (statusCode == 404 || statusCode == 410) {
+            return new ConnectorResponse<>(false, Map.of("statusCode", statusCode));
+        }
+
+        // 200 OK
+        // 300 Multiple Choices Redirection
+        if (statusCode >= 200 && statusCode < 300) {
+            return new ConnectorResponse<>(true, Map.of("statusCode", statusCode));
+        }
+
+        throw new ConnectorException("Unexpected Status " + statusCode + " for " + request.uri());
+    }
+
+    @Override
+    protected ConnectorResponse<Map<String, List<String>>> doHead(final ConnectorRequest<?> request) {
+        final HttpResponse<Void> httpResponse = send(buildHead(request), HttpResponse.BodyHandlers.discarding());
+
+        ensure2xx(httpResponse.statusCode(), request.uri());
+
+        return new ConnectorResponse<>(httpResponse.headers().map(), Map.of("statusCode", httpResponse.statusCode()));
+    }
+
+    @Override
+    protected ConnectorResponse<Long> doUpload(final ConnectorRequest<?> request) {
+        final byte[] body = request.attribute(Attributes.BODY).orElseThrow();
+
+        final String method = request.attributeOrDefault(Attributes.METHOD, "PUT");
+
+        final HttpRequest httpRequest = baseBuilder(request)
+                .method(method, HttpRequest.BodyPublishers.ofByteArray(body))
+                .build();
+
+        final HttpResponse<Void> httpResponse = sendDiscard(httpRequest);
+
+        ensure2xx(httpResponse.statusCode(), request.uri());
+
+        return new ConnectorResponse<>((long) body.length, Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
+    }
+
+    @Override
+    protected ConnectorResponse<Long> doUploadStream(final ConnectorRequest<?> request) {
+        final Supplier<InputStream> supplier = request.attribute(Attributes.BODY_STREAM).orElseThrow();
+
+        final String method = request.attributeOrDefault(Attributes.METHOD, "PUT");
+
+        final HttpRequest httpRequest = baseBuilder(request)
+                .method(method, HttpRequest.BodyPublishers.ofInputStream(supplier))
+                .build();
+
+        final HttpResponse<Void> httpResponse = sendDiscard(httpRequest);
+
+        ensure2xx(httpResponse.statusCode(), request.uri());
+
+        return new ConnectorResponse<>(-1L, Map.of("statusCode", httpResponse.statusCode(), "headers", httpResponse.headers().map()));
+    }
+
+    private HttpRequest.Builder baseBuilder(final ConnectorRequest<?> request) {
+        final HttpRequest.Builder builder = HttpRequest.newBuilder(request.uri())
+                .timeout(request.attributeOrDefault(Attributes.TIMEOUT, Duration.ofSeconds(5L)));
+
+        request.attribute(Attributes.HEADERS).ifPresent(h -> h.forEach(builder::header));
+
+        getCredentialsProvider().resolve(request.uri()).ifPresent(c -> applyAuth(builder, c));
+
+        return builder;
+    }
+
+    private HttpRequest buildGet(final ConnectorRequest<?> request) {
+        return baseBuilder(request).GET().build();
+    }
+
+    private HttpRequest buildHead(final ConnectorRequest<?> request) {
+        return baseBuilder(request).HEAD().build();
+    }
+
+    private <T> HttpResponse<T> send(final HttpRequest httpRequest, final HttpResponse.BodyHandler<T> bodyHandler) {
+        try {
+            return httpClient.send(httpRequest, bodyHandler);
+        }
+        catch (final IOException ex) {
+            throw new ConnectorException("HTTP-IO-Error: " + httpRequest.uri(), ex);
+        }
+        catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
+
+            throw new ConnectorException("Interrupted: " + httpRequest.uri(), ex);
+        }
+    }
+
+    private HttpResponse<Void> sendDiscard(final HttpRequest httpRequest) {
+        return send(httpRequest, HttpResponse.BodyHandlers.discarding());
     }
 }

@@ -13,13 +13,14 @@ import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.security.CredentialsProvider;
 import de.freese.arser.connector.security.UriGuard;
 import de.freese.arser.connector.spi.AbstractConnector;
+import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.connector.spi.ConnectorException;
 import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
 
 /**
  * @author Thomas Freese
  */
-public abstract class AbstractHttpConnector extends AbstractConnector {
+public abstract class AbstractHttpConnector extends AbstractConnector implements Connector {
     private final CredentialsProvider credentialsProvider;
     private final UriGuard uriGuard;
 
@@ -76,7 +77,7 @@ public abstract class AbstractHttpConnector extends AbstractConnector {
 
     protected abstract ConnectorResponse<Map<String, List<String>>> doHead(ConnectorRequest<?> request);
 
-    protected abstract ConnectorResponse<Void> doUpload(ConnectorRequest<?> request);
+    protected abstract ConnectorResponse<Long> doUpload(ConnectorRequest<?> request);
 
     protected abstract ConnectorResponse<Long> doUploadStream(ConnectorRequest<?> request);
 

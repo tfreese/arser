@@ -1,6 +1,8 @@
 package de.freese.arser.connector.file;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import de.freese.arser.blobvalue.FileBlobValue;
@@ -81,7 +84,20 @@ public final class FileConnector extends AbstractConnector {
 
                 Files.write(path, body, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
-                response = new ConnectorResponse<>(null, Map.of("size", body.length));
+                response = new ConnectorResponse<>((long) body.length, Map.of());
+            } else if (Operations.UPLOAD_STREAM.equals(request.operation())) {
+                final Supplier<InputStream> supplier = request.attribute(Attributes.BODY_STREAM).orElseThrow();
+
+                if (path.getParent() != null) {
+                    Files.createDirectories(path.getParent());
+                }
+
+                try (OutputStream outputStream = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    supplier.get().transferTo(outputStream);
+                    outputStream.flush();
+                }
+
+                response = new ConnectorResponse<>(Files.size(path), Map.of());
             } else {
                 throw new UnsupportedOperationForSchemeException(request.operation().name(), request.uri().getScheme());
             }

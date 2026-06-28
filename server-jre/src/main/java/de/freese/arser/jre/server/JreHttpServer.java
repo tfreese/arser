@@ -12,9 +12,9 @@ import com.sun.net.httpserver.HttpServer;
 
 import de.freese.arser.config.ServerConfig;
 import de.freese.arser.config.ThreadPoolConfig;
-import de.freese.arser.core.lifecycle.AbstractLifecycle;
-import de.freese.arser.core.utils.ArserThreadFactory;
-import de.freese.arser.core.utils.ArserUtils;
+import de.freese.arser.config.lifecycle.AbstractLifecycle;
+import de.freese.arser.config.utils.ArserThreadFactory;
+import de.freese.arser.config.utils.ArserUtils;
 import de.freese.arser.instance.ArserInstance;
 
 /**
