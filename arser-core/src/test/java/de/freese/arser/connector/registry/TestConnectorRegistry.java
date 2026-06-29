@@ -35,9 +35,10 @@ import de.freese.arser.connector.spi.Connector;
  */
 class TestConnectorRegistry {
     // httpbin.org
-    // postman-echo.com
+    // httpbin.io
     // httpbun.com
-    private static final String TEST_HOST = "https://httpbun.com";
+    // postman-echo.com
+    private static final String TEST_HOST = "https://httpbin.io";
     private static final String TEST_URI = TEST_HOST + "/robots.txt";
 
     private static ConnectorRegistry connectorRegistry;
@@ -91,9 +92,9 @@ class TestConnectorRegistry {
         }
 
         // Upload with typed attributes.
-        final ConnectorResponse<Long> responseUpload = connectorRegistry.execute(ConnectorRequest.of(URI.create(TEST_HOST), Operations.UPLOAD)
+        final ConnectorResponse<Long> responseUpload = connectorRegistry.execute(ConnectorRequest.of(URI.create(TEST_HOST + "/put"), Operations.UPLOAD)
                 .with(Attributes.BODY, "Hello World".getBytes())
-                .with(Attributes.METHOD, "POST"));
+                .with(Attributes.METHOD, "PUT"));
         assertNotNull(responseUpload);
         assertNotNull(responseUpload.value());
         assertTrue(responseUpload.value() > 0L);

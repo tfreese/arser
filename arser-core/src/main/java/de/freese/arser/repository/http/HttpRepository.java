@@ -9,8 +9,11 @@ import de.freese.arser.repository.AbstractConnectedRepository;
  * @author Thomas Freese
  */
 public final class HttpRepository extends AbstractConnectedRepository {
+    public static HttpRepositoryBuilder builder() {
+        return new HttpRepositoryBuilder();
+    }
 
-    public HttpRepository(final URI uri, final String name, final Connector connector) {
+    HttpRepository(final URI uri, final String name, final Connector connector) {
         super(uri, name, connector);
     }
 }

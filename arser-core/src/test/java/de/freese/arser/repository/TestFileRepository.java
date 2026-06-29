@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +31,12 @@ class TestFileRepository {
 
     @Test
     void testFileRepository() throws Exception {
-        final Repository repository = new FileRepository(pathTest.toUri(), "maven-local", new FileConnector(), false);
+        final Repository repository = FileRepository.builder()
+                .uri(pathTest.toUri())
+                .name("maven-local")
+                .connector(new FileConnector())
+                .readOnly(false)
+                .build();
 
         // Exist.
         ArserResult<?> arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
@@ -84,8 +88,13 @@ class TestFileRepository {
     }
 
     @Test
-    void testFileRepositoryReadOnly() throws IOException {
-        final Repository repository = new FileRepository(pathTest.toUri(), "maven-local", new FileConnector(), true);
+    void testFileRepositoryReadOnly() throws Exception {
+        final Repository repository = FileRepository.builder()
+                .uri(pathTest.toUri())
+                .name("maven-local")
+                .connector(new FileConnector())
+                .readOnly(true)
+                .build();
 
         try (InputStream inputStream = new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8))) {
             final ArserResult<?> arserResult = repository.upload(ArserRequest.of("a/b/c/1/c-1.txt"), inputStream);

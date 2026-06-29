@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpClient;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.AfterAll;
@@ -18,12 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.connector.decorator.LoggingConnector;
 import de.freese.arser.connector.file.FileConnector;
-import de.freese.arser.connector.http.JreHttpClientConnector;
-import de.freese.arser.connector.security.CredentialsProvider;
-import de.freese.arser.connector.security.UriGuard;
-import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.model.ArserRequest;
 import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.file.FileRepository;
@@ -50,14 +44,22 @@ class TestVirtualRepository {
 
         virtualRepository = new VirtualRepository("test");
 
-        final Repository repositoryFile = new FileRepository(pathTest.toUri(), "maven-local", new FileConnector(), false);
+        final Repository repositoryFile = FileRepository.builder()
+                .uri(pathTest.toUri())
+                .name("maven-local")
+                .connector(new FileConnector())
+                .readOnly(false)
+                .build();
         virtualRepository.add(repositoryFile);
 
-        final Connector connectorHttp = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
-        final Connector connectorHttpLogging = new LoggingConnector(connectorHttp);
-        lifeCycleRegistry.register(connectorHttpLogging);
+        // final Connector connectorHttp = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
+        // // final Connector connectorHttpLogging = new LoggingConnector(connectorHttp);
+        // lifeCycleRegistry.register(connectorHttpLogging);
 
-        final Repository repositoryHttp = new HttpRepository(URI.create("https://repo1.maven.org/maven2"), "central", connectorHttpLogging);
+        final Repository repositoryHttp = HttpRepository.builder()
+                .uri(URI.create("https://repo1.maven.org/maven2"))
+                .name("central")
+                .build();
         lifeCycleRegistry.register(repositoryHttp);
 
         virtualRepository.add(repositoryHttp);

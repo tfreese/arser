@@ -19,9 +19,13 @@ import de.freese.arser.repository.RepositoryException;
  * @author Thomas Freese
  */
 public final class FileRepository extends AbstractConnectedRepository {
+    public static FileRepositoryBuilder builder() {
+        return new FileRepositoryBuilder();
+    }
+
     private final boolean readOnly;
 
-    public FileRepository(final URI uri, final String name, final FileConnector connector, final boolean readOnly) {
+    FileRepository(final URI uri, final String name, final FileConnector connector, final boolean readOnly) {
         super(uri, name, connector);
 
         this.readOnly = readOnly;

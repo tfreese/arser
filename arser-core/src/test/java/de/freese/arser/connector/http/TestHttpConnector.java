@@ -31,10 +31,11 @@ import de.freese.arser.connector.spi.Connector;
  */
 class TestHttpConnector {
     // httpbin.org
-    // postman-echo.com
+    // httpbin.io
     // httpbun.com
+    // postman-echo.com
     // "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom"
-    private static final String TEST_URI = "https://httpbun.com/robots.txt";
+    private static final String TEST_URI = "https://httpbin.io/robots.txt";
 
     private static Connector connector;
 
