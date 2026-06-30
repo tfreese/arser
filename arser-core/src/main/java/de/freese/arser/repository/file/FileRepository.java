@@ -9,7 +9,7 @@ import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Attributes;
 import de.freese.arser.connector.core.Operations;
-import de.freese.arser.connector.file.FileConnector;
+import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.model.ArserRequest;
 import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.AbstractConnectedRepository;
@@ -25,7 +25,7 @@ public final class FileRepository extends AbstractConnectedRepository {
 
     private final boolean readOnly;
 
-    FileRepository(final URI uri, final String name, final FileConnector connector, final boolean readOnly) {
+    FileRepository(final URI uri, final String name, final Connector connector, final boolean readOnly) {
         super(uri, name, connector);
 
         this.readOnly = readOnly;

@@ -1,19 +1,17 @@
 package de.freese.arser.repository.file;
 
-import java.net.URI;
 import java.util.Objects;
 
+import de.freese.arser.connector.decorator.LoggingConnector;
 import de.freese.arser.connector.file.FileConnector;
-import de.freese.arser.utils.AbstractBuilder;
+import de.freese.arser.connector.spi.Connector;
+import de.freese.arser.repository.AbstractRepositoryBuilder;
 
 /**
  * @author Thomas Freese
  */
-public final class FileRepositoryBuilder extends AbstractBuilder<FileRepositoryBuilder, FileRepository> {
-    private FileConnector connector;
-    private String name;
+public final class FileRepositoryBuilder extends AbstractRepositoryBuilder<FileRepositoryBuilder, FileRepository> {
     private boolean readOnly = true;
-    private URI uri;
 
     FileRepositoryBuilder() {
         super();
@@ -21,33 +19,20 @@ public final class FileRepositoryBuilder extends AbstractBuilder<FileRepositoryB
 
     @Override
     public FileRepository build() throws Exception {
-        Objects.requireNonNull(uri, "URI required");
-        Objects.requireNonNull(name, "name required");
-        Objects.requireNonNull(connector, "connector required");
+        Objects.requireNonNull(getUri(), "URI required");
+        Objects.requireNonNull(getName(), "name required");
 
-        return new FileRepository(uri, name, connector, readOnly);
-    }
+        Connector connector = new FileConnector();
 
-    public FileRepositoryBuilder connector(final FileConnector connector) {
-        this.connector = connector;
+        if (isLogging()) {
+            connector = new LoggingConnector(connector);
+        }
 
-        return self();
-    }
-
-    public FileRepositoryBuilder name(final String name) {
-        this.name = name;
-
-        return self();
+        return new FileRepository(getUri(), getName(), connector, readOnly);
     }
 
     public FileRepositoryBuilder readOnly(final boolean readOnly) {
         this.readOnly = readOnly;
-
-        return self();
-    }
-
-    public FileRepositoryBuilder uri(final URI uri) {
-        this.uri = uri;
 
         return self();
     }

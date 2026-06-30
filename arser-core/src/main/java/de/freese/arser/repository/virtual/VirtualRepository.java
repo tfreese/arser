@@ -82,5 +82,4 @@ public final class VirtualRepository extends AbstractRepository {
 
         return new ArserResult.Exist<>(exist);
     }
-
 }

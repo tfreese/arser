@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.io.TempDir;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.connector.file.FileConnector;
 import de.freese.arser.model.ArserRequest;
 import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.file.FileRepository;
@@ -47,8 +47,8 @@ class TestVirtualRepository {
         final Repository repositoryFile = FileRepository.builder()
                 .uri(pathTest.toUri())
                 .name("maven-local")
-                .connector(new FileConnector())
                 .readOnly(false)
+                .withLogging()
                 .build();
         virtualRepository.add(repositoryFile);
 
@@ -59,6 +59,9 @@ class TestVirtualRepository {
         final Repository repositoryHttp = HttpRepository.builder()
                 .uri(URI.create("https://repo1.maven.org/maven2"))
                 .name("central")
+                .withRetrying(3, Duration.ofSeconds(2L))
+                .withCaching(Duration.ofMinutes(5L))
+                .withLogging()
                 .build();
         lifeCycleRegistry.register(repositoryHttp);
 

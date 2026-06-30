@@ -16,7 +16,6 @@ import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.freese.arser.blobvalue.BlobValue;
-import de.freese.arser.connector.file.FileConnector;
 import de.freese.arser.model.ArserRequest;
 import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.file.FileRepository;
@@ -34,8 +33,8 @@ class TestFileRepository {
         final Repository repository = FileRepository.builder()
                 .uri(pathTest.toUri())
                 .name("maven-local")
-                .connector(new FileConnector())
                 .readOnly(false)
+                .withLogging()
                 .build();
 
         // Exist.
@@ -92,8 +91,8 @@ class TestFileRepository {
         final Repository repository = FileRepository.builder()
                 .uri(pathTest.toUri())
                 .name("maven-local")
-                .connector(new FileConnector())
                 .readOnly(true)
+                .withLogging()
                 .build();
 
         try (InputStream inputStream = new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8))) {
