@@ -16,10 +16,10 @@ import de.freese.arser.connector.spi.Connector;
 /**
  * @author Thomas Freese
  */
-public final class RetryingConnector extends AbstractConnectorDecorator {
+public final class RetryingConnectorDecorator extends AbstractConnectorDecorator {
     private final FailsafeExecutor<Object> failsafeExecutor;
 
-    public RetryingConnector(final Connector delegate, final int maxRetries, final Duration retryInterval) {
+    public RetryingConnectorDecorator(final Connector delegate, final int maxRetries, final Duration retryInterval) {
         super(delegate);
 
         final RetryPolicy<Object> retryPolicy = RetryPolicy.builder()

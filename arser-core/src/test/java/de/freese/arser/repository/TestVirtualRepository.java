@@ -49,7 +49,7 @@ class TestVirtualRepository {
                 .name("maven-local")
                 .readOnly(false)
                 .withLogging()
-                .build();
+                .build(lifeCycleRegistry);
         virtualRepository.add(repositoryFile);
 
         // final Connector connectorHttp = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
@@ -62,8 +62,7 @@ class TestVirtualRepository {
                 .withRetrying(3, Duration.ofSeconds(2L))
                 .withCaching(Duration.ofMinutes(5L))
                 .withLogging()
-                .build();
-        lifeCycleRegistry.register(repositoryHttp);
+                .build(lifeCycleRegistry);
 
         virtualRepository.add(repositoryHttp);
 

@@ -37,6 +37,7 @@ public final class DefaultBlobValue implements BlobValue {
         return of(inputStream, DEFAULT_MEMORY_THRESHOLD);
     }
 
+    @SuppressWarnings("java:S2095")
     public static BlobValue of(final InputStream inputStream, final int memoryThreshold) throws IOException {
         final DefaultBlobValue blobValue = new DefaultBlobValue(memoryThreshold);
         blobValue.readFrom(inputStream);

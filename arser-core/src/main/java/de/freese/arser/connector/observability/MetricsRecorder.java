@@ -13,5 +13,4 @@ public interface MetricsRecorder {
     };
 
     void record(ConnectorRequest<?> req, Duration elapsed, String outcome);
-
 }

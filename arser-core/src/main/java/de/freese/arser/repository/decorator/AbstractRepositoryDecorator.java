@@ -1,5 +1,6 @@
 package de.freese.arser.repository.decorator;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Objects;
 
@@ -15,16 +16,23 @@ import de.freese.arser.repository.Repository;
  */
 public abstract class AbstractRepositoryDecorator implements Repository {
     private final Repository delegate;
+    private final Logger logger;
 
     protected AbstractRepositoryDecorator(final Repository delegate) {
         super();
 
         this.delegate = Objects.requireNonNull(delegate, "delegate required");
+
+        if (delegate instanceof final AbstractRepositoryDecorator ard) {
+            logger = ard.getLogger();
+        } else {
+            logger = LoggerFactory.getLogger(delegate.getClass());
+        }
     }
 
     @Override
     public <R> ArserResult<R> download(final ArserRequest arserRequest) {
-        return getDelegate().download(arserRequest);
+        return delegate.download(arserRequest);
     }
 
     @Override
@@ -34,23 +42,30 @@ public abstract class AbstractRepositoryDecorator implements Repository {
 
     @Override
     public String getName() {
-        return getDelegate().getName();
+        return delegate.getName();
     }
 
     @Override
     public URI getUri() {
-        return getDelegate().getUri();
+        return delegate.getUri();
     }
 
-    protected Repository getDelegate() {
-        return delegate;
+    @Override
+    public void start() throws Exception {
+        delegate.start();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        delegate.stop();
+    }
+
+    @Override
+    public <R> ArserResult<R> upload(final ArserRequest arserRequest, final InputStream inputStream) {
+        return delegate.upload(arserRequest, inputStream);
     }
 
     protected Logger getLogger() {
-        if (getDelegate() instanceof final AbstractRepositoryDecorator ard) {
-            return ard.getLogger();
-        }
-
-        return LoggerFactory.getLogger(getDelegate().getClass());
+        return logger;
     }
 }

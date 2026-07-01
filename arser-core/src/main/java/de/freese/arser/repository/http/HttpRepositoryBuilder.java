@@ -4,17 +4,20 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Objects;
 
-import de.freese.arser.connector.decorator.CachingConnector;
-import de.freese.arser.connector.decorator.LoggingConnector;
-import de.freese.arser.connector.decorator.RetryingConnector;
+import de.freese.arser.component.LifeCycleRegistry;
+import de.freese.arser.connector.decorator.CachingConnectorDecorator;
+import de.freese.arser.connector.decorator.LoggingConnectorDecorator;
+import de.freese.arser.connector.decorator.RetryingConnectorDecorator;
 import de.freese.arser.connector.http.JreHttpClientConnector;
 import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.repository.AbstractRepositoryBuilder;
+import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
 
 /**
  * @author Thomas Freese
  */
-public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpRepositoryBuilder, HttpRepository> {
+public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpRepositoryBuilder, Repository> {
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30L);
     // private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(30L);
 
@@ -30,7 +33,7 @@ public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpR
     }
 
     @Override
-    public HttpRepository build() throws Exception {
+    public Repository build(final LifeCycleRegistry lifeCycleRegistry) throws Exception {
         Objects.requireNonNull(getUri(), "URI required");
         Objects.requireNonNull(getName(), "name required");
 
@@ -47,18 +50,28 @@ public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpR
         Connector connector = new JreHttpClientConnector(httpClientBuilder.build());
 
         if (maxRetries > 0 && retryInterval.isPositive()) {
-            connector = new RetryingConnector(connector, maxRetries, retryInterval);
+            connector = new RetryingConnectorDecorator(connector, maxRetries, retryInterval);
         }
 
         if (cachingTtl != null && cachingTtl.isPositive()) {
-            connector = new CachingConnector(connector, cachingTtl);
+            connector = new CachingConnectorDecorator(connector, cachingTtl);
         }
 
         if (isLogging()) {
-            connector = new LoggingConnector(connector);
+            connector = new LoggingConnectorDecorator(connector);
         }
 
-        return new HttpRepository(getUri(), getName(), connector);
+        lifeCycleRegistry.register(connector);
+
+        Repository repository = new HttpRepository(getUri(), getName(), connector);
+
+        if (isLogging()) {
+            repository = new LoggingRepositoryDecorator(repository);
+        }
+
+        lifeCycleRegistry.register(repository);
+
+        return repository;
     }
 
     public HttpRepositoryBuilder connectTimeout(final Duration connectTimeout) {

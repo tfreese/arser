@@ -13,14 +13,14 @@ import de.freese.arser.connector.spi.Connector;
 /**
  * @author Thomas Freese
  */
-public final class CachingConnector extends AbstractConnectorDecorator {
+public final class CachingConnectorDecorator extends AbstractConnectorDecorator {
     private record Entry(ConnectorResponse<?> response, Instant expiresAt) {
     }
 
     private final Map<String, Entry> cache = new ConcurrentHashMap<>();
     private final Duration ttl;
 
-    public CachingConnector(final Connector delegate, final Duration ttl) {
+    public CachingConnectorDecorator(final Connector delegate, final Duration ttl) {
         super(delegate);
 
         this.ttl = Objects.requireNonNull(ttl, "ttl required");

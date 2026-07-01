@@ -11,11 +11,15 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
 import de.freese.arser.blobvalue.BlobValue;
+import de.freese.arser.component.DefaultLifeCycleRegistry;
+import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.model.ArserRequest;
 import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.file.FileRepository;
@@ -28,6 +32,18 @@ class TestFileRepository {
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path pathTest;
 
+    private LifeCycleRegistry lifeCycleRegistry;
+
+    @AfterEach
+    void afterEach() throws Exception {
+        lifeCycleRegistry.stop();
+    }
+
+    @BeforeEach
+    void beforeEach() {
+        lifeCycleRegistry = new DefaultLifeCycleRegistry();
+    }
+
     @Test
     void testFileRepository() throws Exception {
         final Repository repository = FileRepository.builder()
@@ -35,7 +51,9 @@ class TestFileRepository {
                 .name("maven-local")
                 .readOnly(false)
                 .withLogging()
-                .build();
+                .build(lifeCycleRegistry);
+
+        lifeCycleRegistry.start();
 
         // Exist.
         ArserResult<?> arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
@@ -93,7 +111,9 @@ class TestFileRepository {
                 .name("maven-local")
                 .readOnly(true)
                 .withLogging()
-                .build();
+                .build(lifeCycleRegistry);
+
+        lifeCycleRegistry.start();
 
         try (InputStream inputStream = new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8))) {
             final ArserResult<?> arserResult = repository.upload(ArserRequest.of("a/b/c/1/c-1.txt"), inputStream);

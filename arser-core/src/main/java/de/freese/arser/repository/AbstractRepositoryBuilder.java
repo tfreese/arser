@@ -9,7 +9,7 @@ import de.freese.arser.utils.AbstractBuilder;
  */
 public abstract class AbstractRepositoryBuilder<B, T> extends AbstractBuilder<B, T> {
 
-    private boolean logging = false;
+    private boolean logging;
     private String name;
     private URI uri;
 

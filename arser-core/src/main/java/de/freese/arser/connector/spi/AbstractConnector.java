@@ -15,8 +15,8 @@ public abstract class AbstractConnector implements Connector {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final Set<Operation<?>> supportedOperations;
     private final Set<String> supportedSchemes;
-    
-    public AbstractConnector(final Set<String> supportedSchemes, final Set<Operation<?>> supportedOperations) {
+
+    protected AbstractConnector(final Set<String> supportedSchemes, final Set<Operation<?>> supportedOperations) {
         super();
 
         this.supportedSchemes = Set.copyOf(Objects.requireNonNull(supportedSchemes, "supportedSchemes required"));

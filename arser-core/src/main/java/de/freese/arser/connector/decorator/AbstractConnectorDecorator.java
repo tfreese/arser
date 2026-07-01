@@ -17,52 +17,51 @@ import de.freese.arser.connector.spi.Connector;
  */
 public abstract class AbstractConnectorDecorator implements Connector {
     private final Connector delegate;
+    private final Logger logger;
 
     protected AbstractConnectorDecorator(final Connector delegate) {
         super();
 
         this.delegate = Objects.requireNonNull(delegate, "delegate required");
+
+        if (delegate instanceof final AbstractConnectorDecorator acd) {
+            logger = acd.getLogger();
+        } else {
+            logger = LoggerFactory.getLogger(delegate.getClass());
+        }
     }
 
     @Override
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> req) {
-        return getDelegate().execute(req);
+        return delegate.execute(req);
     }
 
     @Override
     public <R> CompletableFuture<ConnectorResponse<R>> executeAsync(final ConnectorRequest<R> req) {
-        return getDelegate().executeAsync(req);
-    }
-
-    public Connector getDelegate() {
-        return delegate;
+        return delegate.executeAsync(req);
     }
 
     @Override
     public void start() throws Exception {
-        getDelegate().start();
+        delegate.start();
     }
 
     @Override
     public void stop() throws Exception {
-        getDelegate().stop();
+        delegate.stop();
     }
 
     @Override
     public Set<Operation<?>> supportedOperations() {
-        return getDelegate().supportedOperations();
+        return delegate.supportedOperations();
     }
 
     @Override
     public Set<String> supportedSchemes() {
-        return getDelegate().supportedSchemes();
+        return delegate.supportedSchemes();
     }
 
     protected Logger getLogger() {
-        if (delegate instanceof final AbstractConnectorDecorator acd) {
-            return acd.getLogger();
-        }
-
-        return LoggerFactory.getLogger(getDelegate().getClass());
+        return logger;
     }
 }

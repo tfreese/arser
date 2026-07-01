@@ -22,8 +22,8 @@ import de.freese.arser.connector.api.Result;
 import de.freese.arser.connector.core.Attributes;
 import de.freese.arser.connector.core.ConnectorRegistry;
 import de.freese.arser.connector.core.Operations;
-import de.freese.arser.connector.decorator.CachingConnector;
-import de.freese.arser.connector.decorator.RetryingConnector;
+import de.freese.arser.connector.decorator.CachingConnectorDecorator;
+import de.freese.arser.connector.decorator.RetryingConnectorDecorator;
 import de.freese.arser.connector.file.FileConnector;
 import de.freese.arser.connector.http.JreHttpClientConnector;
 import de.freese.arser.connector.security.CredentialsProvider;
@@ -62,8 +62,8 @@ class TestConnectorRegistry {
                         .build()
         );
 
-        final Connector httpResilient = new CachingConnector(
-                new RetryingConnector(httpConnector, 3, Duration.ofSeconds(3L)),
+        final Connector httpResilient = new CachingConnectorDecorator(
+                new RetryingConnectorDecorator(httpConnector, 3, Duration.ofSeconds(3L)),
                 Duration.ofMinutes(5L));
         lifeCycleRegistry.register(httpResilient);
 

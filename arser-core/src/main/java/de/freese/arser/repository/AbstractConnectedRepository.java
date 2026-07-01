@@ -17,7 +17,7 @@ import de.freese.arser.model.ArserResult;
 public abstract class AbstractConnectedRepository extends AbstractRepository {
     private final Connector connector;
 
-    public AbstractConnectedRepository(final URI uri, final String name, final Connector connector) {
+    protected AbstractConnectedRepository(final URI uri, final String name, final Connector connector) {
         super(uri, name);
 
         this.connector = Objects.requireNonNull(connector, "connector required");
