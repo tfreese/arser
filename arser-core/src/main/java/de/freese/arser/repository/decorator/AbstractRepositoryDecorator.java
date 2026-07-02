@@ -7,8 +7,8 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.repository.Repository;
 
 /**

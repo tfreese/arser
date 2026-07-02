@@ -5,13 +5,13 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Attributes;
 import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.spi.Connector;
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.AbstractConnectedRepository;
 import de.freese.arser.repository.RepositoryException;
 
@@ -54,7 +54,7 @@ public final class FileRepository extends AbstractConnectedRepository {
             return new ArserResult.Failure<>(new RepositoryException(message));
         }
 
-        final URI remoteUri = arserRequest.toRemoteUri(getUri());
+        final URI remoteUri = toRemoteUri(getUri(), arserRequest);
 
         final ConnectorRequest<Long> connectorRequest = ConnectorRequest.of(remoteUri, Operations.UPLOAD_STREAM)
                 .with(Attributes.BODY_STREAM, () -> inputStream);
@@ -68,5 +68,14 @@ public final class FileRepository extends AbstractConnectedRepository {
         catch (final Exception ex) {
             return new ArserResult.Failure<>(ex);
         }
+    }
+
+    @Override
+    protected URI toRemoteUri(final URI uri, final ArserRequest arserRequest) {
+        final String uriPath = uri.getPath().replace(' ', '_');
+
+        final String requestPath = arserRequest.getResource().getPath().replace(' ', '_');
+
+        return Path.of(uriPath).resolve(requestPath).toUri();
     }
 }

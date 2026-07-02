@@ -15,11 +15,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.file.FileRepository;
 import de.freese.arser.repository.http.HttpRepository;
 import de.freese.arser.repository.virtual.VirtualRepository;
@@ -87,7 +87,8 @@ class TestVirtualRepository {
         final ArserResult<?> arserResult = virtualRepository.exist(ArserRequest.of("org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom"));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Exist<?>(final boolean exist)) {
+        if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
+            assertNotNull(uri);
             assertTrue(exist);
         } else {
             fail();

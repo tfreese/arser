@@ -1,6 +1,7 @@
 package de.freese.arser.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -17,11 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
 
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.file.FileRepository;
 
 /**
@@ -59,8 +60,9 @@ class TestFileRepository {
         ArserResult<?> arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.NotFound<?>(final URI uri)) {
+        if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
             assertNotNull(uri);
+            assertFalse(exist);
             assertEquals(pathTest.resolve("a/b/c/1/c-1.txt").toUri(), uri);
         } else {
             fail();
@@ -82,8 +84,10 @@ class TestFileRepository {
         arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Exist<?>(final boolean exist)) {
+        if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
+            assertNotNull(uri);
             assertTrue(exist);
+            assertEquals(pathTest.resolve("a/b/c/1/c-1.txt").toUri(), uri);
         } else {
             fail();
         }

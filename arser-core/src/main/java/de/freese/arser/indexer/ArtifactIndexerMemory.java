@@ -4,7 +4,7 @@ package de.freese.arser.indexer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.freese.arser.model.ArserRequest;
+import de.freese.arser.api.ArserRequest;
 
 /**
  * @author Thomas Freese

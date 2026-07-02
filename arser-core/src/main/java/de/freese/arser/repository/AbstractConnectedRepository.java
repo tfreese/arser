@@ -3,13 +3,13 @@ package de.freese.arser.repository;
 import java.net.URI;
 import java.util.Objects;
 
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.spi.Connector;
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
 
 /**
  * @author Thomas Freese
@@ -25,7 +25,7 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
 
     @Override
     public <R> ArserResult<R> download(final ArserRequest arserRequest) {
-        final URI remoteUri = arserRequest.toRemoteUri(getUri());
+        final URI remoteUri = toRemoteUri(getUri(), arserRequest);
 
         final ConnectorRequest<BlobValue> connectorRequest = ConnectorRequest.of(remoteUri, Operations.DOWNLOAD);
 
@@ -41,7 +41,7 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
 
     @Override
     public <R> ArserResult<R> exist(final ArserRequest arserRequest) {
-        final URI remoteUri = arserRequest.toRemoteUri(getUri());
+        final URI remoteUri = toRemoteUri(getUri(), arserRequest);
 
         final ConnectorRequest<Boolean> connectorRequest = ConnectorRequest.of(remoteUri, Operations.EXISTS);
 
@@ -49,10 +49,10 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
             final ConnectorResponse<Boolean> connectorResponse = getConnector().execute(connectorRequest);
 
             if (connectorResponse.value()) {
-                return new ArserResult.Exist<>(true);
+                return new ArserResult.Exist<>(remoteUri, true);
             }
 
-            return new ArserResult.NotFound<>(remoteUri);
+            return new ArserResult.Exist<>(remoteUri, false);
         }
         catch (final Exception ex) {
             return new ArserResult.Failure<>(ex);
@@ -62,4 +62,6 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
     protected Connector getConnector() {
         return connector;
     }
+
+    protected abstract URI toRemoteUri(URI uri, ArserRequest arserRequest);
 }

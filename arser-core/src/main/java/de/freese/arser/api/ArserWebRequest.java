@@ -1,5 +1,5 @@
 // Created: 17.01.24
-package de.freese.arser.model;
+package de.freese.arser.api;
 
 import java.net.URI;
 import java.util.Objects;

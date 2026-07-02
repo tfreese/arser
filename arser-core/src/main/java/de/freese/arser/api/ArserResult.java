@@ -1,4 +1,4 @@
-package de.freese.arser.model;
+package de.freese.arser.api;
 
 import java.net.URI;
 
@@ -11,13 +11,10 @@ public sealed interface ArserResult<R> {
     record Download<R>(BlobValue blobValue) implements ArserResult<R> {
     }
 
-    record Exist<R>(boolean exist) implements ArserResult<R> {
+    record Exist<R>(URI uri, boolean exist) implements ArserResult<R> {
     }
 
     record Failure<R>(Throwable cause) implements ArserResult<R> {
-    }
-
-    record NotFound<R>(URI uri) implements ArserResult<R> {
     }
 
     record Upload<R>(long contentLength) implements ArserResult<R> {

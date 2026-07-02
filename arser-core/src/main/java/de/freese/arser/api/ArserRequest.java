@@ -1,8 +1,7 @@
 // Created: 17.01.24
-package de.freese.arser.model;
+package de.freese.arser.api;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,17 +44,6 @@ public class ArserRequest {
         return new ArserRequest(resource, groupId, artifactId, version);
     }
 
-    private static Path toRelativePath(final URI uri) {
-        String uriPath = uri.getPath();
-        uriPath = uriPath.replace(' ', '_');
-
-        if (uriPath.startsWith("/")) {
-            uriPath = uriPath.substring(1);
-        }
-
-        return Path.of(uriPath);
-    }
-
     private final String artifactId;
     private final String groupId;
     private final URI resource;
@@ -91,40 +79,6 @@ public class ArserRequest {
 
     public String getVersion() {
         return version;
-    }
-
-    public Path toLocalPath(final URI baseUri) {
-        final Path relativePath = toRelativePath(resource);
-
-        return Path.of(baseUri).resolve(relativePath);
-    }
-
-    public URI toRemoteUri(final URI baseUri) {
-        String pathResource = getResource().getPath();
-
-        if (pathResource.startsWith("/")) {
-            pathResource = pathResource.substring(1);
-        }
-
-        String newPath = baseUri.getPath();
-
-        if (newPath.endsWith("/")) {
-            newPath += pathResource;
-        } else {
-            newPath += "/" + pathResource;
-        }
-
-        return baseUri.resolve(newPath);
-
-        // return new URI(
-        //         baseUri.getScheme(),
-        //         baseUri.getUserInfo(),
-        //         baseUri.getHost(),
-        //         baseUri.getPort(),
-        //         newPath,
-        //         baseUri.getQuery(),
-        //         baseUri.getFragment()
-        // );
     }
 
     @Override

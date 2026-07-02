@@ -2,8 +2,8 @@ package de.freese.arser.repository.decorator;
 
 import java.io.InputStream;
 
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.repository.Repository;
 
 /**

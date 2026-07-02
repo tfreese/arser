@@ -8,9 +8,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
 import de.freese.arser.repository.AbstractRepository;
 import de.freese.arser.repository.Repository;
 import de.freese.arser.repository.RepositoryException;
@@ -56,7 +56,7 @@ public final class VirtualRepository extends AbstractRepository {
         }
 
         if (blobValue == null) {
-            return new ArserResult.NotFound<>(arserRequest.getResource());
+            return new ArserResult.Exist<>(arserRequest.getResource(), false);
         }
 
         return new ArserResult.Download<>(blobValue);
@@ -80,6 +80,6 @@ public final class VirtualRepository extends AbstractRepository {
             }
         }
 
-        return new ArserResult.Exist<>(exist);
+        return new ArserResult.Exist<>(arserRequest.getResource(), exist);
     }
 }

@@ -4,9 +4,9 @@ package de.freese.arser.repository;
 import java.io.InputStream;
 import java.net.URI;
 
+import de.freese.arser.api.ArserRequest;
+import de.freese.arser.api.ArserResult;
 import de.freese.arser.component.Lifecycle;
-import de.freese.arser.model.ArserRequest;
-import de.freese.arser.model.ArserResult;
 
 /**
  * @author Thomas Freese

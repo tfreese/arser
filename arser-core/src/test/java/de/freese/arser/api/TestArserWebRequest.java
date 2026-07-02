@@ -1,4 +1,4 @@
-package de.freese.arser.model;
+package de.freese.arser.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
