@@ -17,6 +17,12 @@ public sealed interface ArserResult<R> {
     record Failure<R>(Throwable cause) implements ArserResult<R> {
     }
 
+    record Forbidden<R>(URI uri) implements ArserResult<R> {
+    }
+
+    record NotFound<R>(URI uri) implements ArserResult<R> {
+    }
+
     record Upload<R>(long contentLength) implements ArserResult<R> {
     }
 

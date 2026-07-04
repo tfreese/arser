@@ -1,4 +1,3 @@
-// Created: 18.09.2019
 package de.freese.arser.blobstore.api;
 
 import de.freese.arser.blobvalue.BlobValue;
@@ -9,6 +8,7 @@ import de.freese.arser.blobvalue.BlobValue;
  * <a href="https://github.com/sonatype/goodies/tree/main/lifecycle">goodies</a>
  *
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 public interface Blob {
     BlobValue getBlobValue();

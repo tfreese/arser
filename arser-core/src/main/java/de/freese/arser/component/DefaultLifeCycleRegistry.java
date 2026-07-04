@@ -1,4 +1,3 @@
-// Created: 22.07.23
 package de.freese.arser.component;
 
 import java.util.Objects;
@@ -9,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
+ * @since 22.07.23
  */
 public class DefaultLifeCycleRegistry implements LifeCycleRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLifeCycleRegistry.class);

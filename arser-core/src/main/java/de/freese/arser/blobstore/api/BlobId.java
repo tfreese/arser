@@ -1,4 +1,3 @@
-// Created: 18.09.2019
 package de.freese.arser.blobstore.api;
 
 import java.io.Serial;
@@ -12,6 +11,7 @@ import java.util.Objects;
  * <a href="https://github.com/sonatype/goodies/tree/main/lifecycle">goodies</a>
  *
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 public record BlobId(URI uri) implements Serializable, Comparable<BlobId> {
     @Serial

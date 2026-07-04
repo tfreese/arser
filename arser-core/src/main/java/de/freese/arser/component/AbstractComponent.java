@@ -1,4 +1,3 @@
-// Created: 22.07.23
 package de.freese.arser.component;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -8,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
+ * @since 22.07.23
  */
 public abstract class AbstractComponent implements Lifecycle {
     protected enum State {
@@ -26,6 +26,8 @@ public abstract class AbstractComponent implements Lifecycle {
             return;
         }
 
+        getLogger().info("starting: {}", this);
+
         doStart();
 
         state.set(State.RUNNING);
@@ -37,6 +39,8 @@ public abstract class AbstractComponent implements Lifecycle {
             getLogger().debug("stop() ignored — current state is: {}", state.get());
             return;
         }
+
+        getLogger().info("stopping: {}", this);
 
         doStop();
     }

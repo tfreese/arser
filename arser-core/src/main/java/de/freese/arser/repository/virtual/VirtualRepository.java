@@ -1,9 +1,8 @@
-// Created: 22.07.23
 package de.freese.arser.repository.virtual;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,28 +12,24 @@ import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.repository.AbstractRepository;
 import de.freese.arser.repository.Repository;
-import de.freese.arser.repository.RepositoryException;
 
 /**
  * @author Thomas Freese
+ * @since 22.07.23
  */
 public final class VirtualRepository extends AbstractRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(VirtualRepository.class);
 
-    private final Map<String, Repository> repositoryMap = new LinkedHashMap<>();
-
-    public VirtualRepository(final String name) {
-        super(URI.create("virtual-" + name), name);
+    public static VirtualRepositoryBuilder builder() {
+        return new VirtualRepositoryBuilder();
     }
 
-    public VirtualRepository add(final Repository repository) {
-        if (repositoryMap.containsKey(repository.getName())) {
-            throw new RepositoryException("repository already exist: " + repository.getName());
-        }
+    private final Map<String, Repository> repositoryMap;
 
-        repositoryMap.put(repository.getName(), repository);
+    VirtualRepository(final URI uri, final String name, final Map<String, Repository> repositoryMap) {
+        super(uri, name);
 
-        return this;
+        this.repositoryMap = Objects.requireNonNull(repositoryMap, "repositoryMap required");
     }
 
     @Override

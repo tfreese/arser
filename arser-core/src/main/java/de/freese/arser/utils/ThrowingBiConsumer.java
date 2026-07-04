@@ -1,10 +1,10 @@
-// Created: 16.02.2017
 package de.freese.arser.utils;
 
 import java.util.Objects;
 
 /**
  * @author Thomas Freese
+ * @since 16.02.2017
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<T, U, E extends Exception> {

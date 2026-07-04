@@ -22,7 +22,7 @@ public final class FileRepositoryBuilder extends AbstractRepositoryBuilder<FileR
 
     @Override
     public Repository build(final LifeCycleRegistry lifeCycleRegistry) throws Exception {
-        Objects.requireNonNull(getUri(), "URI required");
+        Objects.requireNonNull(getUri(), "uri required");
         Objects.requireNonNull(getName(), "name required");
 
         Connector connector = new FileConnector();

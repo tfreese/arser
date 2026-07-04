@@ -1,4 +1,3 @@
-// Created: 18.09.2019
 package de.freese.arser.blobstore.api;
 
 import org.slf4j.Logger;
@@ -6,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 public abstract class AbstractBlobStore implements BlobStore {
     private final Logger logger = LoggerFactory.getLogger(getClass());

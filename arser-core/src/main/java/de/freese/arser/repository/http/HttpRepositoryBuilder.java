@@ -34,7 +34,7 @@ public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpR
 
     @Override
     public Repository build(final LifeCycleRegistry lifeCycleRegistry) throws Exception {
-        Objects.requireNonNull(getUri(), "URI required");
+        Objects.requireNonNull(getUri(), "uri required");
         Objects.requireNonNull(getName(), "name required");
 
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()

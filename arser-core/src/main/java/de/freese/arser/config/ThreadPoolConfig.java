@@ -1,8 +1,8 @@
-// Created: 11 Mai 2025
 package de.freese.arser.config;
 
 /**
  * @author Thomas Freese
+ * @since 11.05.2025
  */
 public final class ThreadPoolConfig {
     public static final class Builder {
@@ -26,21 +26,13 @@ public final class ThreadPoolConfig {
             return new ThreadPoolConfig(this);
         }
 
-        public ThreadPoolConfig.Builder coreSize(final Integer coreSize) {
-            if (coreSize == null) {
-                return this;
-            }
-
+        public ThreadPoolConfig.Builder coreSize(final int coreSize) {
             this.coreSize = coreSize;
 
             return this;
         }
 
-        public ThreadPoolConfig.Builder maxSize(final Integer maxSize) {
-            if (maxSize == null) {
-                return this;
-            }
-
+        public ThreadPoolConfig.Builder maxSize(final int maxSize) {
             this.maxSize = maxSize;
 
             return this;
@@ -101,7 +93,7 @@ public final class ThreadPoolConfig {
     public String toString() {
         return getClass().getSimpleName()
                 + " ["
-                + "namePattern='" + namePattern + '\''
+                + "namePattern=" + namePattern
                 + ", coreSize=" + coreSize
                 + ", maxSize=" + maxSize
                 + ']';

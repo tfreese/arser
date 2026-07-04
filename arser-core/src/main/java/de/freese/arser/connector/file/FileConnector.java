@@ -63,7 +63,7 @@ public final class FileConnector extends AbstractConnector {
                 response = new ConnectorResponse<>(null, Map.of("removed", removed));
             } else if (Operations.DOWNLOAD.equals(request.operation())) {
                 if (!Files.exists(path)) {
-                    throw new NotFoundException("Nicht gefunden: " + path);
+                    throw new NotFoundException(path.toString());
                 }
 
                 response = new ConnectorResponse<>(new FileBlobValue(path), Map.of("size", Files.size(path)));

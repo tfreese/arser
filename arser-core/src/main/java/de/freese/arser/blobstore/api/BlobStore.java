@@ -1,4 +1,3 @@
-// Created: 18.09.2019
 package de.freese.arser.blobstore.api;
 
 import java.io.InputStream;
@@ -10,6 +9,7 @@ import java.net.URI;
  * <a href="https://github.com/sonatype/goodies/tree/main/lifecycle">goodies</a>
  *
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 public interface BlobStore {
 

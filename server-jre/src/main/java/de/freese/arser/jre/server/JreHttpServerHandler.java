@@ -1,4 +1,3 @@
-// Created: 22.07.23
 package de.freese.arser.jre.server;
 
 import java.io.BufferedInputStream;
@@ -23,6 +22,7 @@ import de.freese.arser.instance.ArserInstance;
 
 /**
  * @author Thomas Freese
+ * @since Created: 22.07.23
  */
 public class JreHttpServerHandler implements HttpHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(JreHttpServerHandler.class);

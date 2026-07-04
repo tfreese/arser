@@ -72,7 +72,7 @@ public final class JreHttpClientConnector extends AbstractHttpConnector {
         final HttpResponse<Void> httpResponse = sendDiscard(baseBuilder(request).DELETE().build());
 
         if (httpResponse.statusCode() == 404) {
-            throw new NotFoundException("404: " + request.uri());
+            throw new NotFoundException(request.uri().toString());
         }
 
         ensure2xx(httpResponse.statusCode(), request.uri());

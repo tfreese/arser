@@ -1,8 +1,8 @@
-// Created: 19.07.23
 package de.freese.arser.utils;
 
 /**
  * @author Thomas Freese
+ * @since 19.07.23
  */
 public enum HttpMethod {
     /**

@@ -1,4 +1,3 @@
-// Created: 21.09.2019
 package de.freese.arser.utils;
 
 import java.util.Objects;
@@ -8,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Thomas Freese
+ * @since 21.09.2019
  */
 public class ArserThreadFactory implements ThreadFactory {
 

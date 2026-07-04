@@ -10,6 +10,7 @@ import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.spi.Connector;
+import de.freese.arser.connector.spi.NotFoundException;
 
 /**
  * @author Thomas Freese
@@ -33,6 +34,9 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
             final ConnectorResponse<BlobValue> connectorResponse = getConnector().execute(connectorRequest);
 
             return new ArserResult.Download<>(connectorResponse.value());
+        }
+        catch (final NotFoundException ex) {
+            return new ArserResult.Exist<>(remoteUri, false);
         }
         catch (final Exception ex) {
             return new ArserResult.Failure<>(ex);

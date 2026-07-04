@@ -1,4 +1,3 @@
-// Created: 19.07.23
 package de.freese.arser.repository;
 
 import java.io.InputStream;
@@ -10,6 +9,7 @@ import de.freese.arser.component.Lifecycle;
 
 /**
  * @author Thomas Freese
+ * @since 19.07.23
  */
 public interface Repository extends Lifecycle {
 

@@ -1,4 +1,3 @@
-// Created: 01 Nov. 2024
 package de.freese.arser.indexer;
 
 import java.util.Map;
@@ -8,6 +7,7 @@ import de.freese.arser.api.ArserRequest;
 
 /**
  * @author Thomas Freese
+ * @since 01.11.2024
  */
 public final class ArtifactIndexerMemory implements ArtifactIndexer {
     private final Map<String, String> cache = new ConcurrentHashMap<>();

@@ -1,4 +1,3 @@
-// Created: 17.01.24
 package de.freese.arser.api;
 
 import java.net.URI;
@@ -9,6 +8,7 @@ import java.util.Objects;
 
 /**
  * @author Thomas Freese
+ * @since 17.01.24
  */
 public class ArserRequest {
     /**

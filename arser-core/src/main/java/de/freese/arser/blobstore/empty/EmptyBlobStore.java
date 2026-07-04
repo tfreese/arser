@@ -1,4 +1,3 @@
-// Created: 14.01.24
 package de.freese.arser.blobstore.empty;
 
 import java.io.InputStream;
@@ -10,6 +9,7 @@ import de.freese.arser.blobstore.api.BlobId;
 
 /**
  * @author Thomas Freese
+ * @since 14.01.24
  */
 public class EmptyBlobStore extends AbstractBlobStore {
     private static final Blob NOOP_BLOB = new EmptyBlob(new BlobId(URI.create("empty")));

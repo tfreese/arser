@@ -1,4 +1,3 @@
-// Created: 14.01.24
 package de.freese.arser.blobstore.empty;
 
 import de.freese.arser.blobstore.api.AbstractBlob;
@@ -8,6 +7,7 @@ import de.freese.arser.blobvalue.EmptyBlobValue;
 
 /**
  * @author Thomas Freese
+ * @since 14.01.24
  */
 class EmptyBlob extends AbstractBlob {
     private final BlobValue blobValue = new EmptyBlobValue();

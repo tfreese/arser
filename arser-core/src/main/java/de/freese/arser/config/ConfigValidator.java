@@ -1,4 +1,3 @@
-// Created: 31 Okt. 2024
 package de.freese.arser.config;
 
 import java.net.URI;
@@ -8,6 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author Thomas Freese
+ * @since 31.10.2024
  */
 public final class ConfigValidator {
     private static final Pattern PATTERN_CONTEXT_ROOT = Pattern.compile("([a-z0-9\\-_])+");

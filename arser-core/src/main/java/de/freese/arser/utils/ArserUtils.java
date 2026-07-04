@@ -1,4 +1,3 @@
-// Created: 18.09.2019
 package de.freese.arser.utils;
 
 import java.io.BufferedReader;
@@ -28,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 public final class ArserUtils {
     public static final int DEFAULT_BUFFER_SIZE = 8_192;

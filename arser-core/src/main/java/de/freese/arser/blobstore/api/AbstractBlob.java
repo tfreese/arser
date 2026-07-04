@@ -1,4 +1,3 @@
-// Created: 18.09.2019
 package de.freese.arser.blobstore.api;
 
 import java.util.Objects;
@@ -8,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 public abstract class AbstractBlob implements Blob {
 

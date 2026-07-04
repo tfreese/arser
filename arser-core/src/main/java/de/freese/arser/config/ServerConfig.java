@@ -1,4 +1,3 @@
-// Created: 31 Okt. 2024
 package de.freese.arser.config;
 
 import org.slf4j.Logger;
@@ -6,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Thomas Freese
+ * @since 31.10.2024
  */
 public final class ServerConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
@@ -30,11 +30,7 @@ public final class ServerConfig {
             return new ServerConfig(this);
         }
 
-        public Builder port(final Integer port) {
-            if (port == null) {
-                return this;
-            }
-
+        public Builder port(final int port) {
             this.port = port;
 
             return this;
@@ -67,5 +63,14 @@ public final class ServerConfig {
 
     public ThreadPoolConfig getThreadPoolConfig() {
         return threadPoolConfig;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + " ["
+                + "port=" + port
+                + ", threadPoolConfig=" + threadPoolConfig
+                + ']';
     }
 }

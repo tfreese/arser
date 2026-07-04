@@ -28,10 +28,14 @@ import de.freese.arser.repository.virtual.VirtualRepository;
  * @author Thomas Freese
  */
 class TestVirtualRepository {
+    private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom";
+
     private static LifeCycleRegistry lifeCycleRegistry;
+
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path pathTest;
-    private static VirtualRepository virtualRepository;
+
+    private static Repository virtualRepository;
 
     @AfterAll
     static void afterAll() throws Exception {
@@ -42,15 +46,12 @@ class TestVirtualRepository {
     static void beforeAll() throws Exception {
         lifeCycleRegistry = new DefaultLifeCycleRegistry();
 
-        virtualRepository = new VirtualRepository("test");
-
         final Repository repositoryFile = FileRepository.builder()
                 .uri(pathTest.toUri())
                 .name("maven-local")
                 .readOnly(false)
                 .withLogging()
                 .build(lifeCycleRegistry);
-        virtualRepository.add(repositoryFile);
 
         // final Connector connectorHttp = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
         // // final Connector connectorHttpLogging = new LoggingConnector(connectorHttp);
@@ -64,14 +65,24 @@ class TestVirtualRepository {
                 .withLogging()
                 .build(lifeCycleRegistry);
 
-        virtualRepository.add(repositoryHttp);
+        virtualRepository = VirtualRepository.builder()
+                .uri(URI.create("virtual://test"))
+                .name("test")
+                .addRepositoryName("maven-local")
+                .addRepositoryName("central")
+                .repositoryProvider(repoName -> switch (repoName) {
+                    case "maven-local" -> repositoryFile;
+                    case "central" -> repositoryHttp;
+                    default -> throw new IllegalStateException("Repository not found: " + repoName);
+                })
+                .build(lifeCycleRegistry);
 
         lifeCycleRegistry.start();
     }
 
     @Test
     void testDownload() throws Exception {
-        final ArserResult<?> arserResult = virtualRepository.download(ArserRequest.of("org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom"));
+        final ArserResult<?> arserResult = virtualRepository.download(ArserRequest.of(RESOURCE));
         assertNotNull(arserResult);
 
         if (arserResult instanceof ArserResult.Download<?>(final BlobValue blobValue)) {
@@ -84,7 +95,7 @@ class TestVirtualRepository {
 
     @Test
     void testExist() {
-        final ArserResult<?> arserResult = virtualRepository.exist(ArserRequest.of("org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom"));
+        final ArserResult<?> arserResult = virtualRepository.exist(ArserRequest.of(RESOURCE));
         assertNotNull(arserResult);
 
         if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
@@ -97,7 +108,7 @@ class TestVirtualRepository {
 
     @Test
     void testUpload() {
-        final ArserResult<?> arserResult = virtualRepository.upload(ArserRequest.of("org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom"), InputStream.nullInputStream());
+        final ArserResult<?> arserResult = virtualRepository.upload(ArserRequest.of(RESOURCE), InputStream.nullInputStream());
         assertNotNull(arserResult);
 
         if (arserResult instanceof ArserResult.Upload<?>) {

@@ -7,21 +7,20 @@ dependencies {
     // api(project(":arser-configuration"))
 
     api("org.slf4j:slf4j-api")
-
+    api("org.slf4j:jul-to-slf4j")
     api("dev.failsafe:failsafe")
 //    api("org.apache.ivy:ivy:2.5.2")
 
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime")
     // runtimeOnly("org.hsqldb:hsqldb")
-
+    runtimeOnly("org.slf4j:slf4j-simple")
 
     testImplementation("com.h2database:h2")
     testImplementation("com.zaxxer:HikariCP")
     testImplementation("org.apache.derby:derby")
     testImplementation("org.hsqldb:hsqldb")
-    testImplementation("org.slf4j:jul-to-slf4j")
 
-    testRuntimeOnly("org.slf4j:slf4j-simple")
+    // testRuntimeOnly("org.slf4j:slf4j-simple")
 }
 
 // Trigger JAXB generation.

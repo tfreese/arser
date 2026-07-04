@@ -1,4 +1,3 @@
-// Created: 25 Okt. 2024
 package de.freese.arser.utils;
 
 import java.io.IOException;
@@ -8,6 +7,7 @@ import java.util.Objects;
 
 /**
  * @author Thomas Freese
+ * @since 25.10.2024
  */
 public final class MultiplexOutputStream extends OutputStream {
     private final boolean doClose;
