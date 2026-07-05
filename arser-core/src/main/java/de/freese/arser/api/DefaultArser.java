@@ -21,12 +21,12 @@ public final class DefaultArser implements Arser {
     }
 
     @Override
-    public <R> ArserResult<R> download(final String repositoryName, final ArserRequest arserRequest) {
+    public ArserResult download(final String repositoryName, final ArserRequest arserRequest) {
         return getRepository(repositoryName).download(arserRequest);
     }
 
     @Override
-    public <R> ArserResult<R> exist(final String repositoryName, final ArserRequest arserRequest) {
+    public ArserResult exist(final String repositoryName, final ArserRequest arserRequest) {
         return getRepository(repositoryName).exist(arserRequest);
     }
 
@@ -36,7 +36,7 @@ public final class DefaultArser implements Arser {
     }
 
     @Override
-    public <R> ArserResult<R> upload(final String repositoryName, final ArserRequest arserRequest, final InputStream inputStream) {
+    public ArserResult upload(final String repositoryName, final ArserRequest arserRequest, final InputStream inputStream) {
         return getRepository(repositoryName).upload(arserRequest, inputStream);
     }
 

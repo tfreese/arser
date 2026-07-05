@@ -31,12 +31,12 @@ public abstract class AbstractRepositoryDecorator implements Repository {
     }
 
     @Override
-    public <R> ArserResult<R> download(final ArserRequest arserRequest) {
+    public ArserResult download(final ArserRequest arserRequest) {
         return delegate.download(arserRequest);
     }
 
     @Override
-    public <R> ArserResult<R> exist(final ArserRequest arserRequest) {
+    public ArserResult exist(final ArserRequest arserRequest) {
         return delegate.exist(arserRequest);
     }
 
@@ -61,7 +61,12 @@ public abstract class AbstractRepositoryDecorator implements Repository {
     }
 
     @Override
-    public <R> ArserResult<R> upload(final ArserRequest arserRequest, final InputStream inputStream) {
+    public String toString() {
+        return delegate.toString();
+    }
+
+    @Override
+    public ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
         return delegate.upload(arserRequest, inputStream);
     }
 

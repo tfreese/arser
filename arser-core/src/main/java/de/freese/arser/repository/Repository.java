@@ -13,9 +13,9 @@ import de.freese.arser.component.Lifecycle;
  */
 public interface Repository extends Lifecycle {
 
-    <R> ArserResult<R> download(ArserRequest arserRequest);
+    ArserResult download(ArserRequest arserRequest);
 
-    <R> ArserResult<R> exist(ArserRequest arserRequest);
+    ArserResult exist(ArserRequest arserRequest);
 
     String getName();
 
@@ -31,9 +31,9 @@ public interface Repository extends Lifecycle {
         // Empty
     }
 
-    default <R> ArserResult<R> upload(final ArserRequest arserRequest, final InputStream inputStream) {
+    default ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
         final String message = "repository is read only: %s [%s]".formatted(getName(), getClass().getSimpleName());
 
-        return new ArserResult.Failure<>(new UnsupportedOperationException(message));
+        return new ArserResult.Forbidden(arserRequest.getResource(), message);
     }
 }

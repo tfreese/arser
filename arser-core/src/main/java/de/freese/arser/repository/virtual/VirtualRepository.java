@@ -33,48 +33,52 @@ public final class VirtualRepository extends AbstractRepository {
     }
 
     @Override
-    public <R> ArserResult<R> download(final ArserRequest arserRequest) {
+    public ArserResult download(final ArserRequest arserRequest) {
         BlobValue blobValue = null;
 
         for (final Repository repository : repositoryMap.values()) {
-            final ArserResult<R> arserResult = repository.download(arserRequest);
+            final ArserResult arserResult = repository.download(arserRequest);
 
-            if (arserResult instanceof ArserResult.Download<R>(final BlobValue value)) {
+            if (arserResult instanceof ArserResult.Download(final BlobValue value)) {
                 blobValue = value;
 
                 getLogger().debug("{} was downloaded from {}", arserRequest.getResource(), repository.getName());
 
                 break;
-            } else if (arserResult instanceof ArserResult.Failure<R>(final Throwable cause)) {
+            } else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
                 LOGGER.warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
             }
         }
 
         if (blobValue == null) {
-            return new ArserResult.Exist<>(arserRequest.getResource(), false);
+            return new ArserResult.NotFound(arserRequest.getResource());
         }
 
-        return new ArserResult.Download<>(blobValue);
+        return new ArserResult.Download(blobValue);
     }
 
     @Override
-    public <R> ArserResult<R> exist(final ArserRequest arserRequest) {
+    public ArserResult exist(final ArserRequest arserRequest) {
         boolean exist = false;
 
         for (final Repository repository : repositoryMap.values()) {
-            final ArserResult<R> arserResult = repository.exist(arserRequest);
+            final ArserResult arserResult = repository.exist(arserRequest);
 
-            if (arserResult instanceof ArserResult.Exist<R>) {
+            if (arserResult instanceof ArserResult.Exist) {
                 exist = true;
 
                 getLogger().debug("{} exist in {}", arserRequest.getResource(), repository.getName());
 
                 break;
-            } else if (arserResult instanceof ArserResult.Failure<R>(final Throwable cause)) {
+            } else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
                 LOGGER.warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
             }
         }
 
-        return new ArserResult.Exist<>(arserRequest.getResource(), exist);
+        if (exist) {
+            return new ArserResult.Exist(arserRequest.getResource());
+        }
+
+        return new ArserResult.NotFound(arserRequest.getResource());
     }
 }

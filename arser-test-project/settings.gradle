@@ -22,7 +22,7 @@ dependencyResolutionManagement {
             }
         }
         maven {
-            url = "http://localhost:7999/public-snapshots"
+            url = "http://localhost:7999/snapshots"
             allowInsecureProtocol = true
             mavenContent {
                 snapshotsOnly()

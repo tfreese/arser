@@ -9,6 +9,7 @@ import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Operations;
+import de.freese.arser.connector.spi.BlockedException;
 import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.connector.spi.NotFoundException;
 
@@ -25,7 +26,7 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
     }
 
     @Override
-    public <R> ArserResult<R> download(final ArserRequest arserRequest) {
+    public ArserResult download(final ArserRequest arserRequest) {
         final URI remoteUri = toRemoteUri(getUri(), arserRequest);
 
         final ConnectorRequest<BlobValue> connectorRequest = ConnectorRequest.of(remoteUri, Operations.DOWNLOAD);
@@ -33,18 +34,21 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
         try {
             final ConnectorResponse<BlobValue> connectorResponse = getConnector().execute(connectorRequest);
 
-            return new ArserResult.Download<>(connectorResponse.value());
+            return new ArserResult.Download(connectorResponse.value());
         }
-        catch (final NotFoundException ex) {
-            return new ArserResult.Exist<>(remoteUri, false);
+        catch (final BlockedException ex) {
+            return new ArserResult.Forbidden(remoteUri, ex.getMessage());
+        }
+        catch (NotFoundException _) {
+            return new ArserResult.NotFound(remoteUri);
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure<>(ex);
+            return new ArserResult.Failure(ex);
         }
     }
 
     @Override
-    public <R> ArserResult<R> exist(final ArserRequest arserRequest) {
+    public ArserResult exist(final ArserRequest arserRequest) {
         final URI remoteUri = toRemoteUri(getUri(), arserRequest);
 
         final ConnectorRequest<Boolean> connectorRequest = ConnectorRequest.of(remoteUri, Operations.EXISTS);
@@ -53,13 +57,16 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
             final ConnectorResponse<Boolean> connectorResponse = getConnector().execute(connectorRequest);
 
             if (connectorResponse.value()) {
-                return new ArserResult.Exist<>(remoteUri, true);
+                return new ArserResult.Exist(remoteUri);
             }
 
-            return new ArserResult.Exist<>(remoteUri, false);
+            return new ArserResult.NotFound(remoteUri);
+        }
+        catch (final BlockedException ex) {
+            return new ArserResult.Forbidden(remoteUri, ex.getMessage());
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure<>(ex);
+            return new ArserResult.Failure(ex);
         }
     }
 

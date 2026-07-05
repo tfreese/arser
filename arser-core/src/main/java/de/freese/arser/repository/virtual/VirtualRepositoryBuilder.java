@@ -16,7 +16,7 @@ import de.freese.arser.repository.Repository;
  * @since 04.07.26
  */
 public final class VirtualRepositoryBuilder extends AbstractRepositoryBuilder<VirtualRepositoryBuilder, Repository> {
-    private final Set<String> repositoryNames = new LinkedHashSet<>();
+    private final Set<String> repositoryRefs = new LinkedHashSet<>();
 
     private Function<String, Repository> repositoryProvider;
 
@@ -24,12 +24,12 @@ public final class VirtualRepositoryBuilder extends AbstractRepositoryBuilder<Vi
         super();
     }
 
-    public VirtualRepositoryBuilder addRepositoryName(final String repositoryName) {
-        if (repositoryNames.contains(repositoryName)) {
+    public VirtualRepositoryBuilder addRepositoryRef(final String repositoryName) {
+        if (repositoryRefs.contains(repositoryName)) {
             throw new IllegalStateException("RepositoryName already exists: " + repositoryName);
         }
 
-        this.repositoryNames.add(Objects.requireNonNull(repositoryName, "repositoryName required"));
+        this.repositoryRefs.add(Objects.requireNonNull(repositoryName, "repositoryName required"));
 
         return self();
     }
@@ -40,13 +40,13 @@ public final class VirtualRepositoryBuilder extends AbstractRepositoryBuilder<Vi
         Objects.requireNonNull(getName(), "name required");
         Objects.requireNonNull(repositoryProvider, "repositoryProvider required");
 
-        if (repositoryNames.isEmpty()) {
+        if (repositoryRefs.isEmpty()) {
             throw new IllegalStateException("No repositories names are defined");
         }
 
         final Map<String, Repository> repositoryMap = new LinkedHashMap<>();
 
-        for (final String repositoryName : repositoryNames) {
+        for (final String repositoryName : repositoryRefs) {
             final Repository repository = repositoryProvider.apply(repositoryName);
 
             if (repository == null) {

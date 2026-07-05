@@ -31,6 +31,15 @@ public abstract class AbstractRepository implements Repository {
         return uri;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName()
+                + "{"
+                + "uri=" + uri
+                + ", name='" + name + '\''
+                + '}';
+    }
+
     protected Logger getLogger() {
         return logger;
     }

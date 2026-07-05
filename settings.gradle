@@ -13,6 +13,6 @@ pluginManagement {
 // include("blobstore-api")
 // include("arser-configuration")
 include("arser-core")
-// include("server-jre")
-// include("server-spring")
+include("arser-server-jre")
+// include("arser-server-spring")
 // include("arser-application")

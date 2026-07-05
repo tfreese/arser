@@ -7,27 +7,27 @@ import de.freese.arser.blobvalue.BlobValue;
 /**
  * @author Thomas Freese
  */
-public sealed interface ArserResult<R> {
-    record Download<R>(BlobValue blobValue) implements ArserResult<R> {
+public sealed interface ArserResult {
+    record Download(BlobValue blobValue) implements ArserResult {
     }
 
-    record Exist<R>(URI uri, boolean exist) implements ArserResult<R> {
+    record Exist(URI uri) implements ArserResult {
     }
 
-    record Failure<R>(Throwable cause) implements ArserResult<R> {
+    record Failure(Throwable cause) implements ArserResult {
     }
 
-    record Forbidden<R>(URI uri) implements ArserResult<R> {
+    record Forbidden(URI uri, String reason) implements ArserResult {
     }
 
-    record NotFound<R>(URI uri) implements ArserResult<R> {
+    record NotFound(URI uri) implements ArserResult {
     }
 
-    record Upload<R>(long contentLength) implements ArserResult<R> {
+    record Upload(long contentLength) implements ArserResult {
     }
 
     // default boolean isSuccess() {
-    //     return this instanceof ArserResult.Download<R>
-    //             || this instanceof ArserResult.Upload<R>;
+    //     return this instanceof ArserResult.Download
+    //             || this instanceof ArserResult.Upload;
     // }
 }

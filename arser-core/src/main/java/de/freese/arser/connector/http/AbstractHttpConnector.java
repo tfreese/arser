@@ -13,8 +13,8 @@ import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.security.CredentialsProvider;
 import de.freese.arser.connector.security.UriGuard;
 import de.freese.arser.connector.spi.AbstractConnector;
+import de.freese.arser.connector.spi.BlockedException;
 import de.freese.arser.connector.spi.Connector;
-import de.freese.arser.connector.spi.ConnectorException;
 import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
 
 /**
@@ -65,7 +65,7 @@ public abstract class AbstractHttpConnector extends AbstractConnector implements
 
     protected void checkGuard(final URI uri) {
         if (!uriGuard.test(uri)) {
-            throw new ConnectorException("Blocked by UriGuard: " + uri);
+            throw new BlockedException("Blocked by UriGuard: " + uri);
         }
     }
 

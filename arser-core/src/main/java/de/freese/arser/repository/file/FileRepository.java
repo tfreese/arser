@@ -1,34 +1,53 @@
 package de.freese.arser.repository.file;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
-import de.freese.arser.connector.api.ConnectorRequest;
-import de.freese.arser.connector.api.ConnectorResponse;
-import de.freese.arser.connector.core.Attributes;
-import de.freese.arser.connector.core.Operations;
-import de.freese.arser.connector.spi.Connector;
-import de.freese.arser.repository.AbstractConnectedRepository;
-import de.freese.arser.repository.RepositoryException;
+import de.freese.arser.blobvalue.FileBlobValue;
+import de.freese.arser.repository.AbstractRepository;
 
 /**
  * @author Thomas Freese
  */
-public final class FileRepository extends AbstractConnectedRepository {
+public final class FileRepository extends AbstractRepository {
     public static FileRepositoryBuilder builder() {
         return new FileRepositoryBuilder();
     }
 
     private final boolean readOnly;
 
-    FileRepository(final URI uri, final String name, final Connector connector, final boolean readOnly) {
-        super(uri, name, connector);
+    FileRepository(final URI uri, final String name, final boolean readOnly) {
+        super(uri, name);
 
         this.readOnly = readOnly;
+    }
+
+    @Override
+    public ArserResult download(final ArserRequest arserRequest) {
+        final Path path = toAbsolutePath(getUri(), arserRequest);
+
+        if (!Files.exists(path)) {
+            return new ArserResult.NotFound(path.toUri());
+        }
+
+        return new ArserResult.Download(new FileBlobValue(path));
+    }
+
+    @Override
+    public ArserResult exist(final ArserRequest arserRequest) {
+        final Path path = toAbsolutePath(getUri(), arserRequest);
+
+        if (!Files.exists(path)) {
+            return new ArserResult.NotFound(path.toUri());
+        }
+
+        return new ArserResult.Exist(path.toUri());
     }
 
     @Override
@@ -47,35 +66,37 @@ public final class FileRepository extends AbstractConnectedRepository {
     }
 
     @Override
-    public <R> ArserResult<R> upload(final ArserRequest arserRequest, final InputStream inputStream) {
+    public ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
+        final Path path = toAbsolutePath(getUri(), arserRequest);
+
         if (readOnly) {
             final String message = "repository is read only: %s [%s]".formatted(getName(), getClass().getSimpleName());
 
-            return new ArserResult.Failure<>(new RepositoryException(message));
+            return new ArserResult.Forbidden(path.toUri(), message);
         }
-
-        final URI remoteUri = toRemoteUri(getUri(), arserRequest);
-
-        final ConnectorRequest<Long> connectorRequest = ConnectorRequest.of(remoteUri, Operations.UPLOAD_STREAM)
-                .with(Attributes.BODY_STREAM, () -> inputStream);
 
         try {
-            final ConnectorResponse<Long> connectorResponse = getConnector().execute(connectorRequest);
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
 
-            // JreHttpClientConnector with UPLOAD_STREAM returns -1L!
-            return new ArserResult.Upload<>(connectorResponse.value());
+            try (OutputStream outputStream = Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                inputStream.transferTo(outputStream);
+                outputStream.flush();
+            }
+
+            return new ArserResult.Upload(Files.size(path));
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure<>(ex);
+            return new ArserResult.Failure(ex);
         }
     }
 
-    @Override
-    protected URI toRemoteUri(final URI uri, final ArserRequest arserRequest) {
-        final String uriPath = uri.getPath().replace(' ', '_');
+    private Path toAbsolutePath(final URI uri, final ArserRequest arserRequest) {
+        final String uriPath = uri.getPath();
 
-        final String requestPath = arserRequest.getResource().getPath().replace(' ', '_');
+        final String requestPath = arserRequest.getResource().getPath();
 
-        return Path.of(uriPath).resolve(requestPath).toUri();
+        return Path.of(uriPath).resolve(requestPath);
     }
 }

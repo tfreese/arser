@@ -1,0 +1,20 @@
+# HEAD: curl -I http://localhost:8080/public/org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom
+# HEAD: curl --head http://localhost:8080/public/org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom
+# GET: curl http://localhost:8080/public/org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom
+
+// Variables
+#@CLIENT_ID =
+#@CLIENT_SECRET =
+#@AI_API_KEY =
+#@ACCESS_TOKEN =
+
+### HEAD
+// @no-log
+HEAD http://localhost:8080/public/org/slf4j/slf4j-api/2.0.18/slf4j-api-2.0.18.pom
+
+#ACCEPT: application/json
+#Content-Type: application/x-www-form-urlencoded
+#>>! ../../.idea/httpRequests/response.json
+
+
+

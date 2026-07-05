@@ -1,18 +1,16 @@
 package de.freese.arser.repository.http;
 
 import java.net.http.HttpClient;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Objects;
 
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.connector.decorator.CachingConnectorDecorator;
-import de.freese.arser.connector.decorator.LoggingConnectorDecorator;
-import de.freese.arser.connector.decorator.RetryingConnectorDecorator;
-import de.freese.arser.connector.http.JreHttpClientConnector;
-import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.repository.AbstractRepositoryBuilder;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.decorator.CachingFileRepositoryDecorator;
 import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
+import de.freese.arser.repository.decorator.RetryingRepositoryDecorator;
 
 /**
  * @author Thomas Freese
@@ -21,7 +19,7 @@ public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpR
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30L);
     // private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(30L);
 
-    private Duration cachingTtl;
+    private Path cachingPath;
     private Duration connectTimeout;
     private int maxRetries = 3;
     private Duration retryInterval = Duration.ofSeconds(3L);
@@ -47,23 +45,18 @@ public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpR
         //     httpClientBuilder = httpClientBuilder.authenticator(authenticator);
         // }
 
-        Connector connector = new JreHttpClientConnector(httpClientBuilder.build());
+        final HttpClient httpClient = httpClientBuilder.build();
+        lifeCycleRegistry.register(httpClient);
+
+        Repository repository = new HttpRepository(getUri(), getName(), httpClient);
 
         if (maxRetries > 0 && retryInterval.isPositive()) {
-            connector = new RetryingConnectorDecorator(connector, maxRetries, retryInterval);
+            repository = new RetryingRepositoryDecorator(repository, maxRetries, retryInterval);
         }
 
-        if (cachingTtl != null && cachingTtl.isPositive()) {
-            connector = new CachingConnectorDecorator(connector, cachingTtl);
+        if (cachingPath != null) {
+            repository = new CachingFileRepositoryDecorator(repository, cachingPath);
         }
-
-        if (isLogging()) {
-            connector = new LoggingConnectorDecorator(connector);
-        }
-
-        lifeCycleRegistry.register(connector);
-
-        Repository repository = new HttpRepository(getUri(), getName(), connector);
 
         if (isLogging()) {
             repository = new LoggingRepositoryDecorator(repository);
@@ -80,8 +73,8 @@ public final class HttpRepositoryBuilder extends AbstractRepositoryBuilder<HttpR
         return self();
     }
 
-    public HttpRepositoryBuilder withCaching(final Duration ttl) {
-        this.cachingTtl = ttl;
+    public HttpRepositoryBuilder withCaching(final Path cachingPath) {
+        this.cachingPath = cachingPath;
 
         return self();
     }

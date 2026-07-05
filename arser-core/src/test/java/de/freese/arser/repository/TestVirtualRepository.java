@@ -61,15 +61,14 @@ class TestVirtualRepository {
                 .uri(URI.create("https://repo1.maven.org/maven2"))
                 .name("central")
                 .withRetrying(3, Duration.ofSeconds(2L))
-                .withCaching(Duration.ofMinutes(5L))
                 .withLogging()
                 .build(lifeCycleRegistry);
 
         virtualRepository = VirtualRepository.builder()
                 .uri(URI.create("virtual://test"))
                 .name("test")
-                .addRepositoryName("maven-local")
-                .addRepositoryName("central")
+                .addRepositoryRef("maven-local")
+                .addRepositoryRef("central")
                 .repositoryProvider(repoName -> switch (repoName) {
                     case "maven-local" -> repositoryFile;
                     case "central" -> repositoryHttp;
@@ -82,10 +81,10 @@ class TestVirtualRepository {
 
     @Test
     void testDownload() throws Exception {
-        final ArserResult<?> arserResult = virtualRepository.download(ArserRequest.of(RESOURCE));
+        final ArserResult arserResult = virtualRepository.download(ArserRequest.of(RESOURCE));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Download<?>(final BlobValue blobValue)) {
+        if (arserResult instanceof ArserResult.Download(final BlobValue blobValue)) {
             assertNotNull(blobValue);
             assertTrue(blobValue.getContentLength() > 0L);
         } else {
@@ -95,12 +94,11 @@ class TestVirtualRepository {
 
     @Test
     void testExist() {
-        final ArserResult<?> arserResult = virtualRepository.exist(ArserRequest.of(RESOURCE));
+        final ArserResult arserResult = virtualRepository.exist(ArserRequest.of(RESOURCE));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
+        if (arserResult instanceof ArserResult.Exist(final URI uri)) {
             assertNotNull(uri);
-            assertTrue(exist);
         } else {
             fail();
         }
@@ -108,10 +106,10 @@ class TestVirtualRepository {
 
     @Test
     void testUpload() {
-        final ArserResult<?> arserResult = virtualRepository.upload(ArserRequest.of(RESOURCE), InputStream.nullInputStream());
+        final ArserResult arserResult = virtualRepository.upload(ArserRequest.of(RESOURCE), InputStream.nullInputStream());
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Upload<?>) {
+        if (arserResult instanceof ArserResult.Upload) {
             fail();
         } else {
             assertTrue(true);

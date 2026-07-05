@@ -1,7 +1,6 @@
 package de.freese.arser.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -57,12 +56,11 @@ class TestFileRepository {
         lifeCycleRegistry.start();
 
         // Exist.
-        ArserResult<?> arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
+        ArserResult arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
+        if (arserResult instanceof ArserResult.NotFound(final URI uri)) {
             assertNotNull(uri);
-            assertFalse(exist);
             assertEquals(pathTest.resolve("a/b/c/1/c-1.txt").toUri(), uri);
         } else {
             fail();
@@ -73,7 +71,7 @@ class TestFileRepository {
             arserResult = repository.upload(ArserRequest.of("a/b/c/1/c-1.txt"), inputStream);
             assertNotNull(arserResult);
 
-            if (arserResult instanceof ArserResult.Upload<?>(final long contentLength)) {
+            if (arserResult instanceof ArserResult.Upload(final long contentLength)) {
                 assertTrue(contentLength > 0L);
             } else {
                 fail();
@@ -84,9 +82,8 @@ class TestFileRepository {
         arserResult = repository.exist(ArserRequest.of("a/b/c/1/c-1.txt"));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Exist<?>(final URI uri, final boolean exist)) {
+        if (arserResult instanceof ArserResult.Exist(final URI uri)) {
             assertNotNull(uri);
-            assertTrue(exist);
             assertEquals(pathTest.resolve("a/b/c/1/c-1.txt").toUri(), uri);
         } else {
             fail();
@@ -96,7 +93,7 @@ class TestFileRepository {
         arserResult = repository.download(ArserRequest.of("a/b/c/1/c-1.txt"));
         assertNotNull(arserResult);
 
-        if (arserResult instanceof ArserResult.Download<?>(final BlobValue blobValue)) {
+        if (arserResult instanceof ArserResult.Download(final BlobValue blobValue)) {
             assertNotNull(blobValue);
             assertTrue(blobValue.getContentLength() > 0L);
 
@@ -120,13 +117,13 @@ class TestFileRepository {
         lifeCycleRegistry.start();
 
         try (InputStream inputStream = new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8))) {
-            final ArserResult<?> arserResult = repository.upload(ArserRequest.of("a/b/c/1/c-1.txt"), inputStream);
+            final ArserResult arserResult = repository.upload(ArserRequest.of("a/b/c/1/c-1.txt"), inputStream);
             assertNotNull(arserResult);
 
-            if (arserResult instanceof ArserResult.Failure<?>(final Throwable cause)) {
-                assertNotNull(cause);
-                assertEquals(RepositoryException.class, cause.getClass());
-                assertEquals("repository is read only: maven-local [FileRepository]", cause.getMessage());
+            if (arserResult instanceof ArserResult.Forbidden(final URI uri, final String reason)) {
+                assertNotNull(uri);
+                assertNotNull(reason);
+                assertEquals("repository is read only: maven-local [FileRepository]", reason);
             } else {
                 fail();
             }

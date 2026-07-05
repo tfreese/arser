@@ -3,9 +3,6 @@ package de.freese.arser.repository.file;
 import java.util.Objects;
 
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.connector.decorator.LoggingConnectorDecorator;
-import de.freese.arser.connector.file.FileConnector;
-import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.repository.AbstractRepositoryBuilder;
 import de.freese.arser.repository.Repository;
 import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
@@ -25,15 +22,7 @@ public final class FileRepositoryBuilder extends AbstractRepositoryBuilder<FileR
         Objects.requireNonNull(getUri(), "uri required");
         Objects.requireNonNull(getName(), "name required");
 
-        Connector connector = new FileConnector();
-
-        if (isLogging()) {
-            connector = new LoggingConnectorDecorator(connector);
-        }
-
-        lifeCycleRegistry.register(connector);
-
-        Repository repository = new FileRepository(getUri(), getName(), connector, readOnly);
+        Repository repository = new FileRepository(getUri(), getName(), readOnly);
 
         if (isLogging()) {
             repository = new LoggingRepositoryDecorator(repository);

@@ -1,5 +1,7 @@
 package de.freese.arser.component;
 
+import java.util.Objects;
+
 /**
  * @author Thomas Freese
  */
@@ -21,6 +23,8 @@ public interface LifeCycleRegistry {
     }
 
     default void register(final Stopable stopable) {
+        Objects.requireNonNull(stopable, "stopable required");
+
         register(new Lifecycle() {
             @Override
             public void start() {
@@ -31,10 +35,17 @@ public interface LifeCycleRegistry {
             public void stop() throws Exception {
                 stopable.stop();
             }
+
+            @Override
+            public String toString() {
+                return stopable.toString();
+            }
         });
     }
 
     default void register(final AutoCloseable autoCloseable) {
+        Objects.requireNonNull(autoCloseable, "autoCloseable required");
+
         register(new Lifecycle() {
             @Override
             public void start() {
@@ -44,6 +55,11 @@ public interface LifeCycleRegistry {
             @Override
             public void stop() throws Exception {
                 autoCloseable.close();
+            }
+
+            @Override
+            public String toString() {
+                return autoCloseable.toString();
             }
         });
     }

@@ -20,6 +20,7 @@ import de.freese.arser.connector.core.Attributes;
 import de.freese.arser.connector.core.Operations;
 import de.freese.arser.connector.security.UriGuard;
 import de.freese.arser.connector.spi.AbstractConnector;
+import de.freese.arser.connector.spi.BlockedException;
 import de.freese.arser.connector.spi.ConnectorException;
 import de.freese.arser.connector.spi.NotFoundException;
 import de.freese.arser.connector.spi.UnsupportedOperationForSchemeException;
@@ -49,7 +50,7 @@ public final class FileConnector extends AbstractConnector {
     @SuppressWarnings("unchecked")
     public <R> ConnectorResponse<R> execute(final ConnectorRequest<R> request) {
         if (!uriGuard.test(request.uri())) {
-            throw new ConnectorException("Blocked by UriGuard: " + request.uri());
+            throw new BlockedException("Blocked by UriGuard: " + request.uri());
         }
 
         final Path path = Path.of(request.uri().normalize());

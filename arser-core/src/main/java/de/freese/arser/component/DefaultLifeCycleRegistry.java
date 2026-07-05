@@ -22,7 +22,7 @@ public class DefaultLifeCycleRegistry implements LifeCycleRegistry {
         final boolean added = lifecycles.addIfAbsent(lifecycle);
 
         if (added) {
-            LOGGER.trace("Added: {}", lifecycle);
+            LOGGER.debug("Added: {}", lifecycle);
         }
     }
 
@@ -38,6 +38,8 @@ public class DefaultLifeCycleRegistry implements LifeCycleRegistry {
         LOGGER.info("Starting {} lifecycles", count);
 
         for (final Lifecycle lifecycle : lifecycles) {
+            LOGGER.info("Starting: {}", lifecycle);
+
             lifecycle.start();
         }
     }
@@ -48,6 +50,8 @@ public class DefaultLifeCycleRegistry implements LifeCycleRegistry {
         LOGGER.info("Stopping {} lifecycles in reverse order", count);
 
         for (final Lifecycle lifecycle : lifecycles.reversed()) {
+            LOGGER.info("Stopping: {}", lifecycle);
+
             lifecycle.stop();
         }
     }

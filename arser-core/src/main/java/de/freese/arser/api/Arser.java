@@ -14,11 +14,11 @@ public interface Arser {
         return new ArserBuilder();
     }
 
-    <R> ArserResult<R> download(String repositoryName, ArserRequest arserRequest);
+    ArserResult download(String repositoryName, ArserRequest arserRequest);
 
-    <R> ArserResult<R> exist(String repositoryName, ArserRequest arserRequest);
+    ArserResult exist(String repositoryName, ArserRequest arserRequest);
 
     Map<String, Repository> getRepositories();
 
-    <R> ArserResult<R> upload(String repositoryName, ArserRequest arserRequest, InputStream inputStream);
+    ArserResult upload(String repositoryName, ArserRequest arserRequest, InputStream inputStream);
 }
