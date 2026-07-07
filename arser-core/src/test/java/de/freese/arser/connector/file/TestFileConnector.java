@@ -32,6 +32,7 @@ import de.freese.arser.connector.spi.Connector;
 /**
  * @author Thomas Freese
  */
+@SuppressWarnings({"java:S5778", "java:S5961"})
 class TestFileConnector {
     private static Connector connector;
 

@@ -27,6 +27,7 @@ import de.freese.arser.connector.spi.NotFoundException;
 /**
  * @author Thomas Freese
  */
+@SuppressWarnings({"java:S6205", "java:S6878"})
 public final class JreHttpClientConnector extends AbstractHttpConnector {
     private static void applyAuth(final HttpRequest.Builder builder, final Credentials credentials) {
         switch (credentials) {

@@ -4,13 +4,20 @@
                xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
                jaxb:version="3.0">
 
-    <jaxb:globalBindings>
-        <xjc:simple />
+    <jaxb:globalBindings optionalProperty="primitive">
+        <!--<xjc:simple />-->
         <!--        <xjc:serializable uid="4711" />-->
 
-        <jaxb:javaType name="int" xmlType="xs:positiveInteger"
-                       parseMethod="jakarta.xml.bind.DatatypeConverter.parseInt"
-                       printMethod="jakarta.xml.bind.DatatypeConverter.printInt" />
+        <!-- Erzwingt primitive Typen für numerische Basisdatentypen. -->
+        <jaxb:javaType name="int" xmlType="xs:int" />
+        <jaxb:javaType name="int" xmlType="xs:positiveInteger" />
+
+        <!--
+        <jaxb:javaType name="long" xmlType="xs:long" />
+        <jaxb:javaType name="double" xmlType="xs:double" />
+        <jaxb:javaType name="float" xmlType="xs:float" />
+        <jaxb:javaType name="short" xmlType="xs:short" />
+        <jaxb:javaType name="byte" xmlType="xs:byte" />
 
         <jaxb:javaType name="int" xmlType="xs:positiveInteger"
                        parseMethod="jakarta.xml.bind.DatatypeConverter.parseInt"
@@ -27,6 +34,7 @@
         <jaxb:javaType name="java.util.Calendar" xmlType="xs:time"
                        parseMethod="jakarta.xml.bind.DatatypeConverter.parseTime"
                        printMethod="jakarta.xml.bind.DatatypeConverter.printTime" />
+        -->
     </jaxb:globalBindings>
 
     <!--    <jaxb:bindings schemaLocation="arser-config.xsd">-->

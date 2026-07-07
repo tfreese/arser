@@ -13,23 +13,57 @@
 
     <!--    <import schemaLocation="baseTypes.xsd" namespace="http://baseTypes" />-->
 
-    <xs:element name="arser-settings">
+    <!-- Types -->
+    <xs:simpleType name="FileUriType">
+        <xs:annotation>
+            <xs:documentation source="description">file://*</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:anyURI">
+            <xs:minLength value="10" />
+            <xs:pattern value="file://.*" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpUriType">
+        <xs:annotation>
+            <xs:documentation source="description">https://*, http://*</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:anyURI">
+            <xs:minLength value="10" />
+            <xs:pattern value="https://.*" />
+            <xs:pattern value="http://.*" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RepositoryNameType">
+        <xs:annotation>
+            <xs:documentation source="description">Name of a Repository</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:normalizedString">
+            <xs:minLength value="5" />
+            <xs:pattern value="([a-z0-9\-_])+" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Elements / Types -->
+    <xs:element name="arser-config">
         <xs:annotation>
             <xs:documentation source="description">Configuration for the ARtifact-SERvice.</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="workingDir" type="FileUri" />
-                <xs:element name="server-setting" type="ServerSetting" />
-                <xs:element name="http-client-setting" type="HttpClientSetting" />
+                <xs:element name="workingDir" type="FileUriType" />
+                <xs:element name="server-setting" type="ServerConfig" />
+                <xs:element name="http-client-setting" type="HttpClientConfig" />
                 <xs:element name="repositories" type="Repositories" />
-                <!--                <xs:element name="db-monitoring" type="DbMonitoringConfig" minOccurs="0" />-->
+                <!-- <xs:element name="db-monitoring" type="DbMonitoringConfig" minOccurs="0" /> -->
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="ServerSetting">
+    <xs:complexType name="ServerConfig">
         <xs:sequence>
+            <xs:element name="alter" type="xs:int" minOccurs="0" />
             <xs:element name="port">
                 <xs:annotation>
                     <xs:documentation source="description">Port for the Server [1025-65534].</xs:documentation>
@@ -47,7 +81,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="HttpClientSetting">
+    <xs:complexType name="HttpClientConfig">
         <xs:sequence>
             <xs:element name="thread-pool-core-size" type="xs:positiveInteger" />
             <xs:element name="thread-pool-max-size" type="xs:positiveInteger" />
@@ -55,72 +89,41 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="StoreSetting">
-        <xs:annotation>
-            <xs:documentation source="description">Configuration for caching a remote Repository</xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="type">
-                <xs:simpleType>
-                    <xs:restriction base="xs:normalizedString">
-                        <xs:enumeration value="file" />
-                        <xs:enumeration value="jdbc" />
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-            <xs:element name="uri">
-                <xs:simpleType>
-                    <xs:restriction base="xs:anyURI">
-                        <xs:minLength value="10" />
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-            <xs:element name="driverClassName" type="xs:normalizedString" minOccurs="0" />
-            <xs:element name="user" type="xs:normalizedString" minOccurs="0" />
-            <xs:element name="password" type="xs:normalizedString" minOccurs="0" />
-            <xs:element name="pool-core-size" type="xs:positiveInteger" minOccurs="0" />
-            <xs:element name="pool-max-size" type="xs:positiveInteger" minOccurs="0" />
-        </xs:sequence>
-    </xs:complexType>
+    <!-- <xs:complexType name="StoreConfig"> -->
+    <!--     <xs:annotation> -->
+    <!--         <xs:documentation source="description">Configuration for caching a remote Repository</xs:documentation> -->
+    <!--     </xs:annotation> -->
+    <!--     <xs:sequence> -->
+    <!--         <xs:element name="type"> -->
+    <!--             <xs:simpleType> -->
+    <!--                 <xs:restriction base="xs:normalizedString"> -->
+    <!--                     <xs:enumeration value="file" /> -->
+    <!--                     <xs:enumeration value="jdbc" /> -->
+    <!--                 </xs:restriction> -->
+    <!--             </xs:simpleType> -->
+    <!--         </xs:element> -->
+    <!--         <xs:element name="uri"> -->
+    <!--             <xs:simpleType> -->
+    <!--                 <xs:restriction base="xs:anyURI"> -->
+    <!--                     <xs:minLength value="10" /> -->
+    <!--                 </xs:restriction> -->
+    <!--             </xs:simpleType> -->
+    <!--         </xs:element> -->
+    <!--         <xs:element name="driverClassName" type="xs:normalizedString" minOccurs="0" /> -->
+    <!--         <xs:element name="user" type="xs:normalizedString" minOccurs="0" /> -->
+    <!--         <xs:element name="password" type="xs:normalizedString" minOccurs="0" /> -->
+    <!--         <xs:element name="pool-core-size" type="xs:positiveInteger" minOccurs="0" /> -->
+    <!--         <xs:element name="pool-max-size" type="xs:positiveInteger" minOccurs="0" /> -->
+    <!--     </xs:sequence> -->
+    <!-- </xs:complexType> -->
 
-    <xs:simpleType name="FileUri">
-        <xs:annotation>
-            <xs:documentation source="description">file://*</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:anyURI">
-            <xs:minLength value="10" />
-            <xs:pattern value="file://.*" />
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="WebUri">
-        <xs:annotation>
-            <xs:documentation source="description">https://*, http://*</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:anyURI">
-            <xs:minLength value="10" />
-            <xs:pattern value="https://.*" />
-            <xs:pattern value="http://.*" />
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="ContextRoot">
-        <xs:annotation>
-            <xs:documentation source="description">ContextRoot of a Repository</xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:normalizedString">
-            <xs:minLength value="5" />
-            <xs:pattern value="([a-z0-9\-_])+" />
-        </xs:restriction>
-    </xs:simpleType>
-
-    <xs:complexType name="FileRepoSetting">
+    <xs:complexType name="FileRepoConfig">
         <xs:annotation>
             <xs:documentation source="description">File Repository [file://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="contextRoot" type="ContextRoot" />
-            <xs:element name="path" type="FileUri" />
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="path" type="FileUriType" />
         </xs:sequence>
         <!-- <xs:attribute name="writeable" type="xs:boolean" default="false"> -->
         <xs:attribute name="writeable" type="xs:boolean" use="required">
@@ -130,18 +133,18 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="RemoteRepoSetting">
+    <xs:complexType name="HttpRepoConfig">
         <xs:annotation>
             <xs:documentation source="description">Remote Repository [https://*,http://*].</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="contextRoot" type="ContextRoot" />
-            <xs:element name="uri" type="WebUri" />
-            <xs:element name="storeSetting" type="StoreSetting" minOccurs="0" />
+            <xs:element name="contextRoot" type="RepositoryNameType" />
+            <xs:element name="uri" type="HttpUriType" />
+            <!-- <xs:element name="storeSetting" type="StoreConfig" minOccurs="0" /> -->
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="VirtualRepoSetting">
+    <xs:complexType name="VirtualRepoConfig">
         <xs:annotation>
             <xs:documentation source="description">
                 Virtual Repository as mirror [https://HOST:PORT/NAME]
@@ -149,7 +152,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="contextRoot" type="ContextRoot" />
+            <xs:element name="name" type="RepositoryNameType" />
             <xs:element name="repository-ref" type="xs:normalizedString" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
@@ -159,9 +162,9 @@
             <xs:documentation source="description">Repository Declaration.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="remote" type="RemoteRepoSetting" maxOccurs="unbounded" />
-            <xs:element name="file" type="FileRepoSetting" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element name="virtual" type="VirtualRepoSetting" maxOccurs="unbounded" />
+            <xs:element name="http" type="HttpRepoConfig" maxOccurs="unbounded" />
+            <xs:element name="file" type="FileRepoConfig" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="virtual" type="VirtualRepoConfig" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
@@ -186,7 +189,7 @@
     <!--        </xs:attribute>-->
     <!--    </xs:complexType>-->
 
-    <!--    <xs:simpleType name="RepositoryUri">-->
+    <!--    <xs:simpleType name="RepositoryUriType">-->
     <!--        <xs:annotation>-->
     <!--            <xs:documentation source="description">file://*, http://*, https://*</xs:documentation>-->
     <!--        </xs:annotation>-->

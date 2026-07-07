@@ -16,6 +16,7 @@ import de.freese.arser.connector.spi.NotFoundException;
 /**
  * @author Thomas Freese
  */
+@SuppressWarnings({"java:S5411"})
 public abstract class AbstractConnectedRepository extends AbstractRepository {
     private final Connector connector;
 

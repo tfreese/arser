@@ -8,6 +8,7 @@ import de.freese.arser.connector.api.ConnectorRequest;
  * @author Thomas Freese
  */
 @FunctionalInterface
+@SuppressWarnings({"java:S6213"})
 public interface MetricsRecorder {
     MetricsRecorder NOOP = (r, e, o) -> {
     };
