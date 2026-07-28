@@ -9,10 +9,9 @@
         <!--        <xjc:serializable uid="4711" />-->
 
         <!-- Erzwingt primitive Typen für numerische Basisdatentypen. -->
+        <!--
         <jaxb:javaType name="int" xmlType="xs:int" />
         <jaxb:javaType name="int" xmlType="xs:positiveInteger" />
-
-        <!--
         <jaxb:javaType name="long" xmlType="xs:long" />
         <jaxb:javaType name="double" xmlType="xs:double" />
         <jaxb:javaType name="float" xmlType="xs:float" />
