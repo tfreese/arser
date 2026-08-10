@@ -1,25 +1,14 @@
 package de.freese.arser.blobstore;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.stream.Stream;
-
-import javax.sql.DataSource;
-
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import de.freese.arser.blobstore.api.Blob;
+import de.freese.arser.blobstore.api.BlobId;
+import de.freese.arser.blobstore.api.BlobStore;
+import de.freese.arser.blobstore.empty.EmptyBlobStore;
+import de.freese.arser.blobstore.file.FileBlobStore;
+import de.freese.arser.blobstore.jdbc.JdbcBlobStore;
+import de.freese.arser.blobstore.memory.MemoryBlobStore;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,25 +23,29 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import de.freese.arser.blobstore.api.Blob;
-import de.freese.arser.blobstore.api.BlobId;
-import de.freese.arser.blobstore.api.BlobStore;
-import de.freese.arser.blobstore.empty.EmptyBlobStore;
-import de.freese.arser.blobstore.file.FileBlobStore;
-import de.freese.arser.blobstore.jdbc.JdbcBlobStore;
-import de.freese.arser.blobstore.memory.MemoryBlobStore;
+import javax.sql.DataSource;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Freese
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class TestBlobStore {
-    private static DataSource dataSourceDerby;
-    private static DataSource dataSourceH2;
-    private static DataSource dataSourceHsqldb;
-
-    @TempDir(cleanup = CleanupMode.ALWAYS)
-    private static Path pathTest;
+    private static final String TEST_FILE = "build.gradle.kts";
 
     @AfterAll
     static void afterAll() throws Exception {
@@ -134,6 +127,13 @@ class TestBlobStore {
         );
     }
 
+    private static DataSource dataSourceDerby;
+    private static DataSource dataSourceH2;
+    private static DataSource dataSourceHsqldb;
+
+    @TempDir(cleanup = CleanupMode.ALWAYS)
+    private static Path pathTest;
+
     @AfterEach
     void afterEach() {
         // Empty
@@ -178,7 +178,7 @@ class TestBlobStore {
             dsBs.createDatabaseIfNotExist();
         }
 
-        final Path path = Paths.get("build.gradle");
+        final Path path = Paths.get(TEST_FILE);
         final long fileSize = Files.size(path);
         final byte[] bytes = Files.readAllBytes(path);
 
@@ -228,7 +228,7 @@ class TestBlobStore {
             jdbcBlobStore.createDatabaseIfNotExist();
         }
 
-        final Path path = Paths.get("build.gradle");
+        final Path path = Paths.get(TEST_FILE);
         final long fileSize = Files.size(path);
         final byte[] bytes = Files.readAllBytes(path);
 
