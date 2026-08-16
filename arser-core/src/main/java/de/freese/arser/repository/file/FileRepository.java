@@ -10,22 +10,29 @@ import java.nio.file.StandardOpenOption;
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.FileBlobValue;
+import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.repository.AbstractRepository;
+import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
 
 /**
  * @author Thomas Freese
  */
 public final class FileRepository extends AbstractRepository {
-    public static FileRepositoryBuilder builder() {
-        return new FileRepositoryBuilder();
+    public static Repository of(final FileRepositoryConfig config, final LifeCycleRegistry lifeCycleRegistry) {
+        Repository repository = new FileRepository(config);
+
+        if (config.logging()) {
+            repository = new LoggingRepositoryDecorator(repository);
+        }
+
+        lifeCycleRegistry.register(repository);
+
+        return repository;
     }
 
-    private final boolean readOnly;
-
-    FileRepository(final URI uri, final String name, final boolean readOnly) {
-        super(uri, name);
-
-        this.readOnly = readOnly;
+    private FileRepository(final FileRepositoryConfig config) {
+        super(config);
     }
 
     @Override
@@ -51,6 +58,11 @@ public final class FileRepository extends AbstractRepository {
     }
 
     @Override
+    public FileRepositoryConfig getConfig() {
+        return (FileRepositoryConfig) super.getConfig();
+    }
+
+    @Override
     public void start() throws Exception {
         super.start();
 
@@ -69,7 +81,7 @@ public final class FileRepository extends AbstractRepository {
     public ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
         final Path path = toAbsolutePath(getUri(), arserRequest);
 
-        if (readOnly) {
+        if (isReadOnly()) {
             final String message = "repository is read only: %s [%s]".formatted(getName(), getClass().getSimpleName());
 
             return new ArserResult.Forbidden(path.toUri(), message);
@@ -90,6 +102,11 @@ public final class FileRepository extends AbstractRepository {
         catch (final Exception ex) {
             return new ArserResult.Failure(ex);
         }
+    }
+
+    // @JsonProperty("readOnly")
+    private boolean isReadOnly() {
+        return getConfig().readOnly();
     }
 
     private Path toAbsolutePath(final URI uri, final ArserRequest arserRequest) {

@@ -23,6 +23,7 @@ import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.repository.file.FileRepository;
+import de.freese.arser.repository.file.FileRepositoryConfig;
 
 /**
  * @author Thomas Freese
@@ -46,12 +47,14 @@ class TestFileRepository {
 
     @Test
     void testFileRepository() throws Exception {
-        final Repository repository = FileRepository.builder()
+        final FileRepositoryConfig fileRepositoryConfig = FileRepositoryConfig.builder()
                 .uri(pathTest.toUri())
                 .name("maven-local")
                 .readOnly(false)
                 .withLogging()
-                .build(lifeCycleRegistry);
+                .build();
+
+        final Repository repository = FileRepository.of(fileRepositoryConfig, lifeCycleRegistry);
 
         lifeCycleRegistry.start();
 
@@ -62,7 +65,8 @@ class TestFileRepository {
         if (arserResult instanceof ArserResult.NotFound(final URI uri)) {
             assertNotNull(uri);
             assertEquals(pathTest.resolve("a/b/c/1/c-1.txt").toUri(), uri);
-        } else {
+        }
+        else {
             fail();
         }
 
@@ -73,7 +77,8 @@ class TestFileRepository {
 
             if (arserResult instanceof ArserResult.Upload(final long contentLength)) {
                 assertTrue(contentLength > 0L);
-            } else {
+            }
+            else {
                 fail();
             }
         }
@@ -85,7 +90,8 @@ class TestFileRepository {
         if (arserResult instanceof ArserResult.Exist(final URI uri)) {
             assertNotNull(uri);
             assertEquals(pathTest.resolve("a/b/c/1/c-1.txt").toUri(), uri);
-        } else {
+        }
+        else {
             fail();
         }
 
@@ -100,19 +106,22 @@ class TestFileRepository {
             try (InputStream inputStream = blobValue.createInputStream()) {
                 assertEquals("Hello World", new String(inputStream.readAllBytes(), StandardCharsets.UTF_8));
             }
-        } else {
+        }
+        else {
             fail();
         }
     }
 
     @Test
     void testFileRepositoryReadOnly() throws Exception {
-        final Repository repository = FileRepository.builder()
+        final FileRepositoryConfig fileRepositoryConfig = FileRepositoryConfig.builder()
                 .uri(pathTest.toUri())
                 .name("maven-local")
                 .readOnly(true)
                 .withLogging()
-                .build(lifeCycleRegistry);
+                .build();
+
+        final Repository repository = FileRepository.of(fileRepositoryConfig, lifeCycleRegistry);
 
         lifeCycleRegistry.start();
 
@@ -124,7 +133,8 @@ class TestFileRepository {
                 assertNotNull(uri);
                 assertNotNull(reason);
                 assertEquals("repository is read only: maven-local [FileRepository]", reason);
-            } else {
+            }
+            else {
                 fail();
             }
         }

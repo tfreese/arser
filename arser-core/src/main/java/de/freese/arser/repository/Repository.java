@@ -17,9 +17,15 @@ public interface Repository extends Lifecycle {
 
     ArserResult exist(ArserRequest arserRequest);
 
-    String getName();
+    AbstractRepositoryConfig getConfig();
 
-    URI getUri();
+    default String getName() {
+        return getConfig().name();
+    }
+
+    default URI getUri() {
+        return getConfig().uri();
+    }
 
     @Override
     default void start() throws Exception {

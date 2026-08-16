@@ -7,28 +7,41 @@ import java.nio.file.Path;
 
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
+import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.connector.api.ConnectorRequest;
 import de.freese.arser.connector.api.ConnectorResponse;
 import de.freese.arser.connector.core.Attributes;
 import de.freese.arser.connector.core.Operations;
+import de.freese.arser.connector.file.FileConnector;
 import de.freese.arser.connector.spi.BlockedException;
 import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.repository.AbstractConnectedRepository;
+import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
 
 /**
  * @author Thomas Freese
  */
 public final class FileConnectorRepository extends AbstractConnectedRepository {
-    public static FileRepositoryBuilder builder() {
-        return new FileRepositoryBuilder();
+    public static Repository of(final FileRepositoryConfig config, final LifeCycleRegistry lifeCycleRegistry) {
+        Repository repository = new FileConnectorRepository(config, new FileConnector());
+
+        if (config.logging()) {
+            repository = new LoggingRepositoryDecorator(repository);
+        }
+
+        lifeCycleRegistry.register(repository);
+
+        return repository;
     }
 
-    private final boolean readOnly;
+    private FileConnectorRepository(final FileRepositoryConfig config, final Connector connector) {
+        super(config, connector);
+    }
 
-    FileConnectorRepository(final URI uri, final String name, final Connector connector, final boolean readOnly) {
-        super(uri, name, connector);
-
-        this.readOnly = readOnly;
+    @Override
+    public FileRepositoryConfig getConfig() {
+        return (FileRepositoryConfig) super.getConfig();
     }
 
     @Override
@@ -50,7 +63,7 @@ public final class FileConnectorRepository extends AbstractConnectedRepository {
     public ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
         final URI remoteUri = toRemoteUri(getUri(), arserRequest);
 
-        if (readOnly) {
+        if (isReadOnly()) {
             final String message = "repository is read only: %s [%s]".formatted(getName(), getClass().getSimpleName());
 
             return new ArserResult.Forbidden(remoteUri, message);
@@ -80,5 +93,9 @@ public final class FileConnectorRepository extends AbstractConnectedRepository {
         final String requestPath = arserRequest.getResource().getPath().replace(' ', '_');
 
         return Path.of(uriPath).resolve(requestPath).toUri();
+    }
+
+    private boolean isReadOnly() {
+        return getConfig().readOnly();
     }
 }

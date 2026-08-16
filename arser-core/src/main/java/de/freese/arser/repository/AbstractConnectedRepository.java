@@ -20,8 +20,8 @@ import de.freese.arser.connector.spi.NotFoundException;
 public abstract class AbstractConnectedRepository extends AbstractRepository {
     private final Connector connector;
 
-    protected AbstractConnectedRepository(final URI uri, final String name, final Connector connector) {
-        super(uri, name);
+    protected AbstractConnectedRepository(final AbstractRepositoryConfig config, final Connector connector) {
+        super(config);
 
         this.connector = Objects.requireNonNull(connector, "connector required");
     }

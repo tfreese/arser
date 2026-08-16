@@ -1,11 +1,9 @@
 package de.freese.arser.repository.virtual;
 
-import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Function;
 
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
@@ -18,16 +16,32 @@ import de.freese.arser.repository.Repository;
  * @since 22.07.23
  */
 public final class VirtualRepository extends AbstractRepository {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VirtualRepository.class);
+    public static Repository of(final VirtualRepositoryConfig config, final Function<String, Repository> repositoryProvider) {
+        Objects.requireNonNull(repositoryProvider, "repositoryProvider required");
 
-    public static VirtualRepositoryBuilder builder() {
-        return new VirtualRepositoryBuilder();
+        if (config.repositoryRefs().isEmpty()) {
+            throw new IllegalStateException("No repositories names are defined");
+        }
+
+        final Map<String, Repository> repositoryMap = new LinkedHashMap<>();
+
+        for (final String repositoryName : config.repositoryRefs()) {
+            final Repository repository = repositoryProvider.apply(repositoryName);
+
+            if (repository == null) {
+                throw new IllegalStateException("Repository not found: " + repositoryName);
+            }
+
+            repositoryMap.put(repositoryName, repository);
+        }
+
+        return new VirtualRepository(config, repositoryMap);
     }
 
     private final Map<String, Repository> repositoryMap;
 
-    VirtualRepository(final URI uri, final String name, final Map<String, Repository> repositoryMap) {
-        super(uri, name);
+    private VirtualRepository(final VirtualRepositoryConfig config, final Map<String, Repository> repositoryMap) {
+        super(config);
 
         this.repositoryMap = Objects.requireNonNull(repositoryMap, "repositoryMap required");
     }
@@ -45,8 +59,9 @@ public final class VirtualRepository extends AbstractRepository {
                 getLogger().debug("{} was downloaded from {}", arserRequest.getResource(), repository.getName());
 
                 break;
-            } else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-                LOGGER.warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
+            }
+            else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
+                getLogger().warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
             }
         }
 
@@ -70,8 +85,9 @@ public final class VirtualRepository extends AbstractRepository {
                 getLogger().debug("{} exist in {}", arserRequest.getResource(), repository.getName());
 
                 break;
-            } else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-                LOGGER.warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
+            }
+            else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
+                getLogger().warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
             }
         }
 
@@ -80,5 +96,10 @@ public final class VirtualRepository extends AbstractRepository {
         }
 
         return new ArserResult.NotFound(arserRequest.getResource());
+    }
+
+    @Override
+    public VirtualRepositoryConfig getConfig() {
+        return (VirtualRepositoryConfig) super.getConfig();
     }
 }

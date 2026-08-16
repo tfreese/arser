@@ -25,7 +25,7 @@ public final class RetryingRepositoryDecorator extends AbstractRepositoryDecorat
         final RetryPolicy<Object> retryPolicy = RetryPolicy.builder()
                 .withMaxRetries(maxRetries)
                 // .withDelay(retryInterval)
-                .withBackoff(retryInterval, Duration.ofSeconds(30), 1.5D)
+                .withBackoff(retryInterval, Duration.ofSeconds(30L), 1.5D)
                 .onRetry(event -> {
                     final Throwable lastException = event.getLastException();
 
@@ -36,10 +36,12 @@ public final class RetryingRepositoryDecorator extends AbstractRepositoryDecorat
                                 httpRetryException.getMessage(),
                                 httpRetryException.getLocation()
                         );
-                    } else if (lastException != null) {
+                    }
+                    else if (lastException != null) {
                         final String error = Optional.ofNullable(lastException.getMessage()).orElse(lastException.getClass().getSimpleName());
                         getLogger().warn("retry: {} - {}", event.getExecutionCount(), error);
-                    } else {
+                    }
+                    else {
                         getLogger().warn("retry: {}", event.getExecutionCount());
                     }
                 })
@@ -48,7 +50,8 @@ public final class RetryingRepositoryDecorator extends AbstractRepositoryDecorat
 
                     if (throwable != null) {
                         getLogger().error(throwable.getMessage(), throwable);
-                    } else {
+                    }
+                    else {
                         getLogger().error(event.toString());
                     }
                 })

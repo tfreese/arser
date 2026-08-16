@@ -21,8 +21,11 @@ import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.repository.file.FileRepository;
+import de.freese.arser.repository.file.FileRepositoryConfig;
 import de.freese.arser.repository.http.HttpRepository;
+import de.freese.arser.repository.http.HttpRepositoryConfig;
 import de.freese.arser.repository.virtual.VirtualRepository;
+import de.freese.arser.repository.virtual.VirtualRepositoryConfig;
 
 /**
  * @author Thomas Freese
@@ -46,35 +49,38 @@ class TestVirtualRepository {
     static void beforeAll() throws Exception {
         lifeCycleRegistry = new DefaultLifeCycleRegistry();
 
-        final Repository repositoryFile = FileRepository.builder()
-                .uri(pathTest.toUri())
+        final FileRepositoryConfig fileRepositoryConfig = FileRepositoryConfig.builder()
                 .name("maven-local")
-                .readOnly(false)
+                .uri(pathTest.toUri())
                 .withLogging()
-                .build(lifeCycleRegistry);
+                .readOnly(false)
+                .build();
+        final Repository fileRepository = FileRepository.of(fileRepositoryConfig, lifeCycleRegistry);
 
         // final Connector connectorHttp = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
         // // final Connector connectorHttpLogging = new LoggingConnector(connectorHttp);
         // lifeCycleRegistry.register(connectorHttpLogging);
 
-        final Repository repositoryHttp = HttpRepository.builder()
-                .uri(URI.create("https://repo1.maven.org/maven2"))
+        final HttpRepositoryConfig httpRepositoryConfig = HttpRepositoryConfig.builder()
                 .name("central")
+                .uri(URI.create("https://repo1.maven.org/maven2"))
                 .withRetrying(3, Duration.ofSeconds(2L))
                 .withLogging()
-                .build(lifeCycleRegistry);
+                .build();
+        final Repository httpRepository = HttpRepository.of(httpRepositoryConfig, lifeCycleRegistry);
 
-        virtualRepository = VirtualRepository.builder()
-                .uri(URI.create("virtual://test"))
+        final VirtualRepositoryConfig virtualRepositoryConfig = VirtualRepositoryConfig.builder()
                 .name("test")
+                .uri(URI.create("virtual://test"))
                 .addRepositoryRef("maven-local")
                 .addRepositoryRef("central")
-                .repositoryProvider(repoName -> switch (repoName) {
-                    case "maven-local" -> repositoryFile;
-                    case "central" -> repositoryHttp;
-                    default -> throw new IllegalStateException("Repository not found: " + repoName);
-                })
-                .build(lifeCycleRegistry);
+                .build();
+
+        virtualRepository = VirtualRepository.of(virtualRepositoryConfig, repoName -> switch (repoName) {
+            case "maven-local" -> fileRepository;
+            case "central" -> httpRepository;
+            default -> throw new IllegalStateException("Repository not found: " + repoName);
+        });
 
         lifeCycleRegistry.start();
     }
@@ -87,7 +93,8 @@ class TestVirtualRepository {
         if (arserResult instanceof ArserResult.Download(final BlobValue blobValue)) {
             assertNotNull(blobValue);
             assertTrue(blobValue.getContentLength() > 0L);
-        } else {
+        }
+        else {
             fail();
         }
     }
@@ -99,7 +106,8 @@ class TestVirtualRepository {
 
         if (arserResult instanceof ArserResult.Exist(final URI uri)) {
             assertNotNull(uri);
-        } else {
+        }
+        else {
             fail();
         }
     }
@@ -111,7 +119,8 @@ class TestVirtualRepository {
 
         if (arserResult instanceof ArserResult.Upload) {
             fail();
-        } else {
+        }
+        else {
             assertTrue(true);
         }
     }

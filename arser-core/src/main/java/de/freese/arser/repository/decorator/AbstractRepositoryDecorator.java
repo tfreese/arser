@@ -4,11 +4,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
+import de.freese.arser.repository.AbstractRepositoryConfig;
 import de.freese.arser.repository.Repository;
 
 /**
@@ -25,7 +27,8 @@ public abstract class AbstractRepositoryDecorator implements Repository {
 
         if (delegate instanceof final AbstractRepositoryDecorator ard) {
             logger = ard.getLogger();
-        } else {
+        }
+        else {
             logger = LoggerFactory.getLogger(delegate.getClass());
         }
     }
@@ -38,6 +41,12 @@ public abstract class AbstractRepositoryDecorator implements Repository {
     @Override
     public ArserResult exist(final ArserRequest arserRequest) {
         return delegate.exist(arserRequest);
+    }
+
+    @JsonValue
+    @Override
+    public AbstractRepositoryConfig getConfig() {
+        return delegate.getConfig();
     }
 
     @Override

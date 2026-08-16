@@ -2,14 +2,12 @@ package de.freese.arser.repository;
 
 import java.net.URI;
 
-import de.freese.arser.component.LifeCycleRegistry;
-
 /**
  * @author Thomas Freese
  * @since 04.07.26
  */
 public interface RepositoryBuilder<B, T extends Repository> {
-    T build(LifeCycleRegistry lifeCycleRegistry) throws Exception;
+    T build() throws Exception;
 
     String getName();
 

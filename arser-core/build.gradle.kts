@@ -3,7 +3,7 @@ plugins {
 }
 
 configurations.create("jaxb") {
-    //extendsFrom(configurations.implementation.get())
+    // extendsFrom(configurations.implementation.get())
 
     isCanBeResolved = true
     isCanBeConsumed = false
@@ -21,6 +21,9 @@ dependencies {
     api("dev.failsafe:failsafe")
 //    api("org.apache.ivy:ivy:2.5.3")
     api("jakarta.xml.bind:jakarta.xml.bind-api")
+    api("tools.jackson.core:jackson-databind")
+    api("tools.jackson.dataformat:jackson-dataformat-xml")
+    // api("tools.jackson.datatype:jackson-datatype-jakarta-jsonp")
 
     runtimeOnly("org.glassfish.jaxb:jaxb-runtime")
     // runtimeOnly("org.hsqldb:hsqldb")
@@ -68,9 +71,7 @@ tasks.register("genJaxb") {
 
     ant.withGroovyBuilder {
         "taskdef"(
-            "name" to "xjc",
-            "classname" to "com.sun.tools.xjc.XJCTask",
-            "classpath" to xjcToolsClasspath
+            "name" to "xjc", "classname" to "com.sun.tools.xjc.XJCTask", "classpath" to xjcToolsClasspath
         )
 
         "xjc"(
