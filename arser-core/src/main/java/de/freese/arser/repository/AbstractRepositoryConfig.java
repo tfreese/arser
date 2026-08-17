@@ -23,10 +23,11 @@ import de.freese.arser.repository.virtual.VirtualRepositoryConfig;
 )
 // 2. Alle bekannten Unterklassen registrieren
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = FileRepositoryConfig.class, name = "file_repository"),
-        @JsonSubTypes.Type(value = HttpRepositoryConfig.class, name = "http_repository"),
-        @JsonSubTypes.Type(value = VirtualRepositoryConfig.class, name = "virtual_repository")
+        @JsonSubTypes.Type(value = FileRepositoryConfig.class, name = "fileRepositoryConfig"),
+        @JsonSubTypes.Type(value = HttpRepositoryConfig.class, name = "httpRepositoryConfig"),
+        @JsonSubTypes.Type(value = VirtualRepositoryConfig.class, name = "virtualRepositoryConfig")
 })
+@SuppressWarnings({"java:S1452"})
 public abstract class AbstractRepositoryConfig {
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, setterVisibility = JsonAutoDetect.Visibility.NONE)
     public abstract static class Builder<B extends Builder<B>> {

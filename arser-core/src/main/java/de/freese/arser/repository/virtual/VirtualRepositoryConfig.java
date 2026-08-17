@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import de.freese.arser.repository.AbstractRepositoryConfig;
 
@@ -17,7 +19,7 @@ import de.freese.arser.repository.AbstractRepositoryConfig;
  * @since 04.07.26
  */
 @JsonDeserialize(builder = VirtualRepositoryConfig.VirtualRepositoryConfigBuilder.class)
-@JsonTypeName("virtualRepository")
+@JsonTypeName("virtualRepositoryConfig")
 @JsonPropertyOrder(value = {"type", "name", "uri", "logging", "repositoryRefs"})
 public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
     @JsonPOJOBuilder(withPrefix = "")
@@ -95,17 +97,20 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
                 .repositoryRefs(repositoryRefs());
     }
 
+    @JacksonXmlElementWrapper(localName = "repositoryRefs")
+    @JacksonXmlProperty(localName = "repositoryRef")
     public Set<String> repositoryRefs() {
         return repositoryRefs;
     }
 
     @Override
     public String toString() {
-        return "VirtualRepositoryConfig{"
+        return getClass().getSimpleName()
+                + "["
                 + "name=" + name()
                 + "uri=" + uri()
                 + "logging=" + logging()
                 + "repositoryRefs=" + repositoryRefs()
-                + '}';
+                + ']';
     }
 }

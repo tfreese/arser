@@ -47,7 +47,7 @@ public final class ArserWebRequest extends ArserRequest {
     }
 
     /**
-     * @return Used as Repositoryname.
+     * @return Used as RepositoryName.
      */
     public String getContextRoot() {
         return contextRoot;

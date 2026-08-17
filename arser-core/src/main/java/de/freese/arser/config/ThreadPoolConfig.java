@@ -1,18 +1,27 @@
 package de.freese.arser.config;
 
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
+
 /**
  * @author Thomas Freese
  * @since 11.05.2025
  */
+@JsonDeserialize(builder = ThreadPoolConfig.ThreadPoolConfigBuilder.class)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder(value = {"namePattern", "coreSize", "maxSize"})
 public final class ThreadPoolConfig {
-    public static final class Builder {
+
+    @JsonPOJOBuilder(withPrefix = "")
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, setterVisibility = JsonAutoDetect.Visibility.NONE)
+    public static final class ThreadPoolConfigBuilder {
         private int coreSize;
         private int maxSize;
         private String namePattern;
-
-        private Builder() {
-            super();
-        }
 
         public ThreadPoolConfig build() {
             ConfigValidator.string(namePattern, () -> "namePattern required: '%s'".formatted(namePattern));
@@ -26,39 +35,39 @@ public final class ThreadPoolConfig {
             return new ThreadPoolConfig(this);
         }
 
-        public ThreadPoolConfig.Builder coreSize(final int coreSize) {
+        public ThreadPoolConfigBuilder coreSize(final int coreSize) {
             this.coreSize = coreSize;
 
             return this;
         }
 
-        public ThreadPoolConfig.Builder maxSize(final int maxSize) {
+        public ThreadPoolConfigBuilder maxSize(final int maxSize) {
             this.maxSize = maxSize;
 
             return this;
         }
 
-        public ThreadPoolConfig.Builder namePattern(final String namePattern) {
+        public ThreadPoolConfigBuilder namePattern(final String namePattern) {
             this.namePattern = namePattern;
 
             return this;
         }
     }
 
-    public static ThreadPoolConfig.Builder builder() {
-        return new ThreadPoolConfig.Builder();
+    public static ThreadPoolConfigBuilder builder() {
+        return new ThreadPoolConfigBuilder();
     }
 
-    public static ThreadPoolConfig.Builder builderClientDefault() {
-        return new ThreadPoolConfig.Builder()
+    public static ThreadPoolConfigBuilder builderClientDefault() {
+        return new ThreadPoolConfigBuilder()
                 .namePattern("http-client-%d")
                 .coreSize(2)
                 .maxSize(6)
                 ;
     }
 
-    public static ThreadPoolConfig.Builder builderServerDefault() {
-        return new ThreadPoolConfig.Builder()
+    public static ThreadPoolConfigBuilder builderServerDefault() {
+        return new ThreadPoolConfigBuilder()
                 .namePattern("http-server-%d")
                 .coreSize(2)
                 .maxSize(6)
@@ -69,7 +78,7 @@ public final class ThreadPoolConfig {
     private final int maxSize;
     private final String namePattern;
 
-    private ThreadPoolConfig(final Builder builder) {
+    private ThreadPoolConfig(final ThreadPoolConfigBuilder builder) {
         super();
 
         namePattern = builder.namePattern;
@@ -77,15 +86,39 @@ public final class ThreadPoolConfig {
         maxSize = builder.maxSize;
     }
 
-    public int getCoreSize() {
+    public int coreSize() {
         return coreSize;
     }
 
-    public int getMaxSize() {
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ThreadPoolConfig that = (ThreadPoolConfig) o;
+
+        return coreSize == that.coreSize && maxSize == that.maxSize && Objects.equals(namePattern, that.namePattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(coreSize, maxSize, namePattern);
+    }
+
+    public int maxSize() {
         return maxSize;
     }
 
-    public String getNamePattern() {
+    public ThreadPoolConfigBuilder mutate() {
+        return new ThreadPoolConfigBuilder()
+                .namePattern(namePattern())
+                .coreSize(coreSize())
+                .maxSize(maxSize())
+                ;
+    }
+
+    public String namePattern() {
         return namePattern;
     }
 

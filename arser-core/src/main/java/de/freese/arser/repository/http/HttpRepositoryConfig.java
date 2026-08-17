@@ -15,7 +15,7 @@ import de.freese.arser.repository.AbstractRepositoryConfig;
  * @author Thomas Freese
  */
 @JsonDeserialize(builder = HttpRepositoryConfig.HttpRepositoryConfigBuilder.class)
-@JsonTypeName("httpRepository")
+@JsonTypeName("httpRepositoryConfig")
 @JsonPropertyOrder(value = {"type", "name", "uri", "logging", "cachingPath", "connectTimeout", "maxRetries", "retryInterval"})
 public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
     @JsonPOJOBuilder(withPrefix = "")
@@ -34,24 +34,24 @@ public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
                 throw new IllegalArgumentException("maxRetries must be greater than 0: " + maxRetries);
             }
 
-            if (connectTimeout != null) {
-                if (connectTimeout.isNegative()) {
-                    throw new IllegalArgumentException("connectTimeout cannot be negative: " + connectTimeout);
-                }
+            Objects.requireNonNull(connectTimeout, "connectTimeout required");
 
-                if (connectTimeout.isZero()) {
-                    throw new IllegalArgumentException("connectTimeout cannot be zero");
-                }
+            if (connectTimeout.isNegative()) {
+                throw new IllegalArgumentException("connectTimeout cannot be negative: " + connectTimeout);
             }
 
-            if (retryInterval != null) {
-                if (retryInterval.isNegative()) {
-                    throw new IllegalArgumentException("retryInterval cannot be negative: " + retryInterval);
-                }
+            if (connectTimeout.isZero()) {
+                throw new IllegalArgumentException("connectTimeout cannot be zero");
+            }
 
-                if (retryInterval.isZero()) {
-                    throw new IllegalArgumentException("retryInterval cannot be zero:");
-                }
+            Objects.requireNonNull(retryInterval, "retryInterval required");
+
+            if (retryInterval.isNegative()) {
+                throw new IllegalArgumentException("retryInterval cannot be negative: " + retryInterval);
+            }
+
+            if (retryInterval.isZero()) {
+                throw new IllegalArgumentException("retryInterval cannot be zero:");
             }
 
             return new HttpRepositoryConfig(this);
@@ -108,9 +108,9 @@ public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
         super(builder);
 
         this.cachingPath = builder.cachingPath;
-        this.connectTimeout = Objects.requireNonNull(builder.connectTimeout, "connectTimeout required");
+        this.connectTimeout = builder.connectTimeout;
         this.maxRetries = builder.maxRetries;
-        this.retryInterval = Objects.requireNonNull(builder.retryInterval, "retryInterval required");
+        this.retryInterval = builder.retryInterval;
     }
 
     public Path cachingPath() {
@@ -165,7 +165,8 @@ public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
 
     @Override
     public String toString() {
-        return "HttpRepositoryConfig{"
+        return getClass().getSimpleName()
+                + "["
                 + "name=" + name()
                 + "uri=" + uri()
                 + "logging=" + logging()
@@ -173,6 +174,6 @@ public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
                 + "connectTimeout=" + connectTimeout()
                 + "maxRetries=" + maxRetries()
                 + "retryInterval=" + retryInterval()
-                + '}';
+                + ']';
     }
 }

@@ -13,7 +13,7 @@ import de.freese.arser.repository.AbstractRepositoryConfig;
  * @author Thomas Freese
  */
 @JsonDeserialize(builder = FileRepositoryConfig.FileRepositoryConfigBuilder.class)
-@JsonTypeName("fileRepository")
+@JsonTypeName("fileRepositoryConfig")
 @JsonPropertyOrder(value = {"type", "name", "uri", "logging", "readOnly"})
 // @JsonPropertyOrder(alphabetic = true)
 public final class FileRepositoryConfig extends AbstractRepositoryConfig {
@@ -83,11 +83,12 @@ public final class FileRepositoryConfig extends AbstractRepositoryConfig {
 
     @Override
     public String toString() {
-        return "FileRepositoryConfig{"
+        return getClass().getSimpleName()
+                + "["
                 + "name=" + name()
                 + "uri=" + uri()
                 + "logging=" + logging()
                 + "readOnly=" + readOnly()
-                + '}';
+                + ']';
     }
 }

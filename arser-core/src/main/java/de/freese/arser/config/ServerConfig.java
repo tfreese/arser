@@ -1,67 +1,89 @@
 package de.freese.arser.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
 
 /**
  * @author Thomas Freese
  * @since 31.10.2024
  */
+@JsonDeserialize(builder = ServerConfig.ServerConfigBuilder.class)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonPropertyOrder(value = {"port", "threadPoolConfig"})
 public final class ServerConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerConfig.class);
-
-    public static final class Builder {
+    @JsonPOJOBuilder(withPrefix = "")
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, setterVisibility = JsonAutoDetect.Visibility.NONE)
+    public static final class ServerConfigBuilder {
         private int port;
         private ThreadPoolConfig threadPoolConfig;
-
-        private Builder() {
-            super();
-        }
 
         public ServerConfig build() {
             ConfigValidator.value(port, value -> value >= 1025 && value <= 65534, () -> "port not in range 1025-65534: %d".formatted(port));
 
-            if (threadPoolConfig == null) {
-                threadPoolConfig = ThreadPoolConfig.builderServerDefault().build();
-
-                LOGGER.info("threadPoolConfig not set, using default: {}", threadPoolConfig);
-            }
+            Objects.requireNonNull(threadPoolConfig, "threadPoolConfig required");
 
             return new ServerConfig(this);
         }
 
-        public Builder port(final int port) {
+        public ServerConfigBuilder port(final int port) {
             this.port = port;
 
             return this;
         }
 
-        public Builder threadPoolConfig(final ThreadPoolConfig threadPoolConfig) {
+        public ServerConfigBuilder threadPoolConfig(final ThreadPoolConfig threadPoolConfig) {
             this.threadPoolConfig = threadPoolConfig;
 
             return this;
         }
     }
 
-    public static Builder builder() {
-        return new Builder();
+    public static ServerConfigBuilder builder() {
+        return new ServerConfigBuilder();
     }
 
     private final int port;
     private final ThreadPoolConfig threadPoolConfig;
 
-    private ServerConfig(final Builder builder) {
+    private ServerConfig(final ServerConfigBuilder builder) {
         super();
 
         port = builder.port;
         threadPoolConfig = builder.threadPoolConfig;
     }
 
-    public int getPort() {
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final ServerConfig that = (ServerConfig) o;
+
+        return port == that.port && Objects.equals(threadPoolConfig, that.threadPoolConfig);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(port, threadPoolConfig);
+    }
+
+    public ServerConfigBuilder mutate() {
+        return new ServerConfigBuilder()
+                .port(port())
+                .threadPoolConfig(threadPoolConfig())
+                ;
+    }
+
+    public int port() {
         return port;
     }
 
-    public ThreadPoolConfig getThreadPoolConfig() {
+    public ThreadPoolConfig threadPoolConfig() {
         return threadPoolConfig;
     }
 
