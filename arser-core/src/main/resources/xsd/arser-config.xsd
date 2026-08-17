@@ -45,25 +45,20 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <!-- Elements / Types -->
-    <xs:element name="arser-config">
+    <xs:complexType name="ThreadPoolConfig">
         <xs:annotation>
-            <xs:documentation source="description">Configuration for the ARtifact-SERvice.</xs:documentation>
+            <xs:documentation source="description">Configuration for a ThreadPool.</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="workingDir" type="FileUriType" />
-                <xs:element name="server-setting" type="ServerConfig" />
-                <xs:element name="http-client-setting" type="HttpClientConfig" />
-                <xs:element name="repositories" type="Repositories" />
-                <!-- <xs:element name="db-monitoring" type="DbMonitoringConfig" minOccurs="0" /> -->
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+        <xs:sequence>
+            <xs:element name="namePattern" type="xs:normalizedString" />
+            <xs:element name="coreSize" type="xs:int" />
+            <xs:element name="maxSize" type="xs:int" />
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="ServerConfig">
         <xs:sequence>
-            <xs:element name="alter" type="xs:int" minOccurs="0" />
+            <!-- <xs:element name="alter" type="xs:int" minOccurs="0" /> -->
             <xs:element name="port">
                 <xs:annotation>
                     <xs:documentation source="description">Port for the Server [1025-65534].</xs:documentation>
@@ -75,17 +70,82 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="thread-pool-core-size" type="xs:positiveInteger" />
-            <xs:element name="thread-pool-max-size" type="xs:positiveInteger" />
-            <xs:element name="thread-name-pattern" type="xs:normalizedString" />
+            <xs:element name="threadPoolConfig" type="ThreadPoolConfig" />
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="HttpClientConfig">
+    <xs:complexType name="FileRepositoryConfig">
+        <xs:annotation>
+            <xs:documentation source="description">File Repository [file://*].</xs:documentation>
+        </xs:annotation>
         <xs:sequence>
-            <xs:element name="thread-pool-core-size" type="xs:positiveInteger" />
-            <xs:element name="thread-pool-max-size" type="xs:positiveInteger" />
-            <xs:element name="thread-name-pattern" type="xs:normalizedString" />
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="uri" type="FileUriType" />
+            <xs:element name="logging" type="xs:boolean" />
+            <xs:element name="readOnly" type="xs:boolean" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="HttpRepositoryConfig">
+        <xs:annotation>
+            <xs:documentation source="description">Remote Repository [https://*,http://*].</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="uri" type="HttpUriType" />
+            <xs:element name="logging" type="xs:boolean" />
+            <xs:element name="cachingPath" type="xs:normalizedString" />
+            <xs:element name="connectTimeout" type="xs:duration" />
+            <xs:element name="maxRetries" type="xs:int" />
+            <xs:element name="retryInterval" type="xs:duration" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="VirtualRepositoryConfig">
+        <xs:annotation>
+            <xs:documentation source="description">
+                Virtual Repository as mirror [https://HOST:PORT/NAME]
+                Processed in declarative order.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="uri" type="xs:normalizedString" maxOccurs="unbounded" />
+            <xs:element name="logging" type="xs:boolean" />
+            <xs:element name="repository-ref" type="xs:normalizedString" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Elements / Types -->
+    <xs:element name="ArserConfig">
+        <xs:annotation>
+            <xs:documentation source="description">Configuration for the ARtifact-SERvice.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="ServerConfig" type="ServerConfig" />
+                <xs:element name="FileRepositoryConfigs" type="FileRepositoryConfigs" />
+                <xs:element name="HttpRepositoryConfigs" type="HttpRepositoryConfigs" />
+                <xs:element name="VirtualRepositoryConfigs" type="VirtualRepositoryConfigs" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="FileRepositoryConfigs">
+        <xs:sequence>
+            <xs:element name="FileRepositoryConfig" type="FileRepositoryConfig" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="HttpRepositoryConfigs">
+        <xs:sequence>
+            <xs:element name="HttpRepositoryConfig" type="HttpRepositoryConfig" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="VirtualRepositoryConfigs">
+        <xs:sequence>
+            <xs:element name="VirtualRepositoryConfig" type="VirtualRepositoryConfig" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
 
@@ -116,57 +176,6 @@
     <!--         <xs:element name="pool-max-size" type="xs:positiveInteger" minOccurs="0" /> -->
     <!--     </xs:sequence> -->
     <!-- </xs:complexType> -->
-
-    <xs:complexType name="FileRepoConfig">
-        <xs:annotation>
-            <xs:documentation source="description">File Repository [file://*].</xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="name" type="RepositoryNameType" />
-            <xs:element name="path" type="FileUriType" />
-        </xs:sequence>
-        <!-- <xs:attribute name="writeable" type="xs:boolean" default="false"> -->
-        <xs:attribute name="writeable" type="xs:boolean" use="required">
-            <xs:annotation>
-                <xs:documentation source="description">Use the Repository für deployments.</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="HttpRepoConfig">
-        <xs:annotation>
-            <xs:documentation source="description">Remote Repository [https://*,http://*].</xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="contextRoot" type="RepositoryNameType" />
-            <xs:element name="uri" type="HttpUriType" />
-            <!-- <xs:element name="storeSetting" type="StoreConfig" minOccurs="0" /> -->
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="VirtualRepoConfig">
-        <xs:annotation>
-            <xs:documentation source="description">
-                Virtual Repository as mirror [https://HOST:PORT/NAME]
-                Processed in declarative order.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="name" type="RepositoryNameType" />
-            <xs:element name="repository-ref" type="xs:normalizedString" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="Repositories">
-        <xs:annotation>
-            <xs:documentation source="description">Repository Declaration.</xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="http" type="HttpRepoConfig" maxOccurs="unbounded" />
-            <xs:element name="file" type="FileRepoConfig" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element name="virtual" type="VirtualRepoConfig" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
 
     <!--    <xs:complexType name="DbMonitoringConfig">-->
     <!--        <xs:annotation>-->

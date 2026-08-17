@@ -109,4 +109,4 @@ tasks.register("genJaxb") {
 //         }
     }
 }
-// tasks.named("compileJava").get().dependsOn("genJaxb")
+tasks.named("compileJava").get().dependsOn("genJaxb")
