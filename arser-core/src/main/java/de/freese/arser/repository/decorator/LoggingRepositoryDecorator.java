@@ -16,35 +16,35 @@ public final class LoggingRepositoryDecorator extends AbstractRepositoryDecorato
 
     @Override
     public ArserResult download(final ArserRequest arserRequest) {
-        getLogger().debug("download: {}", arserRequest);
+        getLogger().debug("download from '{}': {}", delegate().getName(), arserRequest);
 
         return super.download(arserRequest);
     }
 
     @Override
     public ArserResult exist(final ArserRequest arserRequest) {
-        getLogger().debug("exist: {}", arserRequest);
+        getLogger().debug("exist in '{}': {}", delegate().getName(), arserRequest);
 
         return super.exist(arserRequest);
     }
 
     @Override
     public void start() throws Exception {
-        getLogger().debug("starting repository: {}", getName());
+        getLogger().debug("starting repository '{}': {}", delegate().getName(), getName());
 
         super.start();
     }
 
     @Override
     public void stop() throws Exception {
-        getLogger().debug("stopping repository: {}", getName());
+        getLogger().debug("stopping repository '{}': {}", delegate().getName(), getName());
 
         super.stop();
     }
 
     @Override
     public ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
-        getLogger().debug("upload: {}", arserRequest);
+        getLogger().debug("upload to '{}': {}", delegate().getName(), arserRequest);
 
         return super.upload(arserRequest, inputStream);
     }

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Root-Element -->
+    <xs:element name="arserConfig">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="serverConfig" type="ServerConfigType" />
+                <xs:element name="fileRepositoryConfigs" type="FileRepositoryConfigsType" />
+                <xs:element name="httpRepositoryConfigs" type="HttpRepositoryConfigsType" />
+                <xs:element name="virtualRepositoryConfigs" type="VirtualRepositoryConfigsType" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Server-Konfiguration -->
+    <xs:complexType name="ServerConfigType">
+        <xs:sequence>
+            <xs:element name="port">
+                <xs:simpleType>
+                    <xs:restriction base="xs:positiveInteger">
+                        <xs:minInclusive value="1025" />
+                        <xs:maxInclusive value="65534" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="threadPoolConfig" type="ThreadPoolConfigType" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ThreadPoolConfigType">
+        <xs:sequence>
+            <xs:element name="namePattern" type="xs:normalizedString" />
+            <xs:element name="coreSize">
+                <xs:simpleType>
+                    <xs:restriction base="xs:unsignedInt">
+                        <xs:minInclusive value="1" />
+                        <xs:maxInclusive value="20" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="maxSize">
+                <xs:simpleType>
+                    <xs:restriction base="xs:unsignedInt">
+                        <xs:minInclusive value="2" />
+                        <xs:maxInclusive value="100" />
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="RepositoryNameType">
+        <xs:annotation>
+            <xs:documentation source="description">Name of a Repository</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:normalizedString">
+            <xs:minLength value="5" />
+            <xs:pattern value="([a-z0-9\-_])+" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- File-Repositories -->
+    <xs:complexType name="FileRepositoryConfigsType">
+        <xs:sequence>
+            <xs:element name="fileRepositoryConfig" type="FileRepositoryConfigType" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="FileRepositoryConfigType">
+        <xs:sequence>
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="uri" type="FileUriType" />
+            <xs:element name="logging" type="xs:boolean" />
+            <xs:element name="readOnly" type="xs:boolean" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="FileUriType">
+        <xs:annotation>
+            <xs:documentation source="description">file://*</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:anyURI">
+            <xs:minLength value="10" />
+            <xs:pattern value="file://.*" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- HTTP-Repositories -->
+    <xs:complexType name="HttpRepositoryConfigsType">
+        <xs:sequence>
+            <xs:element name="httpRepositoryConfig" type="HttpRepositoryConfigType" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="HttpRepositoryConfigType">
+        <xs:sequence>
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="uri" type="HttpUriType" />
+            <xs:element name="logging" type="xs:boolean" />
+            <xs:element name="cachingPath" type="FileUriType" />
+            <xs:element name="connectTimeout" type="xs:duration" />
+            <xs:element name="maxRetries" type="xs:unsignedInt" />
+            <xs:element name="retryInterval" type="xs:duration" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpUriType">
+        <xs:annotation>
+            <xs:documentation source="description">https://*, http://*</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:anyURI">
+            <xs:minLength value="10" />
+            <xs:pattern value="https://.*" />
+            <xs:pattern value="http://.*" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Virtuelle Repositories -->
+    <xs:complexType name="VirtualRepositoryConfigsType">
+        <xs:sequence>
+            <xs:element name="virtualRepositoryConfig" type="VirtualRepositoryConfigType" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="VirtualRepositoryConfigType">
+        <xs:sequence>
+            <xs:element name="name" type="RepositoryNameType" />
+            <xs:element name="uri" type="xs:anyURI" />
+            <xs:element name="logging" type="xs:boolean" />
+            <xs:element name="repositoryRefs" type="RepositoryRefsType" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RepositoryRefsType">
+        <xs:sequence>
+            <xs:element name="repositoryRef" type="xs:normalizedString" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

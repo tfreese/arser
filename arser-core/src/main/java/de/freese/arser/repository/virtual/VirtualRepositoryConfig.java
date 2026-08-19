@@ -1,8 +1,8 @@
 package de.freese.arser.repository.virtual;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -24,7 +24,7 @@ import de.freese.arser.repository.AbstractRepositoryConfig;
 public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class VirtualRepositoryConfigBuilder extends AbstractRepositoryConfig.Builder<VirtualRepositoryConfigBuilder> {
-        private final Set<String> repositoryRefs = new LinkedHashSet<>();
+        private final List<String> repositoryRefs = new ArrayList<>();
 
         public VirtualRepositoryConfigBuilder addRepositoryRef(final String repositoryName) {
             Objects.requireNonNull(repositoryName, "repositoryName required");
@@ -48,7 +48,11 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         }
 
         @JsonSetter("repositoryRefs")
-        public VirtualRepositoryConfigBuilder repositoryRefs(final Set<String> repositoryRefs) {
+        // @JsonSerialize(as = LinkedHashSet.class)
+        // @JsonDeserialize(as = LinkedHashSet.class)
+        public VirtualRepositoryConfigBuilder repositoryRefs(final List<String> repositoryRefs) {
+            Objects.requireNonNull(repositoryRefs, "repositoryRefs required");
+
             this.repositoryRefs.clear();
             this.repositoryRefs.addAll(repositoryRefs);
 
@@ -60,12 +64,12 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         return new VirtualRepositoryConfigBuilder();
     }
 
-    private final Set<String> repositoryRefs;
+    private final List<String> repositoryRefs;
 
     private VirtualRepositoryConfig(final VirtualRepositoryConfigBuilder builder) {
         super(builder);
 
-        repositoryRefs = Set.copyOf(builder.repositoryRefs);
+        repositoryRefs = List.copyOf(builder.repositoryRefs);
     }
 
     @Override
@@ -99,7 +103,7 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
 
     @JacksonXmlElementWrapper(localName = "repositoryRefs")
     @JacksonXmlProperty(localName = "repositoryRef")
-    public Set<String> repositoryRefs() {
+    public List<String> repositoryRefs() {
         return repositoryRefs;
     }
 
@@ -108,9 +112,9 @@ public final class VirtualRepositoryConfig extends AbstractRepositoryConfig {
         return getClass().getSimpleName()
                 + "["
                 + "name=" + name()
-                + "uri=" + uri()
-                + "logging=" + logging()
-                + "repositoryRefs=" + repositoryRefs()
+                + ", uri=" + uri()
+                + ", logging=" + logging()
+                + ", repositoryRefs=" + repositoryRefs()
                 + ']';
     }
 }

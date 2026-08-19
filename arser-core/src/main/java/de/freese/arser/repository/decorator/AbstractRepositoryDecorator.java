@@ -79,6 +79,10 @@ public abstract class AbstractRepositoryDecorator implements Repository {
         return delegate.upload(arserRequest, inputStream);
     }
 
+    protected Repository delegate() {
+        return delegate;
+    }
+
     protected Logger getLogger() {
         return logger;
     }

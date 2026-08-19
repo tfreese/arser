@@ -1,0 +1,51 @@
+{
+    "serverConfig": {
+        "port": 8484,
+        "threadPoolConfig": {
+            "namePattern": "thread-%d",
+            "coreSize": 1,
+            "maxSize": 5
+        }
+    },
+    "fileRepositoryConfigs": [
+        {
+            "type": "fileRepositoryConfig",
+            "name": "snapshots",
+            "uri": "file:///tmp/arser/local/snapshots",
+            "logging": true,
+            "readOnly": false
+        },
+        {
+            "type": "fileRepositoryConfig",
+            "name": "releases",
+            "uri": "file:///tmp/arser/local/releases",
+            "logging": true,
+            "readOnly": false
+        }
+    ],
+    "httpRepositoryConfigs": [
+        {
+            "type": "httpRepositoryConfig",
+            "name": "maven-central",
+            "uri": "https://repo1.maven.org/maven2",
+            "logging": true,
+            "cachingPath": "file:///tmp/junit-5296945478019366787/",
+            "connectTimeout": "PT13S",
+            "maxRetries": 4,
+            "retryInterval": "PT2S"
+        }
+    ],
+    "virtualRepositoryConfigs": [
+        {
+            "type": "virtualRepositoryConfig",
+            "name": "public",
+            "uri": "virtual",
+            "logging": true,
+            "repositoryRefs": [
+                "snapshots",
+                "releases",
+                "maven-central"
+            ]
+        }
+    ]
+}

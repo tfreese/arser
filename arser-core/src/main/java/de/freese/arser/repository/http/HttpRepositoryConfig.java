@@ -168,12 +168,12 @@ public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
         return getClass().getSimpleName()
                 + "["
                 + "name=" + name()
-                + "uri=" + uri()
-                + "logging=" + logging()
-                + "cachingPath=" + cachingPath()
-                + "connectTimeout=" + connectTimeout()
-                + "maxRetries=" + maxRetries()
-                + "retryInterval=" + retryInterval()
+                + ", uri=" + uri()
+                + ", logging=" + logging()
+                + ", cachingPath=" + cachingPath()
+                + ", connectTimeout=" + connectTimeout()
+                + ", maxRetries=" + maxRetries()
+                + ", retryInterval=" + retryInterval()
                 + ']';
     }
 }

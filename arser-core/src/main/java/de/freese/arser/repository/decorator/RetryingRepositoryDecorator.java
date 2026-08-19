@@ -76,8 +76,7 @@ public final class RetryingRepositoryDecorator extends AbstractRepositoryDecorat
 
     // @Override
     // public ArserResult upload(final ArserRequest arserRequest, final InputStream inputStream) {
-    //     final CheckedSupplier<ArserResult> checkedSupplier = () -> super.upload(arserRequest);
-    //
-    //     return failsafeExecutor.get(checkedSupplier);
+    //     // Not an idempotent Method -> do not retry!
+    //     return super.upload(arserRequest, inputStream);
     // }
 }

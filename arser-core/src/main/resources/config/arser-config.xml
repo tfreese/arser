@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<arserConfig
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="arser-config.xsd">
+    <serverConfig>
+        <port>8484</port>
+
+        <threadPoolConfig>
+            <namePattern>thread-%d</namePattern>
+            <coreSize>1</coreSize>
+            <maxSize>5</maxSize>
+        </threadPoolConfig>
+    </serverConfig>
+
+    <fileRepositoryConfigs>
+        <fileRepositoryConfig>
+            <name>snapshots</name>
+            <uri>file:///tmp/arser/local/snapshots</uri>
+            <logging>true</logging>
+            <readOnly>false</readOnly>
+        </fileRepositoryConfig>
+        <fileRepositoryConfig>
+            <name>releases</name>
+            <uri>file:///tmp/arser/local/releases</uri>
+            <logging>true</logging>
+            <readOnly>false</readOnly>
+        </fileRepositoryConfig>
+    </fileRepositoryConfigs>
+
+    <httpRepositoryConfigs>
+        <httpRepositoryConfig>
+            <name>maven-central</name>
+            <uri>https://repo1.maven.org/maven2</uri>
+            <logging>true</logging>
+            <cachingPath>file:///tmp/arser/cache/maven-central</cachingPath>
+            <connectTimeout>PT13S</connectTimeout>
+            <maxRetries>4</maxRetries>
+            <retryInterval>PT2S</retryInterval>
+        </httpRepositoryConfig>
+    </httpRepositoryConfigs>
+
+    <virtualRepositoryConfigs>
+        <virtualRepositoryConfig>
+            <name>public</name>
+            <uri>virtual</uri>
+            <logging>true</logging>
+            <repositoryRefs>
+                <repositoryRef>snapshots</repositoryRef>
+                <repositoryRef>releases</repositoryRef>
+                <repositoryRef>maven-central</repositoryRef>
+            </repositoryRefs>
+        </virtualRepositoryConfig>
+    </virtualRepositoryConfigs>
+</arserConfig>

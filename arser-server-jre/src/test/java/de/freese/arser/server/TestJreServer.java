@@ -61,7 +61,7 @@ class TestJreServer {
                         .build())
                 .addFileRepositoryConfig(FileRepositoryConfig.builder()
                         .uri(pathTest.resolve("snapshots").toUri())
-                        .name("deploy-snapshots")
+                        .name("snapshots")
                         .readOnly(false)
                         .withLogging()
                         .build())
@@ -160,7 +160,7 @@ class TestJreServer {
     @Test
     void testWriteable() throws Exception {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(getServerUri().resolve("deploy-snapshots/" + RESOURCE))
+                .uri(getServerUri().resolve("snapshots/" + RESOURCE))
                 .PUT(HttpRequest.BodyPublishers.ofString("test"))
                 .build();
 

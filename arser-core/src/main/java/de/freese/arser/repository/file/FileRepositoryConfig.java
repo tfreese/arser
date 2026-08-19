@@ -86,9 +86,9 @@ public final class FileRepositoryConfig extends AbstractRepositoryConfig {
         return getClass().getSimpleName()
                 + "["
                 + "name=" + name()
-                + "uri=" + uri()
-                + "logging=" + logging()
-                + "readOnly=" + readOnly()
+                + ", uri=" + uri()
+                + ", logging=" + logging()
+                + ", readOnly=" + readOnly()
                 + ']';
     }
 }

@@ -53,7 +53,7 @@ tasks.register("genJaxb") {
     group = "arser"
     description = "Generate Classes from Schema"
 
-    val resourcesDir = layout.projectDirectory.dir("src").dir("main").dir("resources").dir("xsd")
+    val resourcesDir = layout.projectDirectory.dir("src").dir("main").dir("resources").dir("xml")
     val schema = resourcesDir.file("arser-config.xsd")
     inputs.file(schema)
 
@@ -109,4 +109,4 @@ tasks.register("genJaxb") {
 //         }
     }
 }
-tasks.named("compileJava").get().dependsOn("genJaxb")
+// tasks.named("compileJava").get().dependsOn("genJaxb")
