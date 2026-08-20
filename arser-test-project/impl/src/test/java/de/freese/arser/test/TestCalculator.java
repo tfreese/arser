@@ -1,4 +1,3 @@
-// Created: 26 Okt. 2024
 package de.freese.arser.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -7,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Thomas Freese
+ * @since 26.10.2024
  */
 class TestCalculator {
     @Test

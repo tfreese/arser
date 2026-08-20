@@ -17,7 +17,7 @@ cd "$BASEDIR" || exit
 export GRADLE_USER_HOME=/tmp/.gradle-arser
 
 echo -e "\\n\\033[46;1;31mAPI\\033[0m"
-gradle -p api/ clean publish
+./gradlew -p api/ clean publishTestApiPublicationToSnapshotsRepository
 
 echo -e "\\n\\033[46;1;31mIMPL\\033[0m"
-gradle -p impl/ clean build --refresh-dependencies
+./gradlew -p impl/ clean build --refresh-dependencies

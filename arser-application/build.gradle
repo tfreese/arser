@@ -45,7 +45,6 @@ tasks.register("buildApp", Copy) {
     into("resources") {
         from(layout.projectDirectory.dir("src").dir("main").dir("resources")) {
             include("log4j2.xml")
-            include("arser-config.xml")
             // exclude("other*")
         }
     }

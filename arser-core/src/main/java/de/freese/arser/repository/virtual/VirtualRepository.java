@@ -56,7 +56,7 @@ public final class VirtualRepository extends AbstractRepository {
             if (arserResult instanceof ArserResult.Download(final BlobValue value)) {
                 blobValue = value;
 
-                getLogger().debug("{} was downloaded from {}", arserRequest.getResource(), repository.getName());
+                getLogger().debug("{} was downloaded from '{}'", arserRequest.getResource(), repository.getName());
 
                 break;
             }
@@ -82,7 +82,7 @@ public final class VirtualRepository extends AbstractRepository {
             if (arserResult instanceof ArserResult.Exist) {
                 exist = true;
 
-                getLogger().debug("{} exist in {}", arserRequest.getResource(), repository.getName());
+                getLogger().debug("{} exist in '{}'", arserRequest.getResource(), repository.getName());
 
                 break;
             }

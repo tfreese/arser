@@ -1,8 +1,7 @@
 package de.freese.arser.server;
 
-import java.net.URI;
-import java.nio.file.Path;
-import java.time.Duration;
+import java.net.URL;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +11,6 @@ import de.freese.arser.api.Arser;
 import de.freese.arser.api.ArserConfig;
 import de.freese.arser.component.DefaultLifeCycleRegistry;
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.config.ServerConfig;
-import de.freese.arser.config.ThreadPoolConfig;
-import de.freese.arser.repository.file.FileRepositoryConfig;
-import de.freese.arser.repository.http.HttpRepositoryConfig;
-import de.freese.arser.repository.virtual.VirtualRepositoryConfig;
 
 /**
  * @author Thomas Freese
@@ -24,8 +18,6 @@ import de.freese.arser.repository.virtual.VirtualRepositoryConfig;
  */
 public final class JreHttpServerApplication {
     private static final Logger LOGGER = LoggerFactory.getLogger(JreHttpServerApplication.class);
-
-    private static final Path WORKING_PATH = Path.of(System.getProperty("java.io.tmpdir"), "arser");
 
     static void main() {
         try {
@@ -40,32 +32,48 @@ public final class JreHttpServerApplication {
 
             final LifeCycleRegistry lifeCycleRegistry = new DefaultLifeCycleRegistry();
 
-            final ArserConfig arserConfig = ArserConfig.builder()
-                    .addHttpRepositoryConfig(HttpRepositoryConfig.builder()
-                            .uri(URI.create("https://repo1.maven.org/maven2"))
-                            .name("maven-central")
-                            .withRetrying(3, Duration.ofSeconds(2L))
-                            .cachingPath(WORKING_PATH.resolve("maven-central-cache"))
-                            .withLogging()
-                            .build())
-                    .addFileRepositoryConfig(FileRepositoryConfig.builder()
-                            .uri(WORKING_PATH.resolve("snapshots").toUri())
-                            .name("deploy-snapshots")
-                            .readOnly(false)
-                            .withLogging()
-                            .build())
-                    .addVirtualRepositoryConfig(VirtualRepositoryConfig.builder()
-                            .uri(URI.create("virtual://public"))
-                            .name("public")
-                            .addRepositoryRef("maven-central")
-                            .addRepositoryRef("deploy-snapshots")
-                            .build())
-                    .serverConfig(ServerConfig.builder()
-                            .port(8080)
-                            .threadPoolConfig(ThreadPoolConfig.builderServerDefault()
-                                    .build())
-                            .build())
-                    .build();
+            final URL xmlFile = Thread.currentThread().getContextClassLoader().getResource("arser-config.xml");
+            final URL xsdFile = Thread.currentThread().getContextClassLoader().getResource("config/arser-config.xsd");
+
+            Objects.requireNonNull(xmlFile, "xmlFile required");
+            Objects.requireNonNull(xsdFile, "xsdFile required");
+
+            final ArserConfig arserConfig = ArserConfig.fromXml(xmlFile, xsdFile);
+
+            // final ArserConfig arserConfig = ArserConfig.builder()
+            //         .serverConfig(ServerConfig.builder()
+            //                 .port(8080)
+            //                 .threadPoolConfig(ThreadPoolConfig.builderServerDefault()
+            //                         .build())
+            //                 .build())
+            //         .addHttpRepositoryConfig(HttpRepositoryConfig.builder()
+            //                 .uri(URI.create("https://repo1.maven.org/maven2"))
+            //                 .name("maven-central")
+            //                 .withRetrying(3, Duration.ofSeconds(2L))
+            //                 .cachingPath(WORKING_PATH.resolve("cache").resolve("maven-central"))
+            //                 .withLogging()
+            //                 .build())
+            //         .addHttpRepositoryConfig(HttpRepositoryConfig.builder()
+            //                 .uri(URI.create("https://repo.gradle.org/gradle/libs-releases"))
+            //                 .name("gradle-libs-releases")
+            //                 .withRetrying(3, Duration.ofSeconds(2L))
+            //                 .cachingPath(WORKING_PATH.resolve("cache").resolve("gradle-libs-releases"))
+            //                 .withLogging()
+            //                 .build())
+            //         .addFileRepositoryConfig(FileRepositoryConfig.builder()
+            //                 .uri(WORKING_PATH.resolve("local").resolve("snapshots").toUri())
+            //                 .name("snapshots")
+            //                 .readOnly(false)
+            //                 .withLogging()
+            //                 .build())
+            //         .addVirtualRepositoryConfig(VirtualRepositoryConfig.builder()
+            //                 .uri(URI.create("virtual://public"))
+            //                 .name("public")
+            //                 .addRepositoryRef("maven-central")
+            //                 .addRepositoryRef("gradle-libs-releases")
+            //                 .addRepositoryRef("snapshots")
+            //                 .build())
+            //         .build();
 
             final Arser arser = Arser.from(arserConfig, lifeCycleRegistry);
 

@@ -26,7 +26,6 @@ public final class JreHttpServer extends AbstractComponent {
     private final ServerConfig serverConfig;
     private ExecutorService executorService;
     private HttpServer httpServer;
-    // private HttpContext httpContext;
 
     public JreHttpServer(final Arser arser) {
         super();

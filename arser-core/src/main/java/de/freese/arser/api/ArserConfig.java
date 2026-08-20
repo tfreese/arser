@@ -1,22 +1,40 @@
 package de.freese.arser.api;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import javax.xml.XMLConstants;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.xml.sax.SAXException;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import de.freese.arser.config.ServerConfig;
+import de.freese.arser.repository.AbstractRepositoryConfig;
+import de.freese.arser.repository.XmlTypeIgnoreMixIn;
 import de.freese.arser.repository.file.FileRepositoryConfig;
 import de.freese.arser.repository.http.HttpRepositoryConfig;
 import de.freese.arser.repository.virtual.VirtualRepositoryConfig;
+import de.freese.arser.utils.JacksonMapperConfig;
 
 /**
  * @author Thomas Freese
@@ -95,6 +113,41 @@ public final class ArserConfig {
         return new ArserConfigBuilder();
     }
 
+    public static ArserConfig fromJson(final InputStream inputStream) {
+        final JsonMapper jsonMapper = JacksonMapperConfig.createJsonMapper();
+
+        // return jsonMapper.reader().forType(ArserConfig.class).readValue(inputStream);
+        // return jsonMapper.readerFor(ArserConfig.class).readValue(inputStream);
+        return jsonMapper.readValue(inputStream, ArserConfig.class);
+    }
+
+    public static ArserConfig fromXml(final URL xml, final URL xsd) throws SAXException, IOException, XMLStreamException {
+        final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        schemaFactory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+
+        final Schema schema = schemaFactory.newSchema(xsd);
+
+        try (InputStream inputStreamXml = xml.openStream()) {
+            final Validator validator = schema.newValidator();
+            validator.validate(new StreamSource(inputStreamXml));
+
+            // final XMLStreamReader streamReader = inputFactory.createXMLStreamReader(inputStreamXml);
+            // validator.validate(new StAXSource(streamReader));
+        }
+
+        final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+
+        try (InputStream inputStreamXml = xml.openStream()) {
+            final XMLStreamReader validatedReader = inputFactory.createXMLStreamReader(inputStreamXml);
+
+            final XmlMapper xmlMapper = JacksonMapperConfig.createXmlMapper(builder -> builder.addMixIn(AbstractRepositoryConfig.class, XmlTypeIgnoreMixIn.class));
+
+            return xmlMapper.readValue(validatedReader, ArserConfig.class);
+        }
+    }
+
     private final List<FileRepositoryConfig> fileRepositoryConfigs;
     private final List<HttpRepositoryConfig> httpRepositoryConfigs;
     private final ServerConfig serverConfig;
@@ -149,36 +202,4 @@ public final class ArserConfig {
     public List<VirtualRepositoryConfig> virtualRepositoryConfigs() {
         return virtualRepositoryConfigs;
     }
-    // @Override
-    // public Arser build(final LifeCycleRegistry lifeCycleRegistry) throws Exception {
-    //     if (repositoryBuilders.isEmpty()) {
-    //         throw new IllegalStateException("No repository builders defined");
-    //     }
-    //
-    //     final Map<String, Repository> repositoryMap = new HashMap<>();
-    //
-    //     for (final RepositoryBuilder<?, ?> repositoryBuilder : repositoryBuilders) {
-    //         final Repository repository = repositoryBuilder.build(lifeCycleRegistry);
-    //
-    //         if (repositoryMap.containsKey(repository.getName())) {
-    //             throw new IllegalStateException("Repository already exists: " + repository.getName());
-    //         }
-    //
-    //         repositoryMap.put(repository.getName(), repository);
-    //     }
-    //
-    //     // VirtualRepositories
-    //     for (final VirtualRepositoryBuilder virtualRepositoryBuilder : virtualRepositoryBuilders) {
-    //         virtualRepositoryBuilder.repositoryProvider(repositoryMap::get);
-    //
-    //         if (repositoryMap.containsKey(virtualRepositoryBuilder.getName())) {
-    //             throw new IllegalStateException("Repository already exists: " + virtualRepositoryBuilder.getName());
-    //         }
-    //
-    //         final Repository repository = virtualRepositoryBuilder.build(lifeCycleRegistry);
-    //         repositoryMap.put(repository.getName(), repository);
-    //     }
-    //
-    //     return new DefaultArser(repositoryMap);
-    // }
 }

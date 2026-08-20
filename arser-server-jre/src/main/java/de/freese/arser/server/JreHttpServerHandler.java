@@ -77,18 +77,13 @@ public final class JreHttpServerHandler implements HttpHandler {
         }
     }
 
-    private void consumeAndClose(final InputStream inputStream) throws IOException {
-        // Drain the Body.
-        inputStream.transferTo(OutputStream.nullOutputStream());
-        inputStream.close();
-    }
-
     /**
+     * Drain the Body.</br>
      * See Documentation of {@link HttpExchange}.
      */
     private void consumeAndCloseRequestStream(final HttpExchange exchange) {
         try (InputStream inputStream = exchange.getRequestBody()) {
-            consumeAndClose(inputStream);
+            inputStream.transferTo(OutputStream.nullOutputStream());
         }
         catch (IOException _) {
             // Ignore
@@ -129,11 +124,11 @@ public final class JreHttpServerHandler implements HttpHandler {
 
         if (arserResult instanceof ArserResult.Exist) {
             exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-            exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, -1);
+            exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, -1L);
         }
         else if (arserResult instanceof ArserResult.NotFound) {
             exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-            exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_NOT_FOUND, -1);
+            exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_NOT_FOUND, -1L);
         }
         else if (arserResult instanceof final ArserResult.Forbidden fb) {
             LOGGER.error(fb.reason());
@@ -153,7 +148,7 @@ public final class JreHttpServerHandler implements HttpHandler {
 
             if (arserResult instanceof ArserResult.Upload) {
                 exchange.getResponseHeaders().add(ArserUtils.HTTP_HEADER_SERVER, ArserUtils.SERVER_NAME);
-                exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, -1);
+                exchange.sendResponseHeaders(ArserUtils.HTTP_STATUS_OK, -1L);
             }
             else if (arserResult instanceof final ArserResult.Forbidden fb) {
                 LOGGER.error(fb.reason());

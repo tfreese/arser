@@ -1,62 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- https://www.w3schools.com/xml/schema_intro.asp -->
+<arserConfig
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://github.com/tfreese/arser/config"
+        xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/refs/heads/master/arser-core/src/main/resources/config/arser-config.xsd">
 
-<!--<proxy-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="arser-config.xsd">-->
-<!-- xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd" -->
-<arser-settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://github.com/tfreese/arser/config"
-                xsi:schemaLocation="http://github.com/tfreese/arser/config https://raw.githubusercontent.com/tfreese/arser/master/configuration/src/main/resources/xsd/arser-config.xsd">
+    <serverConfig>
+        <port>8484</port>
 
-    <workingDir>file:///tmp/arser</workingDir>
+        <threadPoolConfig>
+            <namePattern>thread-%d</namePattern>
+            <coreSize>1</coreSize>
+            <maxSize>5</maxSize>
+        </threadPoolConfig>
+    </serverConfig>
 
-    <server-setting>
-        <port>7999</port>
-        <thread-pool-core-size>2</thread-pool-core-size>
-        <thread-pool-max-size>6</thread-pool-max-size>
-        <thread-name-pattern>http-server-%d</thread-name-pattern>
-    </server-setting>
+    <fileRepositoryConfigs>
+        <fileRepositoryConfig>
+            <name>snapshots</name>
+            <uri>file:///tmp/arser/local/snapshots</uri>
+            <logging>true</logging>
+            <readOnly>false</readOnly>
+        </fileRepositoryConfig>
+    </fileRepositoryConfigs>
 
-    <http-client-setting>
-        <thread-pool-core-size>2</thread-pool-core-size>
-        <thread-pool-max-size>6</thread-pool-max-size>
-        <thread-name-pattern>http-client-%d</thread-name-pattern>
-    </http-client-setting>
-
-    <repositories>
-        <remote>
-            <contextRoot>maven-central</contextRoot>
+    <httpRepositoryConfigs>
+        <httpRepositoryConfig>
+            <name>maven-central</name>
             <uri>https://repo1.maven.org/maven2</uri>
-        </remote>
-        <remote>
-            <contextRoot>gradle-releases</contextRoot>
+            <logging>true</logging>
+            <cachingPath>file:///tmp/arser/cache/maven-central</cachingPath>
+            <connectTimeout>PT10S</connectTimeout>
+            <maxRetries>3</maxRetries>
+            <retryInterval>PT2S</retryInterval>
+        </httpRepositoryConfig>
+        <httpRepositoryConfig>
+            <name>gradle-libs-releases</name>
             <uri>https://repo.gradle.org/gradle/libs-releases</uri>
-            <!-- <storeSetting> -->
-            <!--     <type>file</type> -->
-            <!--     <uri>file:///tmp/arser/cache/gradle/libs-releases</uri> -->
-            <!-- </storeSetting> -->
-        </remote>
-        <remote>
-            <contextRoot>gradle-plugins</contextRoot>
-            <uri>https://plugins.gradle.org</uri>
-        </remote>
-        <file writeable="true">
-            <contextRoot>deploy-snapshots</contextRoot>
-            <path>file:///tmp/arser/deploy-snapshots</path>
-        </file>
-        <virtual>
-            <contextRoot>public</contextRoot>
-            <repository-ref>maven-central</repository-ref>
-            <repository-ref>gradle-releases</repository-ref>
-            <repository-ref>gradle-plugins</repository-ref>
-        </virtual>
-        <virtual>
-            <contextRoot>public-snapshots</contextRoot>
-            <repository-ref>deploy-snapshots</repository-ref>
-        </virtual>
-    </repositories>
+            <logging>true</logging>
+            <cachingPath>file:///tmp/arser/cache/gradle-libs-releases</cachingPath>
+            <connectTimeout>PT10S</connectTimeout>
+            <maxRetries>3</maxRetries>
+            <retryInterval>PT2S</retryInterval>
+        </httpRepositoryConfig>
+    </httpRepositoryConfigs>
 
-    <!-- <db-monitoring enabled="false"> -->
-    <!--     <jdbc-url>jdbc:string</jdbc-url> -->
-    <!-- </db-monitoring> -->
-
-</arser-settings>
+    <virtualRepositoryConfigs>
+        <virtualRepositoryConfig>
+            <name>public</name>
+            <uri>virtual</uri>
+            <logging>true</logging>
+            <repositoryRefs>
+                <repositoryRef>maven-central</repositoryRef>
+                <repositoryRef>gradle-libs-releases</repositoryRef>
+                <repositoryRef>snapshots</repositoryRef>
+            </repositoryRefs>
+        </virtualRepositoryConfig>
+    </virtualRepositoryConfigs>
+</arserConfig>

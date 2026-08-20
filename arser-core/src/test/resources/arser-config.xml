@@ -2,7 +2,9 @@
 
 <arserConfig
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="arser-config.xsd">
+        xmlns="http://github.com/tfreese/arser/config"
+        xsi:noNamespaceSchemaLocation="config/arser-config.xsd">
+    
     <serverConfig>
         <port>8484</port>
 
