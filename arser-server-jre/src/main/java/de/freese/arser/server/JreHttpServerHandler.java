@@ -78,7 +78,7 @@ public final class JreHttpServerHandler implements HttpHandler {
     }
 
     /**
-     * Drain the Body.</br>
+     * Drain the Body.<br>
      * See Documentation of {@link HttpExchange}.
      */
     private void consumeAndCloseRequestStream(final HttpExchange exchange) {

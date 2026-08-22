@@ -28,14 +28,12 @@ public record BlobId(URI uri) implements Serializable, Comparable<BlobId> {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (obj == null || getClass() != obj.getClass()) {
+    public boolean equals(final Object o) {
+        if (!(o instanceof BlobId(final URI uri1))) {
             return false;
         }
 
-        final BlobId blobId = (BlobId) obj;
-
-        return Objects.equals(uri, blobId.uri);
+        return Objects.equals(uri, uri1);
     }
 
     @Override

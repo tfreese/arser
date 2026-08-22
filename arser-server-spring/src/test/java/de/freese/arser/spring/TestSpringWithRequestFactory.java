@@ -1,33 +1,41 @@
 // Created: 23 Dez. 2024
 package de.freese.arser.spring;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.io.CleanupMode;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * @author Thomas Freese
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {"arser.workingDir=/tmp/arser-spring-request-factory"}
-)
+// properties = {"arser.workingDir=/tmp/arser-spring-request-factory"}
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = SpringServerApplication.class)
 @ActiveProfiles("request-factory")
 class TestSpringWithRequestFactory extends AbstractTestSpringServer {
-    private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-spring-request-factory");
+    @TempDir(cleanup = CleanupMode.ALWAYS)
+    private static Path pathTest;
 
-    // @TempDir(cleanup = CleanupMode.ALWAYS)
-    // private static Path pathTest;
+    @DynamicPropertySource
+    static void registerProperties(final DynamicPropertyRegistry registry) {
+        // Übergibt den absoluten Pfad des Temp-Verzeichnisses an die gewünschte Property.
+        registry.add("arser.workingDir", () -> pathTest.toAbsolutePath().toString());
 
-    @AfterAll
-    static void afterAll() throws IOException {
-        // afterAll(PATH_TEST);
+        // Alternative:
+        // System.setProperty("arser.workingDir", pathTest.toAbsolutePath().toString());
     }
+
+    // @AfterAll
+    // static void afterAll() throws IOException {
+    //     // afterAll(PATH_TEST);
+    // }
 
     @Override
     protected Path getWorkingDir() {
-        return PATH_TEST;
+        return pathTest;
     }
 }

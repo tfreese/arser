@@ -10,7 +10,6 @@ import java.nio.file.StandardOpenOption;
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.FileBlobValue;
-import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.repository.AbstractRepository;
 import de.freese.arser.repository.Repository;
 import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
@@ -19,14 +18,12 @@ import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
  * @author Thomas Freese
  */
 public final class FileRepository extends AbstractRepository {
-    public static Repository of(final FileRepositoryConfig config, final LifeCycleRegistry lifeCycleRegistry) {
+    public static Repository of(final FileRepositoryConfig config) {
         Repository repository = new FileRepository(config);
 
         if (config.logging()) {
             repository = new LoggingRepositoryDecorator(repository);
         }
-
-        lifeCycleRegistry.register(repository);
 
         return repository;
     }

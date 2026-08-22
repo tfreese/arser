@@ -2,10 +2,13 @@ package de.freese.arser.repository.http;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.Objects;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.client.reactive.ClientHttpConnector;
+import org.springframework.http.client.reactive.JdkClientHttpConnector;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -14,19 +17,28 @@ import reactor.core.publisher.Mono;
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.DefaultBlobValue;
+import de.freese.arser.repository.Repository;
 import de.freese.arser.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  * @since 22.08.26
  */
-public class HttpRepositoryWebClient extends AbstractHttpRepository {
-    private final WebClient webClient;
+public final class HttpRepositoryWebClient extends AbstractHttpRepository {
+    public static Repository of(final HttpRepositoryConfig config, final WebClient.Builder webClientBuilder) {
+        final Repository repository = new HttpRepositoryWebClient(config, webClientBuilder);
 
-    public HttpRepositoryWebClient(final HttpRepositoryConfig config, final WebClient webClient) {
+        return configure(repository, config);
+    }
+
+    private final WebClient.Builder webClientBuilder;
+    private HttpClient httpClient;
+    private WebClient webClient;
+
+    private HttpRepositoryWebClient(final HttpRepositoryConfig config, final WebClient.Builder webClientBuilder) {
         super(config);
 
-        this.webClient = Objects.requireNonNull(webClient, "webClient required");
+        this.webClientBuilder = Objects.requireNonNull(webClientBuilder, "webClientBuilder required");
     }
 
     @Override
@@ -92,5 +104,35 @@ public class HttpRepositoryWebClient extends AbstractHttpRepository {
         catch (final Exception ex) {
             return new ArserResult.Failure(ex);
         }
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+
+        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(getConfig().connectTimeout())
+                // .sslContext(sslContext)
+                .followRedirects(HttpClient.Redirect.ALWAYS);
+
+        httpClient = httpClientBuilder.build();
+
+        final ClientHttpConnector clientHttpConnector = new JdkClientHttpConnector(httpClient);
+
+        webClient = webClientBuilder
+                .clientConnector(clientHttpConnector)
+                .build();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+
+        // httpClient.close();
+        httpClient.shutdownNow();
+        httpClient = null;
+
+        webClient = null;
     }
 }

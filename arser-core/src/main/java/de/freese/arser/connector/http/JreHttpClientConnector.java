@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
@@ -32,7 +33,7 @@ public final class JreHttpClientConnector extends AbstractHttpConnector {
     private static void applyAuth(final HttpRequest.Builder builder, final Credentials credentials) {
         switch (credentials) {
             case final Credentials.Basic basic -> {
-                final String enc = Base64.getEncoder().encodeToString((basic.user() + ":" + basic.password()).getBytes());
+                final String enc = Base64.getEncoder().encodeToString((basic.user() + ":" + basic.password()).getBytes(StandardCharsets.UTF_8));
                 builder.header("Authorization", "Basic " + enc);
             }
             case final Credentials.Bearer bearer -> builder.header("Authorization", "Bearer " + bearer.token());

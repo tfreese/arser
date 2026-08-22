@@ -44,6 +44,7 @@ public class DefaultLifeCycleRegistry implements LifeCycleRegistry {
         }
     }
 
+    @Override
     public synchronized void stop() throws Exception {
         final int count = size();
 

@@ -28,6 +28,7 @@ import de.freese.arser.repository.virtual.VirtualRepositoryConfig;
         @JsonSubTypes.Type(value = VirtualRepositoryConfig.class, name = "virtualRepositoryConfig")
 })
 @SuppressWarnings({"java:S1452"})
+// @NullMarked
 public abstract class AbstractRepositoryConfig {
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, setterVisibility = JsonAutoDetect.Visibility.NONE)
     public abstract static class Builder<B extends Builder<B>> {
@@ -49,7 +50,7 @@ public abstract class AbstractRepositoryConfig {
         }
 
         public B name(final String name) {
-            this.name = name;
+            this.name = Objects.requireNonNull(name, "name required");
 
             return self();
         }
@@ -87,11 +88,9 @@ public abstract class AbstractRepositoryConfig {
 
     @Override
     public boolean equals(final Object o) {
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof final AbstractRepositoryConfig that)) {
             return false;
         }
-
-        final AbstractRepositoryConfig that = (AbstractRepositoryConfig) o;
 
         return logging == that.logging && Objects.equals(name, that.name) && Objects.equals(uri, that.uri);
     }

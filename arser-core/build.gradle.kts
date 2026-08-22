@@ -10,7 +10,6 @@ configurations.create("jaxb") {
 }
 
 dependencies {
-    // api(project(":arser-configuration"))
     add("jaxb", "com.sun.xml.bind:jaxb-impl")
     add("jaxb", "com.sun.xml.bind:jaxb-xjc") // xsd -> java
     add("jaxb", "com.sun.xml.bind:jaxb-jxc") // java -> xsd

@@ -6,61 +6,27 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Objects;
 
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.DefaultBlobValue;
-import de.freese.arser.component.LifeCycleRegistry;
 import de.freese.arser.repository.Repository;
-import de.freese.arser.repository.decorator.CachingFileRepositoryDecorator;
-import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
-import de.freese.arser.repository.decorator.RetryingRepositoryDecorator;
 import de.freese.arser.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  */
 public final class HttpRepository extends AbstractHttpRepository {
-    public static Repository of(final HttpRepositoryConfig config, final LifeCycleRegistry lifeCycleRegistry) {
-        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .connectTimeout(config.connectTimeout())
-                // .sslContext(sslContext)
-                .followRedirects(HttpClient.Redirect.ALWAYS);
+    public static Repository of(final HttpRepositoryConfig config) {
+        final Repository repository = new HttpRepository(config);
 
-        // if (authenticator != null) {
-        //     httpClientBuilder = httpClientBuilder.authenticator(authenticator);
-        // }
-
-        final HttpClient httpClient = httpClientBuilder.build();
-        lifeCycleRegistry.register(httpClient);
-
-        Repository repository = new HttpRepository(config, httpClient);
-
-        if (config.maxRetries() > 0) {
-            repository = new RetryingRepositoryDecorator(repository, config.maxRetries(), config.retryInterval());
-        }
-
-        if (config.cachingPath() != null) {
-            repository = new CachingFileRepositoryDecorator(repository, config.cachingPath());
-        }
-
-        if (config.logging()) {
-            repository = new LoggingRepositoryDecorator(repository);
-        }
-
-        lifeCycleRegistry.register(repository);
-
-        return repository;
+        return configure(repository, config);
     }
 
-    private final HttpClient httpClient;
+    private HttpClient httpClient;
 
-    private HttpRepository(final HttpRepositoryConfig config, final HttpClient httpClient) {
+    private HttpRepository(final HttpRepositoryConfig config) {
         super(config);
-
-        this.httpClient = Objects.requireNonNull(httpClient, "httpClient required");
     }
 
     @Override
@@ -129,5 +95,31 @@ public final class HttpRepository extends AbstractHttpRepository {
         catch (final Exception ex) {
             return new ArserResult.Failure(ex);
         }
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+
+        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(getConfig().connectTimeout())
+                // .sslContext(sslContext)
+                .followRedirects(HttpClient.Redirect.ALWAYS);
+
+        // if (authenticator != null) {
+        //     httpClientBuilder = httpClientBuilder.authenticator(authenticator);
+        // }
+
+        httpClient = httpClientBuilder.build();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+
+        // httpClient.close();
+        httpClient.shutdownNow();
+        httpClient = null;
     }
 }

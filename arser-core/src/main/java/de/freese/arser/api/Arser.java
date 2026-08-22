@@ -23,12 +23,14 @@ public interface Arser {
         final Map<String, Repository> repositoryMap = new HashMap<>();
 
         config.fileRepositoryConfigs().forEach(fileRepoConfig -> {
-            final Repository repository = FileRepository.of(fileRepoConfig, lifeCycleRegistry);
+            final Repository repository = FileRepository.of(fileRepoConfig);
+            lifeCycleRegistry.register(repository);
             repositoryMap.put(repository.getName(), repository);
         });
 
         config.httpRepositoryConfigs().forEach(httpRepoConfig -> {
-            final Repository repository = HttpRepository.of(httpRepoConfig, lifeCycleRegistry);
+            final Repository repository = HttpRepository.of(httpRepoConfig);
+            lifeCycleRegistry.register(repository);
             repositoryMap.put(repository.getName(), repository);
         });
 

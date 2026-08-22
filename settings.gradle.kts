@@ -31,5 +31,5 @@ dependencyResolutionManagement {
 // include("arser-configuration")
 include("arser-core")
 include("arser-server-jre")
-// include("arser-server-spring")
+include("arser-server-spring")
 // include("arser-application")

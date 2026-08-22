@@ -227,10 +227,12 @@ public final class ArserUtils {
                 // Wait a while for tasks to respond to being canceled.
                 if (!executorService.awaitTermination(5L, TimeUnit.SECONDS)) {
                     logger.error("ExecutorService did not terminate");
-                } else {
+                }
+                else {
                     logger.info("ExecutorService terminated");
                 }
-            } else {
+            }
+            else {
                 logger.info("ExecutorService terminated");
             }
         }
@@ -271,11 +273,14 @@ public final class ArserUtils {
         // };
         if (value < 1024D) {
             result = size + " B";
-        } else if (value < 1_048_576D) {
+        }
+        else if (value < 1_048_576D) {
             result = String.format("%.1f %s", value / 1024D, "KB");
-        } else if (value < 1_073_741_824D) {
+        }
+        else if (value < 1_073_741_824D) {
             result = String.format("%.1f %s", value / 1024D / 1024D, "MB");
-        } else {
+        }
+        else {
             result = String.format("%.1f %s", value / 1024D / 1024D / 1024D, "GB");
         }
 

@@ -8,14 +8,17 @@ import de.freese.arser.connector.api.ConnectorRequest;
 @FunctionalInterface
 public interface Tracer {
     Tracer NOOP = req -> new Span() {
+        @Override
         public void close() {
             // Empty
         }
 
+        @Override
         public void recordException(final Throwable th) {
             // Empty
         }
 
+        @Override
         public void setAttribute(final String key, final Object value) {
             // Empty
         }

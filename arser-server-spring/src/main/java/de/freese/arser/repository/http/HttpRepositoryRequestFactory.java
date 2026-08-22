@@ -3,30 +3,37 @@ package de.freese.arser.repository.http;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.DefaultBlobValue;
+import de.freese.arser.repository.Repository;
 import de.freese.arser.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
  * @since 22.08.26
  */
-public class HttpRepositoryRequestFactory extends AbstractHttpRepository {
-    private final ClientHttpRequestFactory clientHttpRequestFactory;
+public final class HttpRepositoryRequestFactory extends AbstractHttpRepository {
+    public static Repository of(final HttpRepositoryConfig config) {
+        final Repository repository = new HttpRepositoryRequestFactory(config);
 
-    public HttpRepositoryRequestFactory(final HttpRepositoryConfig config, final ClientHttpRequestFactory clientHttpRequestFactory) {
+        return configure(repository, config);
+    }
+
+    private ClientHttpRequestFactory clientHttpRequestFactory;
+    private HttpClient httpClient;
+
+    private HttpRepositoryRequestFactory(final HttpRepositoryConfig config) {
         super(config);
-
-        this.clientHttpRequestFactory = Objects.requireNonNull(clientHttpRequestFactory, "clientHttpRequestFactory required");
     }
 
     @Override
@@ -81,5 +88,31 @@ public class HttpRepositoryRequestFactory extends AbstractHttpRepository {
         catch (final Exception ex) {
             return new ArserResult.Failure(ex);
         }
+    }
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+
+        final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(getConfig().connectTimeout())
+                // .sslContext(sslContext)
+                .followRedirects(HttpClient.Redirect.ALWAYS);
+
+        httpClient = httpClientBuilder.build();
+
+        clientHttpRequestFactory = new JdkClientHttpRequestFactory(httpClient);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+
+        clientHttpRequestFactory = null;
+
+        // httpClient.close();
+        httpClient.shutdownNow();
+        httpClient = null;
     }
 }

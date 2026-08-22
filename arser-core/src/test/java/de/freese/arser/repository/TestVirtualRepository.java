@@ -55,30 +55,32 @@ class TestVirtualRepository {
                 .withLogging()
                 .readOnly(false)
                 .build();
-        final Repository fileRepository = FileRepository.of(fileRepositoryConfig, lifeCycleRegistry);
+        final Repository fileRepository = FileRepository.of(fileRepositoryConfig);
+        lifeCycleRegistry.register(fileRepository);
 
         // final Connector connectorHttp = new JreHttpClientConnector(UriGuard.ALLOW_ALL, CredentialsProvider.NONE, HttpClient.newBuilder().build());
         // // final Connector connectorHttpLogging = new LoggingConnector(connectorHttp);
         // lifeCycleRegistry.register(connectorHttpLogging);
 
         final HttpRepositoryConfig httpRepositoryConfig = HttpRepositoryConfig.builder()
-                .name("central")
+                .name("maven-central")
                 .uri(URI.create("https://repo1.maven.org/maven2"))
                 .withRetrying(3, Duration.ofSeconds(2L))
                 .withLogging()
                 .build();
-        final Repository httpRepository = HttpRepository.of(httpRepositoryConfig, lifeCycleRegistry);
+        final Repository httpRepository = HttpRepository.of(httpRepositoryConfig);
+        lifeCycleRegistry.register(httpRepository);
 
         final VirtualRepositoryConfig virtualRepositoryConfig = VirtualRepositoryConfig.builder()
                 .name("test")
                 .uri(URI.create("virtual://test"))
                 .addRepositoryRef("maven-local")
-                .addRepositoryRef("central")
+                .addRepositoryRef("maven-central")
                 .build();
 
         virtualRepository = VirtualRepository.of(virtualRepositoryConfig, repoName -> switch (repoName) {
             case "maven-local" -> fileRepository;
-            case "central" -> httpRepository;
+            case "maven-central" -> httpRepository;
             default -> throw new IllegalStateException("Repository not found: " + repoName);
         });
 

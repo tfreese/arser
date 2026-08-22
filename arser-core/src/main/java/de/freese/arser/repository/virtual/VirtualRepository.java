@@ -1,7 +1,7 @@
 package de.freese.arser.repository.virtual;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -23,7 +23,7 @@ public final class VirtualRepository extends AbstractRepository {
             throw new IllegalStateException("No repositories names are defined");
         }
 
-        final Map<String, Repository> repositoryMap = new LinkedHashMap<>();
+        final List<Repository> repositories = new ArrayList<>();
 
         for (final String repositoryName : config.repositoryRefs()) {
             final Repository repository = repositoryProvider.apply(repositoryName);
@@ -32,25 +32,25 @@ public final class VirtualRepository extends AbstractRepository {
                 throw new IllegalStateException("Repository not found: " + repositoryName);
             }
 
-            repositoryMap.put(repositoryName, repository);
+            repositories.add(repository);
         }
 
-        return new VirtualRepository(config, repositoryMap);
+        return new VirtualRepository(config, repositories);
     }
 
-    private final Map<String, Repository> repositoryMap;
+    private final List<Repository> repositories;
 
-    private VirtualRepository(final VirtualRepositoryConfig config, final Map<String, Repository> repositoryMap) {
+    private VirtualRepository(final VirtualRepositoryConfig config, final List<Repository> repositories) {
         super(config);
 
-        this.repositoryMap = Objects.requireNonNull(repositoryMap, "repositoryMap required");
+        this.repositories = Objects.requireNonNull(repositories, "repositories required");
     }
 
     @Override
     public ArserResult download(final ArserRequest arserRequest) {
         BlobValue blobValue = null;
 
-        for (final Repository repository : repositoryMap.values()) {
+        for (final Repository repository : repositories) {
             final ArserResult arserResult = repository.download(arserRequest);
 
             if (arserResult instanceof ArserResult.Download(final BlobValue value)) {
@@ -76,7 +76,7 @@ public final class VirtualRepository extends AbstractRepository {
     public ArserResult exist(final ArserRequest arserRequest) {
         boolean exist = false;
 
-        for (final Repository repository : repositoryMap.values()) {
+        for (final Repository repository : repositories) {
             final ArserResult arserResult = repository.exist(arserRequest);
 
             if (arserResult instanceof ArserResult.Exist) {

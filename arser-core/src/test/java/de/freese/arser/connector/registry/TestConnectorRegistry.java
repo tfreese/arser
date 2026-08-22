@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
@@ -93,7 +94,7 @@ class TestConnectorRegistry {
 
         // Upload with typed attributes.
         final ConnectorResponse<Long> responseUpload = connectorRegistry.execute(ConnectorRequest.of(URI.create(TEST_HOST + "/put"), Operations.UPLOAD)
-                .with(Attributes.BODY, "Hello World".getBytes())
+                .with(Attributes.BODY, "Hello World".getBytes(StandardCharsets.UTF_8))
                 .with(Attributes.METHOD, "PUT"));
         assertNotNull(responseUpload);
         assertNotNull(responseUpload.value());

@@ -63,7 +63,7 @@ public class ArserRestController {
      * StreamingResponseBody, InputStreamResource working booth alone and with ResponseEntity.
      */
     @GetMapping
-    public void doGet(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+    public void doDownload(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final ArserWebRequest arserWebRequest = ArserWebRequest.of(request.getRequestURI());
         final ArserResult arserResult = arser.download(arserWebRequest.getContextRoot(), arserWebRequest);
 
@@ -95,9 +95,9 @@ public class ArserRestController {
     }
 
     @RequestMapping(method = RequestMethod.HEAD)
-    public ResponseEntity<Void> doHead(final HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Void> doExist(final HttpServletRequest httpServletRequest) {
         final ArserWebRequest arserWebRequest = ArserWebRequest.of(httpServletRequest.getRequestURI());
-        final ArserResult arserResult = arser.download(arserWebRequest.getContextRoot(), arserWebRequest);
+        final ArserResult arserResult = arser.exist(arserWebRequest.getContextRoot(), arserWebRequest);
 
         if (arserResult instanceof ArserResult.Exist) {
             return ResponseEntity.ok().build();
@@ -113,7 +113,7 @@ public class ArserRestController {
     }
 
     @PutMapping
-    public ResponseEntity<String> doPut(final HttpServletRequest httpServletRequest) {
+    public ResponseEntity<String> doUpload(final HttpServletRequest httpServletRequest) {
         final ArserWebRequest arserWebRequest = ArserWebRequest.of(httpServletRequest.getRequestURI());
 
         try (InputStream inputStream = new BufferedInputStream(httpServletRequest.getInputStream())) {

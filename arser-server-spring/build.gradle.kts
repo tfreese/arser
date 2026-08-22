@@ -10,7 +10,6 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
-    // testImplementation(project(path = ":arser-server-jre", configuration = "testRuntime"))
 
     // testRuntimeOnly("org.slf4j:slf4j-simple")
 }

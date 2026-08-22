@@ -10,17 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import jakarta.annotation.Resource;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -30,31 +26,31 @@ import org.springframework.web.reactive.function.BodyInserters;
  * @author Thomas Freese
  */
 @AutoConfigureWebTestClient(timeout = "10000")
-@Import(DefaultTestConfig.class)
+// @Import(DefaultTestConfig.class)
 abstract class AbstractTestSpringServer {
     private static final String RESOURCE = "org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.pom";
 
-    static void afterAll(final Path path) throws IOException {
-        if (!Files.exists(path)) {
-            return;
-        }
-
-        Files.walkFileTree(path, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-
-        Files.deleteIfExists(path);
-    }
+    // static void afterAll(final Path path) throws IOException {
+    //     if (!Files.exists(path)) {
+    //         return;
+    //     }
+    //
+    //     Files.walkFileTree(path, new SimpleFileVisitor<>() {
+    //         @Override
+    //         public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+    //             Files.delete(dir);
+    //             return FileVisitResult.CONTINUE;
+    //         }
+    //
+    //         @Override
+    //         public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+    //             Files.delete(file);
+    //             return FileVisitResult.CONTINUE;
+    //         }
+    //     });
+    //
+    //     Files.deleteIfExists(path);
+    // }
 
     // @LocalServerPort
     // private int localServerPort;
@@ -117,7 +113,7 @@ abstract class AbstractTestSpringServer {
                     try {
                         final String message = inputStreamResource.getContentAsString(StandardCharsets.UTF_8);
                         assertNotNull(message);
-                        assertTrue(message.startsWith("HTTP-STATUS: 404"));
+                        assertEquals("a" + RESOURCE, message);
                     }
                     catch (final IOException ex) {
                         throw new UncheckedIOException(ex);
@@ -137,10 +133,8 @@ abstract class AbstractTestSpringServer {
                 .isOk()
         ;
 
-        // See SpringConfig.
-        final Path path = getWorkingDir().resolve("snapshots").resolve(RESOURCE);
+        final Path path = getWorkingDir().resolve("local").resolve("snapshots").resolve(RESOURCE);
         assertTrue(Files.exists(path));
-
         assertEquals("test", Files.readString(path));
     }
 
@@ -156,7 +150,7 @@ abstract class AbstractTestSpringServer {
                 .expectBody(String.class)
                 .value(value -> {
                     assertNotNull(value);
-                    assertEquals("read only repository: public - virtual", value);
+                    assertEquals("repository is read only: public [VirtualRepository]", value);
                 })
         ;
     }

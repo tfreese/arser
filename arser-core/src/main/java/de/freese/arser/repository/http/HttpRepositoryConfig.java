@@ -20,9 +20,6 @@ import de.freese.arser.repository.AbstractRepositoryConfig;
 public final class HttpRepositoryConfig extends AbstractRepositoryConfig {
     @JsonPOJOBuilder(withPrefix = "")
     public static final class HttpRepositoryConfigBuilder extends AbstractRepositoryConfig.Builder<HttpRepositoryConfigBuilder> {
-        // private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30L);
-        // private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(30L);
-
         private Path cachingPath;
         private Duration connectTimeout = Duration.ofSeconds(30L);
         private int maxRetries = 3;

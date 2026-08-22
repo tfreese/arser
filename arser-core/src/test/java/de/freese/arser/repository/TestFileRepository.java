@@ -54,7 +54,8 @@ class TestFileRepository {
                 .withLogging()
                 .build();
 
-        final Repository repository = FileRepository.of(fileRepositoryConfig, lifeCycleRegistry);
+        final Repository repository = FileRepository.of(fileRepositoryConfig);
+        lifeCycleRegistry.register(repository);
 
         lifeCycleRegistry.start();
 
@@ -121,7 +122,8 @@ class TestFileRepository {
                 .withLogging()
                 .build();
 
-        final Repository repository = FileRepository.of(fileRepositoryConfig, lifeCycleRegistry);
+        final Repository repository = FileRepository.of(fileRepositoryConfig);
+        lifeCycleRegistry.register(repository);
 
         lifeCycleRegistry.start();
 
