@@ -12,7 +12,6 @@ import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.DefaultBlobValue;
 import de.freese.arser.component.LifeCycleRegistry;
-import de.freese.arser.repository.AbstractRepository;
 import de.freese.arser.repository.Repository;
 import de.freese.arser.repository.decorator.CachingFileRepositoryDecorator;
 import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
@@ -22,7 +21,7 @@ import de.freese.arser.utils.ArserUtils;
 /**
  * @author Thomas Freese
  */
-public final class HttpRepository extends AbstractRepository {
+public final class HttpRepository extends AbstractHttpRepository {
     public static Repository of(final HttpRepositoryConfig config, final LifeCycleRegistry lifeCycleRegistry) {
         final HttpClient.Builder httpClientBuilder = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
@@ -130,39 +129,5 @@ public final class HttpRepository extends AbstractRepository {
         catch (final Exception ex) {
             return new ArserResult.Failure(ex);
         }
-    }
-
-    @Override
-    public HttpRepositoryConfig getConfig() {
-        return (HttpRepositoryConfig) super.getConfig();
-    }
-
-    private URI toRemoteUri(final URI uri, final ArserRequest arserRequest) {
-        String pathResource = arserRequest.getResource().getPath();
-
-        if (pathResource.startsWith("/")) {
-            pathResource = pathResource.substring(1);
-        }
-
-        String newPath = uri.getPath();
-
-        if (newPath.endsWith("/")) {
-            newPath += pathResource;
-        }
-        else {
-            newPath += "/" + pathResource;
-        }
-
-        return uri.resolve(newPath);
-
-        // return new URI(
-        //         baseUri.getScheme(),
-        //         baseUri.getUserInfo(),
-        //         baseUri.getHost(),
-        //         baseUri.getPort(),
-        //         newPath,
-        //         baseUri.getQuery(),
-        //         baseUri.getFragment()
-        // );
     }
 }

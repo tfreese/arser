@@ -14,13 +14,13 @@ import de.freese.arser.repository.Repository;
  */
 public final class DefaultArser implements Arser {
     private final ArserConfig config;
-    private final Map<String, Repository> repositories = new ConcurrentHashMap<>();
+    private final Map<String, Repository> repositoryMap = new ConcurrentHashMap<>();
 
     DefaultArser(final ArserConfig config, final Map<String, Repository> repositories) {
         super();
 
         this.config = Objects.requireNonNull(config, "config required");
-        this.repositories.putAll(repositories);
+        this.repositoryMap.putAll(repositories);
     }
 
     @Override
@@ -40,7 +40,7 @@ public final class DefaultArser implements Arser {
 
     @Override
     public Map<String, Repository> getRepositories() {
-        return new TreeMap<>(repositories);
+        return new TreeMap<>(repositoryMap);
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class DefaultArser implements Arser {
     }
 
     Repository getRepository(final String repositoryName) {
-        final Repository repository = repositories.get(repositoryName);
+        final Repository repository = repositoryMap.get(repositoryName);
 
         if (repository == null) {
             throw new IllegalStateException("Repository not found: " + repositoryName);

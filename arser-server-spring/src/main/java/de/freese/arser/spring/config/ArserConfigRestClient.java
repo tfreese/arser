@@ -1,123 +1,123 @@
-// Created: 21.01.24
-package de.freese.arser.spring.config;
-
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
-import org.springframework.web.client.RestClient;
-
-import de.freese.arser.config.ArserConfig;
-import de.freese.arser.config.repository.FileRepository;
-import de.freese.arser.config.repository.Repository;
-import de.freese.arser.config.repository.VirtualRepository;
-import de.freese.arser.config.utils.ArserUtils;
-import de.freese.arser.instance.ArserInstance;
-import de.freese.arser.spring.SpringArserInstance;
-import de.freese.arser.spring.repository.remote.RemoteRepositoryRestClient;
-
-/**
- * @author Thomas Freese
- */
-@Configuration
-@Profile("rest-client")
-public class ArserConfigRestClient {
-    @Bean(destroyMethod = "shutdown")
-    ArserInstance arserInstance(@Value("${arser.workingDir}") final Path workingDir) {
-        return new SpringArserInstance("arserInstance_spring_RestClient", ArserConfig.builder()
-                .workingDir(workingDir)
-                .build());
-    }
-
-    @Bean
-    ClientHttpRequestFactory clientHttpRequestFactory() {
-        return new JdkClientHttpRequestFactory();
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository localDeploySnapshots(final ArserInstance arserInstance) {
-        final Repository repository = new FileRepository("deploy-snapshots",
-                arserInstance.getConfig().getWorkingDir().resolve("deploy-snapshots").toUri(), true);
-        arserInstance.addRepository(repository);
-
-        return repository;
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradlePlugins(@Value("${arser.workingDir}") final Path workingDir, final RestClient restClient) {
-        final String contextRoot = "gradle-plugins";
-
-        return new RemoteRepositoryRestClient("gradle-plugins",
-                URI.create("https://plugins.gradle.org"),
-                workingDir.resolve(contextRoot),
-                restClient);
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteGradleReleases(@Value("${arser.workingDir}") final Path workingDir, final RestClient restClient) {
-        final String contextRoot = "gradle-releases";
-
-        return new RemoteRepositoryRestClient(contextRoot,
-                URI.create("https://repo.gradle.org/gradle/libs-releases"),
-                workingDir.resolve(contextRoot),
-                restClient);
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository remoteMavenCentral(@Value("${arser.workingDir}") final Path workingDir, final RestClient restClient) {
-        final String contextRoot = "maven-central";
-
-        return new RemoteRepositoryRestClient(contextRoot,
-                URI.create("https://repo1.maven.org/maven2"),
-                workingDir.resolve(contextRoot),
-                restClient);
-    }
-
-    @Bean
-    RestClient restClient(final ClientHttpRequestFactory clientHttpRequestFactory) {
-        return RestClient.builder()
-                .requestFactory(clientHttpRequestFactory)
-                .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-                .build();
-    }
-
-    // @Bean
-    // RestClient restClient(final RestClient.Builder builder) {
-    //     return builder
-    //             .build();
-    // }
-    //
-    // @Bean
-    // RestClient.Builder restClientBuilder() {
-    //     return RestClient.builder()
-    //             .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
-    //             ;
-    // }
-    //
-    // @Bean
-    // RestClientCustomizer restClientCustomizer(final ClientHttpRequestFactory clientHttpRequestFactory) {
-    //     return restClientBuilder -> restClientBuilder.requestFactory(clientHttpRequestFactory);
-    // }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublic(final ArserInstance arserInstance, final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
-        final Repository repository = new VirtualRepository("public", List.of(remoteMavenCentral, remoteGradleReleases, remoteGradlePlugins));
-        arserInstance.addRepository(repository);
-
-        return repository;
-    }
-
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    Repository virtualPublicSnapshots(final ArserInstance arserInstance, final Repository localDeploySnapshots) {
-        final Repository repository = new VirtualRepository("public-snapshots", List.of(localDeploySnapshots));
-        arserInstance.addRepository(repository);
-
-        return repository;
-    }
-}
+// // Created: 21.01.24
+// package de.freese.arser.spring.config;
+//
+// import java.net.URI;
+// import java.nio.file.Path;
+// import java.util.List;
+//
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.context.annotation.Bean;
+// import org.springframework.context.annotation.Configuration;
+// import org.springframework.context.annotation.Profile;
+// import org.springframework.http.client.ClientHttpRequestFactory;
+// import org.springframework.http.client.JdkClientHttpRequestFactory;
+// import org.springframework.web.client.RestClient;
+//
+// import de.freese.arser.config.ArserConfig;
+// import de.freese.arser.config.repository.FileRepository;
+// import de.freese.arser.config.repository.Repository;
+// import de.freese.arser.config.repository.VirtualRepository;
+// import de.freese.arser.config.utils.ArserUtils;
+// import de.freese.arser.instance.ArserInstance;
+// import de.freese.arser.spring.SpringArserInstance;
+// import de.freese.arser.spring.repository.remote.RemoteRepositoryRestClient;
+//
+// /**
+//  * @author Thomas Freese
+//  */
+// @Configuration
+// @Profile("rest-client")
+// public class ArserConfigRestClient {
+//     @Bean(destroyMethod = "shutdown")
+//     ArserInstance arserInstance(@Value("${arser.workingDir}") final Path workingDir) {
+//         return new SpringArserInstance("arserInstance_spring_RestClient", ArserConfig.builder()
+//                 .workingDir(workingDir)
+//                 .build());
+//     }
+//
+//     @Bean
+//     ClientHttpRequestFactory clientHttpRequestFactory() {
+//         return new JdkClientHttpRequestFactory();
+//     }
+//
+//     @Bean(initMethod = "start", destroyMethod = "stop")
+//     Repository localDeploySnapshots(final ArserInstance arserInstance) {
+//         final Repository repository = new FileRepository("deploy-snapshots",
+//                 arserInstance.getConfig().getWorkingDir().resolve("deploy-snapshots").toUri(), true);
+//         arserInstance.addRepository(repository);
+//
+//         return repository;
+//     }
+//
+//     @Bean(initMethod = "start", destroyMethod = "stop")
+//     Repository remoteGradlePlugins(@Value("${arser.workingDir}") final Path workingDir, final RestClient restClient) {
+//         final String contextRoot = "gradle-plugins";
+//
+//         return new RemoteRepositoryRestClient("gradle-plugins",
+//                 URI.create("https://plugins.gradle.org"),
+//                 workingDir.resolve(contextRoot),
+//                 restClient);
+//     }
+//
+//     @Bean(initMethod = "start", destroyMethod = "stop")
+//     Repository remoteGradleReleases(@Value("${arser.workingDir}") final Path workingDir, final RestClient restClient) {
+//         final String contextRoot = "gradle-releases";
+//
+//         return new RemoteRepositoryRestClient(contextRoot,
+//                 URI.create("https://repo.gradle.org/gradle/libs-releases"),
+//                 workingDir.resolve(contextRoot),
+//                 restClient);
+//     }
+//
+//     @Bean(initMethod = "start", destroyMethod = "stop")
+//     Repository remoteMavenCentral(@Value("${arser.workingDir}") final Path workingDir, final RestClient restClient) {
+//         final String contextRoot = "maven-central";
+//
+//         return new RemoteRepositoryRestClient(contextRoot,
+//                 URI.create("https://repo1.maven.org/maven2"),
+//                 workingDir.resolve(contextRoot),
+//                 restClient);
+//     }
+//
+//     @Bean
+//     RestClient restClient(final ClientHttpRequestFactory clientHttpRequestFactory) {
+//         return RestClient.builder()
+//                 .requestFactory(clientHttpRequestFactory)
+//                 .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+//                 .build();
+//     }
+//
+//     // @Bean
+//     // RestClient restClient(final RestClient.Builder builder) {
+//     //     return builder
+//     //             .build();
+//     // }
+//     //
+//     // @Bean
+//     // RestClient.Builder restClientBuilder() {
+//     //     return RestClient.builder()
+//     //             .defaultHeader(ArserUtils.HTTP_HEADER_USER_AGENT, ArserUtils.SERVER_NAME)
+//     //             ;
+//     // }
+//     //
+//     // @Bean
+//     // RestClientCustomizer restClientCustomizer(final ClientHttpRequestFactory clientHttpRequestFactory) {
+//     //     return restClientBuilder -> restClientBuilder.requestFactory(clientHttpRequestFactory);
+//     // }
+//
+//     @Bean(initMethod = "start", destroyMethod = "stop")
+//     Repository virtualPublic(final ArserInstance arserInstance, final Repository remoteMavenCentral, final Repository remoteGradleReleases, final Repository remoteGradlePlugins) {
+//         final Repository repository = new VirtualRepository("public", List.of(remoteMavenCentral, remoteGradleReleases, remoteGradlePlugins));
+//         arserInstance.addRepository(repository);
+//
+//         return repository;
+//     }
+//
+//     @Bean(initMethod = "start", destroyMethod = "stop")
+//     Repository virtualPublicSnapshots(final ArserInstance arserInstance, final Repository localDeploySnapshots) {
+//         final Repository repository = new VirtualRepository("public-snapshots", List.of(localDeploySnapshots));
+//         arserInstance.addRepository(repository);
+//
+//         return repository;
+//     }
+// }

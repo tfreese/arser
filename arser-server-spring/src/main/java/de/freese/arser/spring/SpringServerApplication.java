@@ -1,4 +1,3 @@
-// Created: 21.01.24
 package de.freese.arser.spring;
 
 import org.springframework.boot.SpringApplication;
@@ -7,13 +6,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 
 /**
  * @author Thomas Freese
+ * @since 21.01.24
  */
 @SpringBootApplication
-public final class ArserSpringServerApplication {
+public final class SpringServerApplication {
     static void main(final String[] args) {
         // SpringApplication.run(ArserSpringServerApplication.class, args);
         //
-        final SpringApplication application = new SpringApplicationBuilder(ArserSpringServerApplication.class)
+        final SpringApplication application = new SpringApplicationBuilder(SpringServerApplication.class)
                 // .properties("spring.config.name:application-Server")
                 .headless(true) // Default true
                 .registerShutdownHook(true) // Default true
@@ -53,7 +53,7 @@ public final class ArserSpringServerApplication {
     //     showShutdownFrame(event.getApplicationContext());
     // }
 
-    private ArserSpringServerApplication() {
+    private SpringServerApplication() {
         super();
     }
 }

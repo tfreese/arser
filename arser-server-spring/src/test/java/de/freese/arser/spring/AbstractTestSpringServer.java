@@ -96,7 +96,7 @@ abstract class AbstractTestSpringServer {
                         assertNotNull(inputStream);
                         assertTrue(inputStreamResource.contentLength() > 2000L);
                     }
-                    catch (IOException ex) {
+                    catch (final IOException ex) {
                         throw new UncheckedIOException(ex);
                     }
                 })
@@ -119,7 +119,7 @@ abstract class AbstractTestSpringServer {
                         assertNotNull(message);
                         assertTrue(message.startsWith("HTTP-STATUS: 404"));
                     }
-                    catch (IOException ex) {
+                    catch (final IOException ex) {
                         throw new UncheckedIOException(ex);
                     }
                 })
@@ -129,7 +129,7 @@ abstract class AbstractTestSpringServer {
     @Test
     void testWriteable() throws IOException {
         webTestClient.put()
-                .uri("deploy-snapshots/" + RESOURCE)
+                .uri("snapshots/" + RESOURCE)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(BodyInserters.fromResource(new InputStreamResource(new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8)))))
                 .exchange()
@@ -138,7 +138,7 @@ abstract class AbstractTestSpringServer {
         ;
 
         // See SpringConfig.
-        final Path path = getWorkingDir().resolve("deploy-snapshots").resolve(RESOURCE);
+        final Path path = getWorkingDir().resolve("snapshots").resolve(RESOURCE);
         assertTrue(Files.exists(path));
 
         assertEquals("test", Files.readString(path));

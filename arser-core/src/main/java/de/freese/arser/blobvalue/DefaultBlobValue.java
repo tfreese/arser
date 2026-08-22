@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Keeps Data in Memory.<br/>
@@ -45,6 +46,13 @@ public final class DefaultBlobValue implements BlobValue {
         return blobValue;
     }
 
+    /**
+     * @param tempFile will be deleted on {@link #close()}.
+     */
+    public static BlobValue of(final Path tempFile) {
+        return new DefaultBlobValue(tempFile);
+    }
+
     private final int memoryThreshold;
 
     private OutputStream currentOutputStream;
@@ -59,6 +67,15 @@ public final class DefaultBlobValue implements BlobValue {
         this.memoryThreshold = memoryThreshold;
         this.memoryBuffer = new ByteArrayOutputStream();
         this.currentOutputStream = memoryBuffer;
+    }
+
+    private DefaultBlobValue(final Path tempFile) {
+        super();
+
+        this.tempFile = Objects.requireNonNull(tempFile, "tempFile required");
+
+        memoryThreshold = 0;
+        isInMemory = false;
     }
 
     @Override
@@ -76,7 +93,8 @@ public final class DefaultBlobValue implements BlobValue {
     public InputStream createInputStream() throws Exception {
         if (isInMemory) {
             return new ByteArrayInputStream(memoryBuffer.toByteArray());
-        } else {
+        }
+        else {
             return new BufferedInputStream(Files.newInputStream(tempFile));
         }
     }
@@ -85,7 +103,8 @@ public final class DefaultBlobValue implements BlobValue {
     public long getContentLength() throws Exception {
         if (isInMemory) {
             return memoryBuffer.size();
-        } else {
+        }
+        else {
             return Files.size(tempFile);
         }
     }

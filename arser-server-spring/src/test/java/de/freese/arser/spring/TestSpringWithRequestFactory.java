@@ -18,9 +18,12 @@ import org.springframework.test.context.ActiveProfiles;
 class TestSpringWithRequestFactory extends AbstractTestSpringServer {
     private static final Path PATH_TEST = Path.of(System.getProperty("java.io.tmpdir"), "arser-spring-request-factory");
 
+    // @TempDir(cleanup = CleanupMode.ALWAYS)
+    // private static Path pathTest;
+
     @AfterAll
     static void afterAll() throws IOException {
-        afterAll(PATH_TEST);
+        // afterAll(PATH_TEST);
     }
 
     @Override

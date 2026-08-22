@@ -10,9 +10,9 @@ arser:
 
 info:
     app:
-        name: ${project_artifactId}
-        description: ${project_description}
-        version: ${project_version}
+        name: @project_artifactId@
+        description: @project_description@
+        version: @project_version@
 
 logging:
     #config: classpath:my-logging.xml
@@ -51,7 +51,7 @@ server:
             enabled: true
     http2:
         enabled: true
-    port: 7999
+    port: 8484
     servlet:
         context-path: /
         session:
