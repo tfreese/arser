@@ -30,13 +30,6 @@ dependencyResolutionManagement {
                 snapshotsOnly()
             }
         }
-        maven {
-            url = uri("http://localhost:8484/releases")
-            isAllowInsecureProtocol = true
-            mavenContent {
-                releasesOnly()
-            }
-        }
     }
 }
 

@@ -1,4 +1,3 @@
-// Created: 23.07.23
 package de.freese.arser;
 
 import java.net.URI;
@@ -12,6 +11,7 @@ import de.freese.arser.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
+ * @since 23.07.23
  */
 public final class Misc {
     private static final Logger LOGGER = LoggerFactory.getLogger(Misc.class);

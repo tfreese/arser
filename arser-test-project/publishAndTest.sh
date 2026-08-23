@@ -15,6 +15,7 @@ BASEDIR=$(dirname "$0") # Script directory
 cd "$BASEDIR" || exit
 
 export GRADLE_USER_HOME=/tmp/.gradle-arser
+# --gradle-user-home /tmp/.gradle-arser
 
 echo -e "\\n\\033[46;1;31mAPI\\033[0m"
 ./gradlew -p api/ clean publishTestApiPublicationToSnapshotsRepository

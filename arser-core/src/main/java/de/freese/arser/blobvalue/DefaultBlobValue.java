@@ -18,6 +18,7 @@ import java.util.Objects;
  *
  * @author Thomas Freese
  */
+@SuppressWarnings({"java:S5443"})
 public final class DefaultBlobValue implements BlobValue {
     // 10 MB
     private static final int DEFAULT_MEMORY_THRESHOLD = 10 * 1024 * 1024;

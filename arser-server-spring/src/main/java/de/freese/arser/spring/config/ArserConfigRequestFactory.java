@@ -16,7 +16,7 @@ import de.freese.arser.repository.http.HttpRepositoryRequestFactory;
  * @since 21.01.24
  */
 @Configuration
-@Profile("request-factory")
+@Profile({"request-factory", "default"})
 public class ArserConfigRequestFactory extends AbstractArserConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")

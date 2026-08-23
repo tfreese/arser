@@ -1,4 +1,3 @@
-// Created: 09 März 2025
 package de.freese.arser;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Thomas Freese
+ * @since 09.03.2025
  */
 @Target({METHOD, TYPE, ANNOTATION_TYPE})
 @Retention(RUNTIME)

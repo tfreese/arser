@@ -1,4 +1,3 @@
-// Created: 23 Dez. 2024
 package de.freese.arser.spring;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +23,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 /**
  * @author Thomas Freese
+ * @since 23.12.2024
  */
 @AutoConfigureWebTestClient(timeout = "10000")
 // @Import(DefaultTestConfig.class)

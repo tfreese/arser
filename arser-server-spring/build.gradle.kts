@@ -1,5 +1,11 @@
 plugins {
-    id("java")
+    id("application")
+}
+
+val mainClazz = "de.freese.arser.spring.SpringServerApplication"
+
+application {
+    mainClass = mainClazz
 }
 
 dependencies {

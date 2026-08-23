@@ -12,6 +12,7 @@ import de.freese.arser.blobvalue.FileBlobValue;
 
 /**
  * @author Thomas Freese
+ * @since 18.09.2019
  */
 final class FileBlob extends AbstractBlob {
 
@@ -28,7 +29,8 @@ final class FileBlob extends AbstractBlob {
 
         if (exist) {
             blobValue = new FileBlobValue(absolutePath);
-        } else {
+        }
+        else {
             blobValue = new EmptyBlobValue();
         }
     }

@@ -1,4 +1,3 @@
-// Created: 23 Dez. 2024
 package de.freese.arser.spring;
 
 import java.nio.file.Path;
@@ -12,6 +11,7 @@ import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * @author Thomas Freese
+ * @since 23.12.2024
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = SpringServerApplication.class)
 @ActiveProfiles("web-client")

@@ -1,4 +1,3 @@
-// Created: 21.01.24
 package de.freese.arser.spring.config;
 
 import java.nio.file.Path;
@@ -16,6 +15,7 @@ import de.freese.arser.utils.ArserUtils;
 
 /**
  * @author Thomas Freese
+ * @since 21.01.24
  */
 @Configuration
 @Profile("rest-client")

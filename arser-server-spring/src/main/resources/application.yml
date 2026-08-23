@@ -21,7 +21,7 @@ logging:
         console: "%date{HH:mm:ss.SSS} - [%thread] - %level - %logger{0} - %message%n" # Like SimpleLogger
     level:
         root: INFO
-        de.freese.arser.spring.repository.remote: DEBUG
+        de.freese.arser: DEBUG
 
 # =================================================================================================
 # Spring Properties

@@ -20,12 +20,12 @@ test {
     enabled = false
 }
 
-tasks.register("buildApp", Copy) {
+tasks.register<Copy>("buildApp") {
     group = "arser"
     description = "build the app"
 
     // dependsOn(":arser-test:build")
-    def appDir = layout.projectDirectory.dir("app")
+    val appDir = layout.projectDirectory.dir("app")
 
     into(appDir)
 
@@ -52,13 +52,13 @@ tasks.register("buildApp", Copy) {
     // eachFile { println(it.name) }
 }
 
-tasks.register("deployApp", Sync) {
+tasks.register<Sync>("deployApp") {
     group = "arser"
     description = "deploy the app"
 
     dependsOn("buildApp")
 
-    def deployDir = file("/tmp/arser")
+    val deployDir = file("/tmp/arser")
 
     // into("/tmp/arser")
     // from(layout.projectDirectory.dir("app"))
@@ -133,9 +133,9 @@ tasks.register("deployApp", Sync) {
     // eachFile { println(it.name) }
 }
 
-
 // tasks.register("buildApp") {
 //    group = "arser"
+//     description = "Build the Arser Application"
 //
 //     doLast {
 //        logger.lifecycle("build {}", project.name)

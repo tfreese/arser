@@ -1,4 +1,3 @@
-// Created: 09 März 2025
 package de.freese.arser;
 
 import java.net.URI;
@@ -16,6 +15,7 @@ import org.junit.platform.commons.util.AnnotationUtils;
 
 /**
  * @author Thomas Freese
+ * @since 09.03.2025
  */
 public final class EnabledIfReachableCondition implements ExecutionCondition {
     @Override
