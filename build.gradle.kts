@@ -35,7 +35,7 @@ subprojects {
         val mockitoAgent = configurations.create("mockitoAgent")
 
         dependencies {
-            //add("implementation", platform("org.springframework.boot:spring-boot-dependencies:$version_springBoot"))
+            // add("implementation", platform("org.springframework.boot:spring-boot-dependencies:$version_springBoot"))
 
             add("testImplementation", "org.awaitility:awaitility")
             add("testImplementation", "org.junit.jupiter:junit-jupiter")
@@ -55,10 +55,8 @@ subprojects {
         }
 
         tasks.withType<Test>().configureEach {
-            val mockitoFiles = mockitoAgent.asPath
-
             doFirst {
-                jvmArgs.add("-javaagent:$mockitoFiles")
+                jvmArgs.add("-javaagent:${mockitoAgent.asPath}")
             }
         }
     }
