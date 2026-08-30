@@ -41,6 +41,7 @@ subprojects {
             add("testImplementation", "org.junit.jupiter:junit-jupiter")
 
             add("testImplementation", "org.mockito:mockito-junit-jupiter")
+
             mockitoAgent("org.mockito:mockito-core") {
                 isTransitive = false
             }
@@ -55,9 +56,7 @@ subprojects {
         }
 
         tasks.withType<Test>().configureEach {
-            doFirst {
-                jvmArgs.add("-javaagent:${mockitoAgent.asPath}")
-            }
+            jvmArgs.add("-javaagent:${mockitoAgent.asPath}")
         }
     }
 }
