@@ -11,5 +11,5 @@ application {
 dependencies {
     implementation(project(":arser-core"))
 
-    runtimeOnly("org.slf4j:slf4j-simple")
+    runtimeOnly("org.apache.logging.log4j:log4j-slf4j2-impl")
 }
