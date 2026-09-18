@@ -17,6 +17,7 @@ import de.freese.arser.connector.spi.BlockedException;
 import de.freese.arser.connector.spi.Connector;
 import de.freese.arser.repository.AbstractConnectedRepository;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.RepositoryException;
 import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
 
 /**
@@ -82,7 +83,7 @@ public final class FileConnectorRepository extends AbstractConnectedRepository {
             return new ArserResult.Forbidden(remoteUri, ex.getMessage());
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 

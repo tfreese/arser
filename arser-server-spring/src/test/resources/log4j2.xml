@@ -42,8 +42,8 @@
             <AppenderRef ref="CONSOLE_STD" />
             <AppenderRef ref="CONSOLE_ERR" />
         </Logger>
-        
-        <Logger name="jdk.httpclient.HttpClient" additivity="false" level="INFO">
+
+        <Logger name="org.springframework" additivity="false" level="INFO">
             <AppenderRef ref="CONSOLE_STD" />
             <AppenderRef ref="CONSOLE_ERR" />
         </Logger>

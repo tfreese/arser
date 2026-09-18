@@ -29,6 +29,7 @@ import de.freese.arser.api.Arser;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.api.ArserWebRequest;
 import de.freese.arser.blobvalue.BlobValue;
+import de.freese.arser.repository.RepositoryException;
 
 /**
  * <a href="https://dev.to/rpkr/different-ways-to-send-a-file-as-a-response-in-spring-boot-for-a-rest-api-43g7">different-ways-to-send-a-file</a>
@@ -65,51 +66,58 @@ public class ArserRestController {
     @GetMapping
     public void doDownload(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         final ArserWebRequest arserWebRequest = ArserWebRequest.of(request.getRequestURI());
-        final ArserResult arserResult = arser.download(arserWebRequest.getContextRoot(), arserWebRequest);
 
-        if (arserResult instanceof ArserResult.Download(final BlobValue blobValue)) {
-            response.addHeader(de.freese.arser.utils.ArserUtils.HTTP_HEADER_SERVER, de.freese.arser.utils.ArserUtils.SERVER_NAME);
-            response.addHeader(de.freese.arser.utils.ArserUtils.HTTP_HEADER_CONTENT_TYPE, de.freese.arser.utils.ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM);
-            response.setStatus(HttpStatus.OK.value());
-            response.setContentLength((int) blobValue.getContentLength());
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        try {
+            final ArserResult arserResult = arser.download(arserWebRequest.getContextRoot(), arserWebRequest);
 
-            try (blobValue;
-                 OutputStream outputStream = new BufferedOutputStream(response.getOutputStream())) {
-                blobValue.transferTo(outputStream);
+            if (arserResult instanceof ArserResult.Download(final BlobValue blobValue)) {
+                response.addHeader(de.freese.arser.utils.ArserUtils.HTTP_HEADER_SERVER, de.freese.arser.utils.ArserUtils.SERVER_NAME);
+                response.addHeader(de.freese.arser.utils.ArserUtils.HTTP_HEADER_CONTENT_TYPE, de.freese.arser.utils.ArserUtils.MIMETYPE_APPLICATION_OCTED_STREAM);
+                response.setStatus(HttpStatus.OK.value());
+                response.setContentLength((int) blobValue.getContentLength());
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-                outputStream.flush();
+                try (blobValue;
+                     OutputStream outputStream = new BufferedOutputStream(response.getOutputStream())) {
+                    blobValue.transferTo(outputStream);
+
+                    outputStream.flush();
+                }
+
+                response.flushBuffer();
             }
-
-            response.flushBuffer();
+            else if (arserResult instanceof ArserResult.NotFound(final URI uri)) {
+                sendResponse(response, HttpStatus.NOT_FOUND, uri.toString());
+            }
+            else if (arserResult instanceof final ArserResult.Forbidden fb) {
+                sendResponse(response, HttpStatus.FORBIDDEN, fb.reason());
+            }
         }
-        else if (arserResult instanceof ArserResult.NotFound(final URI uri)) {
-            sendResponse(response, HttpStatus.NOT_FOUND, uri.toString());
-        }
-        else if (arserResult instanceof final ArserResult.Forbidden fb) {
-            sendResponse(response, HttpStatus.FORBIDDEN, fb.reason());
-        }
-        else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-            sendResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, cause.getMessage());
+        catch (final RepositoryException ex) {
+            sendResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
         }
     }
 
     @RequestMapping(method = RequestMethod.HEAD)
     public ResponseEntity<Void> doExist(final HttpServletRequest httpServletRequest) {
         final ArserWebRequest arserWebRequest = ArserWebRequest.of(httpServletRequest.getRequestURI());
-        final ArserResult arserResult = arser.exist(arserWebRequest.getContextRoot(), arserWebRequest);
 
-        if (arserResult instanceof ArserResult.Exist) {
-            return ResponseEntity.ok().build();
-        }
-        else if (arserResult instanceof final ArserResult.Forbidden fb) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).header("REASON", fb.reason()).build();
-        }
-        else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).header("FAILIURE", cause.getMessage()).build();
-        }
+        try {
+            final ArserResult arserResult = arser.exist(arserWebRequest.getContextRoot(), arserWebRequest);
 
-        return ResponseEntity.notFound().build();
+            if (arserResult instanceof ArserResult.Exist) {
+                return ResponseEntity.ok().build();
+            }
+            else if (arserResult instanceof final ArserResult.Forbidden fb) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).header("REASON", fb.reason()).build();
+            }
+            else {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        catch (final RepositoryException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).header("FAILIURE", ex.getMessage()).build();
+        }
     }
 
     @PutMapping
@@ -125,15 +133,13 @@ public class ArserRestController {
             else if (arserResult instanceof final ArserResult.Forbidden fb) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(fb.reason());
             }
-            else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cause.getMessage());
+            else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
         }
-        catch (final Exception ex) {
+        catch (final RepositoryException | IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
     @ExceptionHandler(Exception.class)

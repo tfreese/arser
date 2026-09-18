@@ -12,6 +12,7 @@ import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.FileBlobValue;
 import de.freese.arser.repository.AbstractRepository;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.RepositoryException;
 import de.freese.arser.repository.decorator.LoggingRepositoryDecorator;
 
 /**
@@ -97,7 +98,7 @@ public final class FileRepository extends AbstractRepository {
             return new ArserResult.Upload(Files.size(path));
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 

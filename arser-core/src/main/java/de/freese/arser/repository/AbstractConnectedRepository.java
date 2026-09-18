@@ -44,7 +44,7 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
             return new ArserResult.NotFound(remoteUri);
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 
@@ -67,7 +67,7 @@ public abstract class AbstractConnectedRepository extends AbstractRepository {
             return new ArserResult.Forbidden(remoteUri, ex.getMessage());
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 

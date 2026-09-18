@@ -18,6 +18,7 @@ import de.freese.arser.api.Arser;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.api.ArserWebRequest;
 import de.freese.arser.blobvalue.BlobValue;
+import de.freese.arser.repository.RepositoryException;
 import de.freese.arser.utils.ArserUtils;
 import de.freese.arser.utils.HttpMethod;
 
@@ -66,7 +67,7 @@ public final class JreHttpServerHandler implements HttpHandler {
                 sendResponse(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, String.format("unknown method: %s from %s", httpMethod, exchange.getRemoteAddress()));
             }
         }
-        catch (final Throwable ex) {
+        catch (final Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
 
             sendResponse(exchange, ArserUtils.HTTP_STATUS_INTERNAL_ERROR, ex.getMessage());
@@ -90,7 +91,7 @@ public final class JreHttpServerHandler implements HttpHandler {
         }
     }
 
-    private void handleGet(final HttpExchange exchange, final ArserWebRequest arserWebRequest) throws Throwable {
+    private void handleGet(final HttpExchange exchange, final ArserWebRequest arserWebRequest) throws Exception {
         final ArserResult arserResult = arser.download(arserWebRequest.getContextRoot(), arserWebRequest);
 
         if (arserResult instanceof ArserResult.Download(final BlobValue blobValue)) {
@@ -114,12 +115,9 @@ public final class JreHttpServerHandler implements HttpHandler {
             LOGGER.error(fb.reason());
             sendResponse(exchange, ArserUtils.HTTP_STATUS_FORBIDDEN, fb.reason());
         }
-        else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-            throw cause;
-        }
     }
 
-    private void handleHead(final HttpExchange exchange, final ArserWebRequest arserWebRequest) throws Throwable {
+    private void handleHead(final HttpExchange exchange, final ArserWebRequest arserWebRequest) throws RepositoryException, IOException {
         final ArserResult arserResult = arser.exist(arserWebRequest.getContextRoot(), arserWebRequest);
 
         if (arserResult instanceof ArserResult.Exist) {
@@ -134,15 +132,12 @@ public final class JreHttpServerHandler implements HttpHandler {
             LOGGER.error(fb.reason());
             sendResponse(exchange, ArserUtils.HTTP_STATUS_FORBIDDEN, fb.reason());
         }
-        else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-            throw cause;
-        }
     }
 
     /**
      * Deploy
      **/
-    private void handlePut(final HttpExchange exchange, final ArserWebRequest arserWebRequest) throws Throwable {
+    private void handlePut(final HttpExchange exchange, final ArserWebRequest arserWebRequest) throws RepositoryException, IOException {
         try (InputStream inputStream = new BufferedInputStream(exchange.getRequestBody())) {
             final ArserResult arserResult = arser.upload(arserWebRequest.getContextRoot(), arserWebRequest, inputStream);
 
@@ -153,9 +148,6 @@ public final class JreHttpServerHandler implements HttpHandler {
             else if (arserResult instanceof final ArserResult.Forbidden fb) {
                 LOGGER.error(fb.reason());
                 sendResponse(exchange, ArserUtils.HTTP_STATUS_FORBIDDEN, fb.reason());
-            }
-            else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-                throw cause;
             }
         }
         catch (final UnsupportedOperationException ex) {

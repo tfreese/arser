@@ -14,9 +14,6 @@ public sealed interface ArserResult {
     record Exist(URI uri) implements ArserResult {
     }
 
-    record Failure(Throwable cause) implements ArserResult {
-    }
-
     record Forbidden(URI uri, String reason) implements ArserResult {
     }
 

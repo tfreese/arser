@@ -12,6 +12,7 @@ import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.blobvalue.FileBlobValue;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.RepositoryException;
 
 /**
  * @author Thomas Freese
@@ -47,8 +48,11 @@ public final class CachingFileRepositoryDecorator extends AbstractRepositoryDeco
                     outputStream.flush();
                 }
             }
+            catch (final RepositoryException ex) {
+                throw ex;
+            }
             catch (final Exception ex) {
-                return new ArserResult.Failure(ex);
+                throw new RepositoryException(ex);
             }
         }
 

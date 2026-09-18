@@ -10,6 +10,7 @@ import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.BlobValue;
 import de.freese.arser.repository.AbstractRepository;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.RepositoryException;
 
 /**
  * @author Thomas Freese
@@ -51,17 +52,19 @@ public final class VirtualRepository extends AbstractRepository {
         BlobValue blobValue = null;
 
         for (final Repository repository : repositories) {
-            final ArserResult arserResult = repository.download(arserRequest);
+            try {
+                final ArserResult arserResult = repository.download(arserRequest);
 
-            if (arserResult instanceof ArserResult.Download(final BlobValue value)) {
-                blobValue = value;
+                if (arserResult instanceof ArserResult.Download(final BlobValue value)) {
+                    blobValue = value;
 
-                getLogger().debug("{} was downloaded from '{}'", arserRequest.getResource(), repository.getName());
+                    getLogger().debug("{} was downloaded from '{}'", arserRequest.getResource(), repository.getName());
 
-                break;
+                    break;
+                }
             }
-            else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-                getLogger().warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
+            catch (final RepositoryException ex) {
+                getLogger().warn("{}: {} - {}", repository.getName(), ex.getCause().getClass().getSimpleName(), ex.getMessage());
             }
         }
 
@@ -77,17 +80,19 @@ public final class VirtualRepository extends AbstractRepository {
         boolean exist = false;
 
         for (final Repository repository : repositories) {
-            final ArserResult arserResult = repository.exist(arserRequest);
+            try {
+                final ArserResult arserResult = repository.exist(arserRequest);
 
-            if (arserResult instanceof ArserResult.Exist) {
-                exist = true;
+                if (arserResult instanceof ArserResult.Exist) {
+                    exist = true;
 
-                getLogger().debug("{} exist in '{}'", arserRequest.getResource(), repository.getName());
+                    getLogger().debug("{} exist in '{}'", arserRequest.getResource(), repository.getName());
 
-                break;
+                    break;
+                }
             }
-            else if (arserResult instanceof ArserResult.Failure(final Throwable cause)) {
-                getLogger().warn("{}: {} - {}", repository.getName(), cause.getClass().getSimpleName(), cause.getMessage());
+            catch (final RepositoryException ex) {
+                getLogger().warn("{}: {} - {}", repository.getName(), ex.getCause().getClass().getSimpleName(), ex.getMessage());
             }
         }
 

@@ -14,6 +14,7 @@ import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.DefaultBlobValue;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.RepositoryException;
 import de.freese.arser.utils.ArserUtils;
 
 /**
@@ -62,7 +63,7 @@ public final class HttpRepositoryRestClient extends AbstractHttpRepository {
                     });
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 
@@ -84,7 +85,7 @@ public final class HttpRepositoryRestClient extends AbstractHttpRepository {
                     );
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 

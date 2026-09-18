@@ -18,6 +18,7 @@ import de.freese.arser.api.ArserRequest;
 import de.freese.arser.api.ArserResult;
 import de.freese.arser.blobvalue.DefaultBlobValue;
 import de.freese.arser.repository.Repository;
+import de.freese.arser.repository.RepositoryException;
 import de.freese.arser.utils.ArserUtils;
 
 /**
@@ -62,7 +63,7 @@ public final class HttpRepositoryWebClient extends AbstractHttpRepository {
                                 return Mono.just(new ArserResult.Download(DefaultBlobValue.of(inputStream)));
                             }
                             catch (final Exception ex) {
-                                return Mono.just(new ArserResult.Failure(ex));
+                                throw new RepositoryException(ex);
                             }
                         }
 
@@ -71,11 +72,17 @@ public final class HttpRepositoryWebClient extends AbstractHttpRepository {
 
                         return Mono.just(new ArserResult.NotFound(remoteUri));
                     })
-                    .doOnError(ArserResult.Failure::new)
+                    // .doOnError(throwable -> {
+                    //     if (throwable instanceof RepositoryException) {
+                    //         throw throwable;
+                    //     }
+                    //
+                    //     throw new RepositoryException(throwable);
+                    // })
                     .block();
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 
@@ -102,7 +109,7 @@ public final class HttpRepositoryWebClient extends AbstractHttpRepository {
                     .orElse(new ArserResult.NotFound(remoteUri));
         }
         catch (final Exception ex) {
-            return new ArserResult.Failure(ex);
+            throw new RepositoryException(ex);
         }
     }
 
