@@ -32,7 +32,13 @@ subprojects {
     }
 
     plugins.withType<JavaPlugin> {
-        val mockitoAgent = configurations.create("mockitoAgent")
+        val mockitoAgent = configurations.create("mockitoAgent") {
+            // Kann als Dependency-Graph aufgelöst werden (Default).
+            isCanBeResolved = true
+
+            // Wird nicht als veröffentlichbares/verbrauchbares Artefakt nach außen exponiert (Default).
+            isCanBeConsumed = false
+        }
 
         dependencies {
             // add("implementation", platform("org.springframework.boot:spring-boot-dependencies:$version_springBoot"))
@@ -41,7 +47,6 @@ subprojects {
             add("testImplementation", "org.junit.jupiter:junit-jupiter")
 
             add("testImplementation", "org.mockito:mockito-junit-jupiter")
-
             mockitoAgent("org.mockito:mockito-core") {
                 isTransitive = false
             }
