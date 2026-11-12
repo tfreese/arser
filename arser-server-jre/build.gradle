@@ -2,7 +2,7 @@ plugins {
     id("application")
 }
 
-val mainClazz = "de.freese.arser.server.JreHttpServerApplication"
+def mainClazz = "de.freese.arser.server.JreHttpServerApplication"
 
 application {
     mainClass = mainClazz

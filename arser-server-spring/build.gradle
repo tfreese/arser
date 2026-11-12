@@ -2,7 +2,7 @@ plugins {
     id("application")
 }
 
-val mainClazz = "de.freese.arser.spring.SpringServerApplication"
+def mainClazz = "de.freese.arser.spring.SpringServerApplication"
 
 application {
     mainClass = mainClazz
@@ -12,7 +12,7 @@ application {
 // Global aus allen Configurations entfernen.
 configurations.configureEach {
     if (name != "mockitoAgent") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+        exclude(group: "org.springframework.boot", module: "spring-boot-starter-logging")
     }
 }
 // configurations {
@@ -52,20 +52,24 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
 }
 
-tasks.named<ProcessResources>("processResources") {
-    val map = mapOf(
-        "project_description" to project.description, "project_artifactId" to project.name, "project_version" to project.version
-    )
+tasks.named("processResources", ProcessResources) {
+    def map = [
+        "project_description": project.description,
+        "project_artifactId" : project.name,
+        "project_version"    : project.version
+    ]
 
     filesMatching("application.yml") {
-        // expand(map)
-        filter(
-            mapOf("tokens" to map), org.apache.tools.ant.filters.ReplaceTokens::class.java
-        )
+        filter { line ->
+            line
+                .replace("@project_description@", map.project_description.toString())
+                .replace("@project_artifactId@", map.project_artifactId.toString())
+                .replace("@project_version@", map.project_version.toString())
+        }
     }
 }
 
-tasks.register<Copy>("copyLibsServerSpring") {
+tasks.register("copyLibsServerSpring", Copy) {
     group = "arser"
     description = "Copy all runtime dependencies to build/libs"
 

@@ -47,11 +47,11 @@ import de.freese.arser.blobstore.memory.MemoryBlobStore;
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class TestBlobStore {
-    private static final String TEST_FILE = "build.gradle.kts";
+    private static final String TEST_FILE = "build.gradle";
     private static DataSource dataSourceDerby;
     private static DataSource dataSourceH2;
     private static DataSource dataSourceHsqldb;
-    
+
     @TempDir(cleanup = CleanupMode.ALWAYS)
     private static Path pathTest;
 
