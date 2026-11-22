@@ -24,4 +24,29 @@
     <GradleCoverageDisabled>false</GradleCoverageDisabled>
     <method v="2" />
   </configuration>
+  <configuration default="false" name="arser-test-project" type="GradleRunConfiguration" factoryName="Gradle">
+    <ExternalSystemSettings>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$/arser-test-project/impl" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="--gradle-user-home=/tmp/.gradle-arser --refresh-dependencies" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value="build" />
+        </list>
+      </option>
+      <option name="vmOptions" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <RunAsTest>false</RunAsTest>
+    <GradleProfilingDisabled>false</GradleProfilingDisabled>
+    <GradleCoverageDisabled>false</GradleCoverageDisabled>
+    <method v="2" />
+  </configuration>
 </component>
