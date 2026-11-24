@@ -54,17 +54,19 @@ dependencies {
 
 tasks.named("processResources", ProcessResources) {
     def map = [
-        "project_description": project.description,
-        "project_artifactId" : project.name,
-        "project_version"    : project.version
+            "project_description": project.description,
+            "project_artifactId" : project.name,
+            "project_version"    : project.version
     ]
+
+    filteringCharset = "UTF-8"
 
     filesMatching("application.yml") {
         filter { line ->
             line
-                .replace("@project_description@", map.project_description.toString())
-                .replace("@project_artifactId@", map.project_artifactId.toString())
-                .replace("@project_version@", map.project_version.toString())
+                    .replace("@project_description@", map.project_description.toString())
+                    .replace("@project_artifactId@", map.project_artifactId.toString())
+                    .replace("@project_version@", map.project_version.toString())
         }
     }
 }
